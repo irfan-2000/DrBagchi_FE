@@ -1,0 +1,61 @@
+<div class="h-screen flex items-center justify-center bg-gray-50 px-4">
+  <div class="bg-white rounded-lg shadow-lg p-6 md:p-10 w-full max-w-md">
+    
+    <!-- Heading -->
+    <h2 class="text-3xl font-bold text-indigo-700 mb-6 text-center">Student Login</h2>
+
+    <!-- Login Form -->
+    <form #loginForm="ngForm" (ngSubmit)="ValidateStudent()" novalidate>
+      
+      <!-- Student ID / Email -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Student ID / Email</label>
+        <input 
+          type="text" 
+          name="studentId" 
+          [(ngModel)]="credentials.studentId"
+          class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          required 
+          #studentId="ngModel">
+        
+      </div>
+
+      <!-- Password -->
+      <div class="mb-4">
+        <label class="block font-semibold mb-1">Password</label>
+        <input 
+          type="password" 
+          name="password" 
+          [(ngModel)]="credentials.password"
+          class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          required minlength="6"
+          #password="ngModel">
+        
+        
+      </div>
+
+      <!-- Submit Button -->
+        <div class="flex justify-center mt-1 mb-2">
+      <span  class="text-red-500 text-xl"> {{ErrorMessage}}</span>
+      </div>
+
+       <div class="md:col-span-2">
+  <button 
+    type="submit" 
+    class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow 
+           hover:bg-indigo-700 transition-transform transform active:scale-95 focus:outline-none"
+  >
+    Login
+  </button>
+</div>
+
+
+      <!-- Extra Links -->
+      <div class="mt-4 text-center text-sm">
+        <a href="#" class="text-indigo-600 hover:underline">Forgot Password?</a>
+      </div>
+    </form>
+  </div>
+
+
+    </div>

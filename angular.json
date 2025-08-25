@@ -37,7 +37,9 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+               "node_modules/ngx-toastr/toastr.css"
+
             ],
             "scripts": [],
             "server": "src/main.server.ts",
@@ -107,5 +109,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "208a944a-6fdd-4356-92ec-414090e48d74"
   }
 }
