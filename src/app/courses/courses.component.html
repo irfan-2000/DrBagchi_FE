@@ -1,0 +1,148 @@
+<!-- available-courses.component.html -->
+<div class="space-y-6">
+  <!-- Header + controls -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h1 class="text-2xl font-bold text-[#303F9F]">Available Courses</h1>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Search -->
+      <div class="relative">
+        <input
+          type="text"
+          class="h-10 w-56 sm:w-64 rounded-lg border border-[#C5CAE9] bg-white pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
+          placeholder="Search courses..."
+          (input)="onSearch($event)"
+        />
+        <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#3F51B5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-3.5-3.5"></path>
+        </svg>
+      </div>
+
+      <!-- Category -->
+      <select
+        class="h-10 rounded-lg border border-[#C5CAE9] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
+        (change)="onCategoryChange($event)"
+      >
+        <option>All Categories</option>
+        <option>Science</option>
+        <option>Math</option>
+        <option>Languages</option>
+      </select>
+
+      <!-- Level -->
+      <select
+        class="h-10 rounded-lg border border-[#C5CAE9] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
+        (change)="onLevelChange($event)"
+      >
+        <option>All Levels</option>
+        <option>Beginner</option>
+        <option>Intermediate</option>
+        <option>Advanced</option>
+      </select>
+
+      <!-- Sort -->
+      <select
+        class="h-10 rounded-lg border border-[#C5CAE9] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
+        (change)="onSortChange($event)"
+      >
+        <option value="popular">Sort: Popular</option>
+        <option value="rating">Sort: Rating</option>
+        <option value="new">Sort: New</option>
+        <option value="priceAsc">Sort: Price (Low→High)</option>
+        <option value="priceDesc">Sort: Price (High→Low)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Results count -->
+  <div class="text-sm text-gray-600" *ngIf="viewCourses.length">
+    Showing {{ viewCourses.length }} course(s)
+  </div>
+
+  <!-- Empty state -->
+  <div
+    *ngIf="!viewCourses.length"
+    class="rounded-xl border border-dashed border-[#C5CAE9] bg-white p-8 text-center text-sm text-gray-600"
+  >
+    No courses match the current filters. Try adjusting the search or filters.
+  </div>
+
+  <!-- Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+    <!-- Card -->
+    <a
+      *ngFor="let c of viewCourses"
+      class="group rounded-xl overflow-hidden bg-white border border-transparent shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] transition focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
+      [routerLink]="['/courses', c.id]"
+      [attr.aria-label]="'Open details for ' + c.title"
+    >
+      <!-- Media -->
+      <div class="relative aspect-[16/9] bg-[#EBF2FF]">
+        <img [src]="c.imageUrl" alt="" class="absolute inset-0 w-full h-full object-cover" />
+        <span
+          class="absolute top-3 left-3 bg-white/90 text-[#3F51B5] text-xs font-medium px-2 py-0.5 rounded">
+          {{ c.category }}
+        </span>
+        <span
+          *ngIf="c.badge"
+          class="absolute top-3 right-3 bg-green-600 text-white text-xs font-semibold px-2 py-0.5 rounded">
+          {{ c.badge }}
+        </span>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 flex flex-col min-h-[220px]">
+        <h2 class="text-base font-semibold text-gray-900 group-hover:text-[#303F9F] line-clamp-2">
+          {{ c.title }}
+        </h2>
+
+        <div class="mt-1 text-xs text-gray-600 flex items-center gap-2">
+          <span class="truncate">{{ c.instructor }}</span>
+          <span>•</span>
+          <span>{{ c.level }}</span>
+          <span>•</span>
+          <span>{{ c.duration }}</span>
+        </div>
+
+        <p class="mt-2 text-sm text-gray-700 line-clamp-3">
+          {{ c.shortDescription }}
+        </p>
+
+        <!-- Price + rating pinned to bottom -->
+        <div class="mt-auto pt-3 flex items-center justify-between">
+          <div class="flex items-baseline gap-2">
+            <span class="text-[#3F51B5] font-bold">₹{{ c.price }}</span>
+            <span *ngIf="c.originalPrice" class="text-xs text-gray-500 line-through">₹{{ c.originalPrice }}</span>
+          </div>
+
+          <div class="flex items-center gap-1 text-xs text-gray-700">
+            <svg class="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.463c.969 0 1.371 1.24.588 1.81l-2.802 2.035a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.802-2.035a1 1 0 00-1.176 0L7.614 16.28c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L3.98 8.72c-.783-.57-.38-1.81.588-1.81h3.463a1 1 0 00.95-.69l1.07-3.292z"/>
+            </svg>
+            <span>{{ c.rating }}</span>
+            <span class="text-gray-400">({{ c.ratingsCount }})</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer actions -->
+      <div class="px-4 pb-4">
+        <button
+          class="w-full h-10 rounded-lg bg-[#3F51B5] text-white text-sm font-medium hover:bg-[#303F9F] transition">
+          View Details
+        </button>
+      </div>
+    </a>
+  </div>
+
+  <!-- Pagination (optional placeholder) -->
+  <div class="flex items-center justify-center gap-2 pt-2" *ngIf="viewCourses.length">
+    <button class="h-9 px-3 rounded-lg border border-[#C5CAE9] bg-white text-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-[#3F51B5]">
+      Previous
+    </button>
+    <button class="h-9 px-3 rounded-lg bg-[#3F51B5] text-white text-sm hover:bg-[#303F9F] focus:outline-none focus:ring-2 focus:ring-[#3F51B5]">
+      Next
+    </button>
+  </div>
+</div>

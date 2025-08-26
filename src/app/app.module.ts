@@ -13,6 +13,10 @@ import { FooterComponent } from './footer/footer.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DashbaordComponent } from './dashbaord/dashbaord.component';
+import { LayoutInsideComponent } from './layout-inside/layout-inside.component';
+import { CoursesComponent } from './courses/courses.component';
+import { CourseDetailsComponent } from './course-details/course-details.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +26,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     LoginComponent,
     ForgotpasswordComponent,
     HeaderComponent,
-    FooterComponent 
+    FooterComponent,
+    DashbaordComponent,
+    LayoutInsideComponent,
+    CoursesComponent,
+    CourseDetailsComponent 
   ],
   imports: [
     BrowserModule,
