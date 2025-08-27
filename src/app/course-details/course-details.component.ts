@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CoursesService } from '../courses.service';
 
 @Component({
   selector: 'app-course-details',
@@ -10,10 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class CourseDetailsComponent 
 {
  
-   courseId: string | null = null;
-
-  // Loose any typing per request
-  course: any = null;
+  
 
   // Pricing state
   totals: any = { basePrice: 0, discount: 0, finalPrice: 0 };
@@ -25,15 +23,29 @@ export class CourseDetailsComponent
   // UI state for accordion: map "ci-li" -> boolean
   openMap = new Map<string, boolean>();
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
 
-  ngOnInit(): void {
-    this.courseId = this.route.snapshot.paramMap.get('id');
-    // Load mock data for demo; replace with API call later
-    this.course = this.getMockCourseById(this.courseId);
-    const base = Number(this.course?.price || 0);
-    this.totals = { basePrice: base, discount: 0, finalPrice: base };
+  CourseId:any = [];
+  Course:any = [];
+
+  constructor(private route: ActivatedRoute, private router: Router,private Courses:CoursesService)
+   {
+ this.route.queryParams.subscribe(params => {
+     this.CourseId = params['id']; 
+  }); 
+ 
+ 
+  if(this.CourseId)
+  {
+    this.getCourseById(this.CourseId);
   }
+
+}
+
+  ngOnInit(): void 
+  {
+    
+    // Load mock data for demo; replace with API call later
+   }
 
   // Toggle lesson open/close
   toggleLesson(ci: number, li: number) {
@@ -96,7 +108,8 @@ export class CourseDetailsComponent
         price: 1499,
         longDescription:
           'Master the core concepts of atoms, molecules, bonding, and reactions with simple labs and problem sets.',
-        chapters: [
+        chapters:
+         [
           {
             title: 'Atoms & Molecules',
             estimated: '2h 30m',
@@ -151,4 +164,38 @@ export class CourseDetailsComponent
 
     return courses.find(c => c.id === id) || courses;
   }
+
+    parsedDescription :any = [];
+  
+getCourseById(id:any)
+{
+    try 
+     {
+        this. Courses.GetCourseById(id ).subscribe({
+          next: (response: any) =>
+        {
+                    this.Course  = response.result; 
+
+      this.Course.Requirements = JSON.parse(this.Course.Requirements );
+
+       this.parsedDescription = JSON.parse(this.Course.Description);
+ debugger
+          },
+          error: (error: any) => {             
+          },
+        });
+      } catch (error: any) {
+        console.error('API error:', error);
+      }
+
 }
+ 
+    
+    
+
+}
+
+
+
+
+ 
