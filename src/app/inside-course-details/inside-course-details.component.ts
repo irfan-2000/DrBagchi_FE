@@ -1,25 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CoursesService } from '../courses.service';
-
 @Component({
-  selector: 'app-course-details',
+  selector: 'app-inside-course-details',
   standalone: false,
-  templateUrl: './course-details.component.html',
-  styleUrl: './course-details.component.css'
+  templateUrl: './inside-course-details.component.html',
+  styleUrl: './inside-course-details.component.css'
 })
-export class CourseDetailsComponent 
-{
- 
+export class InsideCourseDetailsComponent {
   
-
   // Pricing state
   totals: any = { basePrice: 0, discount: 0, finalPrice: 0 };
   couponCode = '';
   couponValid = false;
   couponMessage = '';
   paymentMessage = '';
-
+  selectedPaymentOption:any = ''
+  discountedPrice:any
+  isCouponApplying:any
   // UI state for accordion: map "ci-li" -> boolean
   openMap = new Map<string, boolean>();
 
@@ -40,7 +38,8 @@ export class CourseDetailsComponent
     this.getCourseById(this.CourseId);
     this.getPricing();
   }
- }
+
+}
 
   ngOnInit(): void 
   {
@@ -88,12 +87,7 @@ export class CourseDetailsComponent
     this.totals = { basePrice: base, discount, finalPrice };
   }
 
-  payNow() {
-    // Demo payment action
-    this.paymentMessage = `Proceeding to payment for ₹${this.totals.finalPrice}. (Demo)`;
-    // Example: navigate to /checkout with params
-    // this.router.navigate(['/checkout'], { queryParams: { courseId: this.courseId, total: this.totals.finalPrice } });
-  }
+   
 
   // Mock data for demo
   getMockCourseById(id: string | null): any {
@@ -171,28 +165,49 @@ export class CourseDetailsComponent
     parsedDescription :any = [];
 
 
-    
- getCourseById(id:any)
-{
-    try 
-     {
-        this. Courses.GetCourseById(id ).subscribe({
-          next: (response: any) =>
-        {
-                    this.Course  = response.result; 
+  getCourseById(id: any) {
+  try {
+    this.Courses.GetCourseById_admin(id).subscribe({
+      next: (response: any) => {
+        if (!response) {
+          console.warn('Empty response received');
+          return;
+        }
 
-      this.Course.Requirements = JSON.parse(this.Course.Requirements );
+        // Extract both parts
+        const item1 = response.Item1 || {};
+        const item2 = response.Item2 || {};
 
-       this.parsedDescription = JSON.parse(this.Course.Description);
-  
-          },
-          error: (error: any) => {             
-          },
-        });
-      } catch (error: any) {
-        console.error('API error:', error);
-      }
- }
+        // Merge key fields from Item2 into Item1 if missing
+        this.Course = {
+          ...item1,
+          ShortDescription: item2.ShortDescription || item1.ShortDescription || '',
+          Overview: item2.Overview   || '',
+          Duration: item2.Duration || '',
+          Level: item2.Level || item1.CourseLevel || '',
+          Highlights: item2.Highlights || item1.Highlights || [],
+          Requirements: item1.Requirements || [],
+          Objectives: item1.Objectives || [],
+          Batches: item1.Batches || [],
+          Installments: item1.Installments || [],
+        };
+ 
+        // Optional: Store separately if needed
+        this.parsedDescription = item2;
+
+        console.log('Parsed Course:', this.Course);
+        console.log(this.Course?.Highlights);
+      },
+      error: (err) => {
+        console.error('API Error:', err);
+      },
+    });
+  } catch (err) {
+    console.error('Unexpected Error:', err);
+  }
+}
+
+
 
 
 Pricing:any = [];
@@ -232,12 +247,37 @@ getPricing()
   }
 }
 
-    
-    
+  safeParse(value: any, defaultValue: any) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return defaultValue;
+  }
+}
 
+formatTime(time: string): string {
+  if (!time) return '';
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes);
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 
+payNow(option: any) 
+{
+      this.paymentMessage = `Proceeding to payment for ₹${this.totals.finalPrice}. (Demo)`;
+
+  if (option === 'full') {
+    // Process full payment of discountedPrice or Course.Price
+  } else {
+    // Find installment by number and process that amount payment
+    const installment = this.Course.Installments.find((inst:any)=> inst.InstallmentNumber === option);
+    if (installment) {
+      // Process amount: installment.Amount (apply discounts if any)
+    }
+  }
+}
 
 
- 
+}

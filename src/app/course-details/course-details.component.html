@@ -20,14 +20,7 @@
         <!-- <span class="mx-2">•</span>
         <span>{{ course?.duration }}</span> -->
       </div>
-
-      <div class="mt-2 flex items-center gap-2 text-sm">
-        <div class="flex items-center gap-1 text-amber-500">
-          <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.463c.969 0 1.371 1.24.588 1.81l-2.802 2.035a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.802-2.035a1 1 0 00-1.176 0L7.614 16.28c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L3.98 8.72c-.783-.57-.38-1.81.588-1.81h3.463a1 1 0 00.95-.69l1.07-3.292z"/>
-          </svg>
-         </div>
-       </div>
+ 
 
       <!-- Course Description Section -->
 <div class="mt-6 bg-gray-50 rounded-xl p-4 sm:p-6 shadow-inner">
@@ -71,8 +64,9 @@
     <!-- Right: price + coupon + pay -->
     <aside class="bg-white rounded-xl shadow p-4 sm:p-6 h-max">
       <div class="flex items-baseline gap-3">
-        <div class="text-2xl font-bold text-[#3F51B5]">₹{{ totals?.finalPrice }}</div>
-        <div *ngIf="totals?.discount > 0" class="text-sm text-gray-500 line-through">₹{{ totals?.basePrice }}</div>
+        <div class="text-2xl font-bold text-[#3F51B5]">₹{{  Pricing?.BasePrice }}  
+          <span *ngIf="Course.OldPrice" class="text-xs text-gray-500 line-through">₹{{ Course.OldPrice }}</span></div>
+        <div *ngIf="totals?.discount > 0" class="text-sm text-gray-500 line-through">₹{{  Pricing?.BasePrice }}</div>
       </div>
 
       <div class="mt-1 text-xs text-gray-600">
@@ -90,7 +84,7 @@
             class="flex-1 h-10 rounded-lg border border-[#C5CAE9] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
           />
           <button
-            (click)="applyCoupon()"
+            (click)="getPricing()"
             class="h-10 rounded-lg bg-[#3F51B5] text-white text-sm font-medium px-4 hover:bg-[#303F9F] transition"
           >
             Apply
@@ -108,17 +102,18 @@
         <div class="mt-4 rounded-lg bg-[#EBF2FF] p-3 text-sm">
           <div class="flex justify-between">
             <span>Base price</span>
-            <span>₹{{ totals?.basePrice }}</span>
+            <span>₹{{ Pricing?.BasePrice }}</span>
           </div>
-          <div class="flex justify-between" *ngIf="totals?.discount > 0">
+          <div class="flex justify-between" *ngIf="Pricing?.discountValue > 0">
             <span>Discount</span>
-            <span class="text-green-700">- ₹{{ totals?.discount }}</span>
+            <span class="text-green-700">- ₹{{ Pricing?.discountValue }}</span>
           </div>
           <div class="mt-2 pt-2 border-t border-[#C5CAE9] flex justify-between font-semibold">
             <span>Total</span>
-            <span>₹{{ totals?.finalPrice }}</span>
+            <span>₹{{ Pricing?.Total }}</span>
           </div>
         </div>
+
       </div>
 
       <button

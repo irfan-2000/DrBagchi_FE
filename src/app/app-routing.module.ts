@@ -7,18 +7,32 @@ import { ForgotpasswordComponent } from './forgotpassword/forgotpassword.compone
 import { DashbaordComponent } from './dashbaord/dashbaord.component';
 import { CoursesComponent } from './courses/courses.component';
 import { CourseDetailsComponent } from './course-details/course-details.component';
+import { InsideLayoutComponent } from './layouts/inside-layout/inside-layout.component';
+import { OutsideLayoutComponent } from './layouts/outside-layout/outside-layout.component';
+import { LayoutInsideComponent } from './layout-inside/layout-inside.component';
 
 const routes: Routes = [
-
-    { path: '', component: HomeComponent },
-    { path: 'signup', component: SignUpComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'forgot-password', component: ForgotpasswordComponent },
-    {path:'dashboard',component:DashbaordComponent}    ,
-    {path:'courses',component:CoursesComponent},
-    {path:'course-details',component:CourseDetailsComponent}
-
+  {
+    path: '',
+    component: OutsideLayoutComponent,
+    children: [
+      { path: '', component: HomeComponent },
+      { path: 'courses', component: CoursesComponent },
+      { path: 'course/:id', component: CourseDetailsComponent },
+      { path: 'login', component: LoginComponent },
+      { path: 'signup', component: SignUpComponent },
+      { path: 'forgot-password', component: ForgotpasswordComponent },
+    ]
+  },
+    {
+    path: 'app',
+    loadChildren: () => import('./pages/inside/inside.module').then(m => m.InsideModule)
+    // This loads the above configuration
+  },
+  { path: '**', redirectTo: '' }
 ];
+
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { LoginSignUpService } from '../login-sign-up.service';
  import { ToastrService } from 'ngx-toastr';
-
+import { Router } from '@angular/router';
+ 
 @Component({
   selector: 'app-login',
   standalone: false,
@@ -15,7 +16,7 @@ export class LoginComponent {
     password: '123'
   };
  
-constructor(private  loginsignupservice:LoginSignUpService,private toastr: ToastrService, )
+constructor(private  loginsignupservice:LoginSignUpService,private toastr: ToastrService,private router:Router )
 {
 
 }
@@ -50,9 +51,11 @@ constructor(private  loginsignupservice:LoginSignUpService,private toastr: Toast
       
       if (response.status == 200) 
         {
-            this.showToast('success', 'Welcome!', 'Success');
-              window.localStorage.setItem("token",response.result.token);
-          
+          debugger
+        
+           this.showToast('success', 'Welcome!', 'Success');
+           window.localStorage.setItem("token",response.result.token);
+          this.router.navigate(['/app/dashboard']);
        }
        else if(response.status == 401)
         {

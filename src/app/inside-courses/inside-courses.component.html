@@ -1,0 +1,106 @@
+<div class="max-w-7xl mx-auto px-6 py-10 space-y-8">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h1 class="text-2xl font-bold text-[#3F51B5] tracking-tight">
+      Available Courses
+    </h1>
+
+    <!-- Search (optional future use) -->
+    <!--
+    <div class="flex flex-wrap gap-3">
+      <input
+        type="text"
+        placeholder="Search courses..."
+        class="h-9 w-56 rounded-lg border border-indigo-200 bg-white/60 px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
+        (input)="onSearch($event)"
+      />
+    </div>
+    -->
+  </div>
+
+  <!-- Results Count -->
+  <div *ngIf="AvailableCourses.length" class="text-gray-600 text-sm">
+    Showing {{ AvailableCourses.length }} course(s)
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!AvailableCourses.length"
+    class="rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/50 p-8 text-center text-gray-600"
+  >
+    No courses found. Try adjusting the filters or search query.
+  </div>
+
+  <!-- Courses Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+    <div
+      *ngFor="let c of AvailableCourses"
+      class="group rounded-xl overflow-hidden bg-white border border-indigo-100 shadow-md shadow-indigo-100/40 hover:shadow-lg hover:shadow-indigo-200/50 hover:border-indigo-300 transition-all duration-300 h-[380px] flex flex-col"
+    >
+      <!-- Course Image -->
+      <div class="relative aspect-[16/9] overflow-hidden">
+        <img
+          [src]="c.CourseImage"
+          alt="{{ c.CourseName }} image"
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <span
+          class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[#3F51B5] text-[11px] font-semibold px-2 py-0.5 rounded shadow-sm"
+        >
+          {{ c.CourseLevel || 'Beginner' }}
+        </span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="p-4 flex flex-col flex-grow">
+        <h2
+          class="text-base font-semibold text-gray-900 leading-tight group-hover:text-[#303F9F] transition-colors line-clamp-2"
+        >
+          {{ c.CourseName }}
+        </h2>
+
+        <p class="mt-1 text-xs text-gray-500">Instructor: Dr. Bagchi</p>
+
+        <p class="mt-2 text-sm text-gray-700 line-clamp-2">
+          {{ c.Description?.ShortDescription || 'No description provided.' }}
+        </p>
+
+        <!-- Price -->
+        <div class="mt-auto pt-3 flex items-center justify-between">
+          <div class="flex items-baseline gap-2">
+            <span class="text-[#3F51B5] font-bold text-base">₹{{ c.Price }}</span>
+            <span *ngIf="c.OldPrice" class="text-xs text-gray-400 line-through">
+              ₹{{ c.OldPrice }}
+            </span>
+          </div>
+          <!-- <div class="text-yellow-500 text-xs">★★★★☆</div> -->
+        </div>
+      </div>
+
+      <!-- Footer Button -->
+      <div class="px-4 pb-4">
+        <button
+          (click)="goToCourseDetails(c)"
+          class="w-full h-9 rounded-lg bg-[#3F51B5] text-white text-xs font-medium hover:bg-[#303F9F] hover:translate-y-[-2px] active:translate-y-[0px] transition-transform duration-200 cursor-pointer"
+        >
+          View Course
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <!-- <div class="flex justify-center gap-4 pt-8" *ngIf="AvailableCourses.length > 8">
+    <button
+      class="h-9 px-4 rounded-lg border border-indigo-200 bg-white text-[#3F51B5] text-sm hover:bg-indigo-50 transition"
+    >
+      Previous
+    </button>
+    <button
+      class="h-9 px-4 rounded-lg bg-[#3F51B5] text-white text-sm hover:bg-[#303F9F] transition"
+    >
+      Next
+    </button>
+  </div> -->
+</div>

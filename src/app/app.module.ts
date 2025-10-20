@@ -17,6 +17,11 @@ import { DashbaordComponent } from './dashbaord/dashbaord.component';
 import { LayoutInsideComponent } from './layout-inside/layout-inside.component';
 import { CoursesComponent } from './courses/courses.component';
 import { CourseDetailsComponent } from './course-details/course-details.component';
+import { OutsideLayoutComponent } from './layouts/outside-layout/outside-layout.component';
+import { InsideLayoutComponent } from './layouts/inside-layout/inside-layout.component';
+import { InsideCoursesComponent } from './inside-courses/inside-courses.component';
+import { InsideCourseDetailsComponent } from './inside-course-details/inside-course-details.component';
+import { MyCoursesComponent } from './my-courses/my-courses.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +35,12 @@ import { CourseDetailsComponent } from './course-details/course-details.componen
     DashbaordComponent,
     LayoutInsideComponent,
     CoursesComponent,
-    CourseDetailsComponent 
+    CourseDetailsComponent,
+    OutsideLayoutComponent,
+    InsideLayoutComponent,
+    InsideCoursesComponent,
+    InsideCourseDetailsComponent,
+    MyCoursesComponent 
   ],
   imports: [
     BrowserModule,

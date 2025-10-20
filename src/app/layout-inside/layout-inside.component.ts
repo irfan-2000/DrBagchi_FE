@@ -10,14 +10,19 @@ import { debug } from 'console';
 export class LayoutInsideComponent 
 {
 sidebarOpen = false;
-
+ 
   menu = [
-    { name: 'Dashboard', icon: 'home', route: '/dashboard' },
-    { name: 'Courses', icon: 'book', route: '/courses' },
-    { name: 'Students', icon: 'users', route: '/students' },
+    { name: 'Dashboard', icon: 'home', route: '/app/dashboard' },
+    { name: 'Courses', icon: 'book', route: '/app/courses' },
+        { name: 'My Courses', icon: 'book', route: '/app/mycourses' },
+    { name: 'special classes', icon: 'users', route: '/students' },
     { name: 'Payments', icon: 'credit-card', route: '/payments' },
     { name: 'Settings', icon: 'cog', route: '/settings' }
   ];
+
+
+
+
 
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen;
@@ -35,6 +40,9 @@ ngOnInit() {
   document.addEventListener('click', () => {
     this.dropdownOpen = false;
   });
+
+      console.log('LayoutInsideComponent: ngOnInit');
+
 }
 
 logout() {
@@ -44,7 +52,18 @@ logout() {
 
 
 
+ constructor() {
+    console.log('LayoutInsideComponent: constructor');
+  }
+ 
 
+  ngAfterViewInit(): void {
+    console.log('LayoutInsideComponent: ngAfterViewInit');
+  }
+
+  ngOnDestroy(): void {
+    console.log('LayoutInsideComponent: ngOnDestroy');
+  }
 
 
 

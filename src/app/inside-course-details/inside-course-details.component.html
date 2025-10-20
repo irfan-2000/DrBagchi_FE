@@ -1,0 +1,201 @@
+<!-- course-details.component.html -->
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-10">
+
+  <!-- Header / Hero -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
+    <!-- Left panel: course meta and description -->
+    <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col">
+      <!-- Cover Image -->
+      <div class="aspect-[16/9] rounded-xl overflow-hidden bg-indigo-50">
+        <img [src]="Course?.ImagewithPath" alt="{{Course?.CourseName}} cover"
+             class="object-cover w-full h-full transition-transform duration-300 hover:scale-105" />
+      </div>
+
+      <h1 class="mt-6 text-2xl md:text-3xl font-extrabold text-indigo-900">
+        {{ Course?.CourseName }}
+      </h1>
+
+      <!-- Instructor & Level -->
+      <div class="mt-2 flex items-center gap-3 text-sm text-gray-700">
+        <span class="font-semibold">{{Course?.Teacher}}</span>
+        <span>·</span>
+        <span>{{ Course?.CourseLevel }}</span>
+      </div>
+      <div *ngIf="parsedDescription?.duration" class="mt-1 text-xs text-gray-600">
+        Duration: <span class="font-medium">{{parsedDescription?.duration}}</span>
+      </div>
+
+      <!-- Description Section -->
+      <div class="mt-6 bg-gray-50 rounded-xl p-5 shadow-sm">
+        <h2 class="text-xl font-semibold text-indigo-800 mb-2">Course Description</h2>
+        <p class="text-gray-800 text-base mb-2 line-clamp-4">
+          {{ Course?.ShortDescription || 'No short description available.' }}
+        </p>
+        <p class="text-gray-600 mb-2">
+          {{ Course?.Overview || 'Detailed overview coming soon.' }}
+        </p>
+      </div>
+
+      <!-- Highlights, Requirements, Objectives -->
+      <div class="mt-6 grid md:grid-cols-3 gap-6">
+        <!-- Highlights -->
+        <div *ngIf="Course?.Highlights">
+          <h3 class="text-lg font-semibold text-indigo-800 mb-2">Highlights</h3>
+          <ul class="space-y-2">
+            <li *ngFor="let h of Course.Highlights" class="flex gap-2 items-center text-gray-700">
+              <span class="text-green-600">✔</span> <span>{{ h }}</span>
+            </li>
+          </ul>
+        </div>
+        <!-- Requirements -->
+        <div *ngIf="Course?.Requirements?.length">
+          <h3 class="text-lg font-semibold text-indigo-800 mb-2">Requirements</h3>
+          <ul class="space-y-2">
+            <li *ngFor="let r of Course.Requirements" class="text-gray-700">{{ r }}</li>
+          </ul>
+        </div>
+        <!-- Objectives -->
+        <div *ngIf="Course?.Objectives?.length">
+          <h3 class="text-lg font-semibold text-indigo-800 mb-2">Objectives</h3>
+          <ul class="space-y-2">
+            <li *ngFor="let o of Course.Objectives" class="text-gray-700">{{ o }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Batches Info -->
+      <div class="mt-8">
+        <h3 class="text-lg font-semibold text-indigo-800 mb-2">Upcoming Batches</h3>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <div *ngFor="let b of Course.Batches" class="bg-indigo-50 rounded-lg px-4 py-3 text-sm">
+            <div class="font-semibold">{{ b.batchName }}</div>
+            <div>🗓 {{ b.startDate | date:'MMM dd, yyyy' }} – {{ b.endDate | date:'MMM dd, yyyy' }}</div>
+           <div>⏰ {{ formatTime(b.startTime) }} – {{ formatTime(b.endTime) }}</div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right panel: pricing, coupon, payment -->
+   <aside class="bg-white rounded-2xl shadow-lg p-6 h-max space-y-6">
+
+  <!-- Price Display -->
+  <div class="flex items-end gap-3">
+    <span class="text-3xl font-bold text-indigo-700">
+      ₹{{ discountedPrice || Course?.Price }}
+    </span>
+    <span *ngIf="Course?.OldPrice"
+          class="text-base text-gray-500 line-through">₹{{ Course?.OldPrice }}</span>
+  </div>
+
+  <!-- Payment Type Info -->
+  <div *ngIf="Course?.PaymentType === 'installments'" class="mt-1 text-xs text-gray-600">
+    Payable in <span class="font-bold">{{ Course.Installments.length }}</span> installments
+  </div>
+
+  <!-- Coupon Code -->
+  <div>
+    <label class="block text-sm font-medium text-gray-800 mb-1">Coup on code</label>
+    <div class="flex items-center gap-2">
+      <input
+        type="text"
+        [(ngModel)]="couponCode"
+        placeholder="Enter coupon (e.g., FLAT100)"
+        class="flex-1 h-10 rounded-lg border border-indigo-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <button
+        (click)="applyCoupon()"
+        [disabled]="isCouponApplying"
+        class="h-10 rounded-lg bg-indigo-600 text-white text-sm font-medium px-4 hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Apply
+      </button>
+    </div>
+    <div *ngIf="couponMessage" [ngClass]="{ 'text-green-700': couponValid, 'text-red-700': !couponValid }" class="mt-2 text-sm">
+      {{ couponMessage }}
+    </div>
+  </div>
+
+  <!-- Payment Option Selector (Full or Installment) -->
+<div *ngIf="Course?.PaymentType === 'installments' || Course?.PaymentType === 'both'" class="mt-4">
+  <label class="block font-medium text-gray-800 mb-2">Select Payment Option</label>
+  <select [(ngModel)]="selectedPaymentOption" class="w-full rounded-lg border border-indigo-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+       <option value="" disabled selected>Select a payment option</option>
+
+    <option [value]="'full'">Full Payment (₹{{ discountedPrice || Course?.Price }})</option>
+    <option *ngFor="let inst of Course.Installments" [value]="inst.InstallmentNumber">
+      Installment {{ inst.InstallmentNumber }} - ₹{{ inst.Amount }} (Due in {{ inst.DueDaysFromStart }} days)
+    </option>
+  </select>
+</div>
+select batch also
+
+  <!-- Installments Breakdown -->
+  <table *ngIf="Course?.Installments?.length" class="w-full text-sm mt-3 rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-900">
+    <thead>
+      <tr>
+        <th class="px-2 py-1 font-semibold">Installment</th>
+        <th class="px-2 py-1 font-semibold">Amount</th>
+        <th class="px-2 py-1 font-semibold">Due</th>
+        <th class="px-2 py-1 font-semibold">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let inst of Course.Installments">
+        <td class="px-2 py-1">#{{ inst.InstallmentNumber }}</td>
+        <td class="px-2 py-1">₹{{ inst.Amount }}</td>
+        <td class="px-2 py-1">{{ inst.DueDaysFromStart }} days</td>
+        <td class="px-2 py-1">{{ inst.Remarks }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Enroll/Pay Button -->
+  <button
+    (click)="payNow(selectedPaymentOption)"
+    class="w-full mt-3 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition"
+  >
+    Pay Now
+  </button>
+
+</aside>
+
+  </div>
+
+  <!-- Course Curriculum -->
+  <section class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="text-xl font-bold text-indigo-900 mb-2">Course Content</h2>
+    <p class="text-sm text-gray-600 mb-4">Chapters, lessons, and topics.</p>
+    <div class="mt-4 divide-y divide-indigo-50">
+      <div *ngFor="let ch of Course?.chapters; let ci = index" class="py-4">
+        <div class="flex items-center justify-between">
+          <div class="font-semibold text-gray-900">
+            {{ ch.title }}
+            <span class="text-xs text-gray-500 ml-2">({{ ch.lessons?.length }} lessons)</span>
+          </div>
+        </div>
+        <div class="mt-2 rounded-lg border border-indigo-50 divide-y">
+          <div *ngFor="let ls of ch.lessons; let li = index" class="bg-white">
+            <button (click)="toggleLesson(ci, li)"
+                    class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
+              <span class="font-medium text-gray-900">{{ ls.title }}</span>
+              <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
+                   [ngClass]="{ 'rotate-180': isLessonOpen(ci, li) }"
+                   fill="none" stroke="currentColor" stroke-width="2"
+                   viewBox="0 0 24 24">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div *ngIf="isLessonOpen(ci, li)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
+              <ul class="list-disc pl-5 space-y-1">
+                <li *ngFor="let t of ls.topics">{{ t }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+  

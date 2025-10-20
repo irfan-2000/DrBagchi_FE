@@ -8,13 +8,11 @@ import { Router } from '@angular/router';
 })
 export class CoursesService {
 private baseurl = environment.baseUrl;
-  
+private admin_url = environment.admin_baseurl
  
  constructor(private http:HttpClient ,private router:Router)
    { }
-
-
-
+ 
 
   getAllCourses()
   {
@@ -29,9 +27,7 @@ private baseurl = environment.baseUrl;
   });
   
   }
-
-
-
+ 
 
    GetCourseById(CourseId:any)
   {
@@ -50,7 +46,46 @@ private baseurl = environment.baseUrl;
     withCredentials: false
   });
   
-  }
+  } 
+
+getPricing(obj:any)
+{
+  
+    const token = localStorage.getItem('token'); // Or wherever you store your token
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+  return this.http.post<any>(`${this.baseurl}api/GetPricing?_=${unique}`,obj,{
+    headers,
+    withCredentials: true 
+   });
+
+}
+
+
+
+  GetCourseById_admin(CourseId:any)
+{
+const token = localStorage.getItem('token'); // Or wherever you store your token
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  }); 
+  const unique = Math.random();  
+
+  let params = new HttpParams().set('id',CourseId.toString());
+
+
+  return this.http.get<any>(`${this.admin_url}api/GetCoursebyId?_=${unique}`,
+     {
+      params:params,
+    headers,withCredentials: false
+  });
+}
+ 
+ 
 
 
 
