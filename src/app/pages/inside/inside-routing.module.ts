@@ -8,6 +8,7 @@ import { InsideCoursesComponent } from '../../inside-courses/inside-courses.comp
 import { CourseDetailsComponent } from '../../course-details/course-details.component';
 import { InsideCourseDetailsComponent } from '../../inside-course-details/inside-course-details.component';
 import { MyCoursesComponent } from '../../my-courses/my-courses.component';
+import { QuizComponent } from '../../quiz/quiz.component';
 
 // inside-routing.module.ts
 // inside-routing.module.ts
@@ -21,6 +22,7 @@ const routes: Routes = [
       {path:'courses',component:InsideCoursesComponent},
       {path:'course-details',component:InsideCourseDetailsComponent},
       {path:'mycourses',component:MyCoursesComponent},
+      {path:'quiz',component:QuizComponent}
       // Add other inside routes here
     ]
   }

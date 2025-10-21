@@ -22,6 +22,7 @@ import { InsideLayoutComponent } from './layouts/inside-layout/inside-layout.com
 import { InsideCoursesComponent } from './inside-courses/inside-courses.component';
 import { InsideCourseDetailsComponent } from './inside-course-details/inside-course-details.component';
 import { MyCoursesComponent } from './my-courses/my-courses.component';
+import { QuizComponent } from './quiz/quiz.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { MyCoursesComponent } from './my-courses/my-courses.component';
     InsideLayoutComponent,
     InsideCoursesComponent,
     InsideCourseDetailsComponent,
-    MyCoursesComponent 
+    MyCoursesComponent,
+    QuizComponent 
   ],
   imports: [
     BrowserModule,
