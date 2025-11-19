@@ -1,4 +1,10 @@
 <!-- course-details.component.html -->
+   <div *ngIf="isLoading" class="bagchi-loader-overlay">
+  <div class="bagchi-loader-content">
+    <div class="bagchi-spinner"></div>
+    <div class="bagchi-loading-text">Loading please wait…</div>
+  </div>
+</div>
 <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-10">
 
   <!-- Header / Hero -->
@@ -165,37 +171,49 @@ select batch also
 
   <!-- Course Curriculum -->
   <section class="bg-white rounded-2xl shadow-lg p-6">
-    <h2 class="text-xl font-bold text-indigo-900 mb-2">Course Content</h2>
-    <p class="text-sm text-gray-600 mb-4">Chapters, lessons, and topics.</p>
-    <div class="mt-4 divide-y divide-indigo-50">
-      <div *ngFor="let ch of Course?.chapters; let ci = index" class="py-4">
-        <div class="flex items-center justify-between">
-          <div class="font-semibold text-gray-900">
-            {{ ch.title }}
-            <span class="text-xs text-gray-500 ml-2">({{ ch.lessons?.length }} lessons)</span>
-          </div>
+  <h2 class="text-xl font-bold text-indigo-900 mb-2">Cou rse Con tent</h2>
+  <p class="text-sm text-gray-600 mb-4">
+    A structured breakdown of chapters, lessons, and topics.
+  </p>
+
+  <div class="mt-4 divide-y divide-indigo-50">
+    <div *ngFor="let ch of courseModules; let ci = index" class="py-4">
+
+     
+
+      <!-- Lessons -->
+      <div class="mt-2 rounded-lg border border-indigo-50 divide-y">
+ 
+          <button (click)="toggleLesson(ci, ci)"
+            class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
+
+            <span class="font-medium text-gray-900">Module {{ch.moduleNo}}:{{ ch.moduleName }}</span>
+
+            <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
+              [ngClass]="{ 'rotate-180': isLessonOpen(ci, ci) }"
+              fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+
+          </button>
+
+          <!-- Topics -->
+         <div *ngIf="isLessonOpen(ci, ci)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
+          <ul class="list-disc pl-5 space-y-1">
+            <li *ngFor="let t of ch.topics.split('|')">
+              {{ t }}
+            </li>
+          </ul>
         </div>
-        <div class="mt-2 rounded-lg border border-indigo-50 divide-y">
-          <div *ngFor="let ls of ch.lessons; let li = index" class="bg-white">
-            <button (click)="toggleLesson(ci, li)"
-                    class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
-              <span class="font-medium text-gray-900">{{ ls.title }}</span>
-              <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
-                   [ngClass]="{ 'rotate-180': isLessonOpen(ci, li) }"
-                   fill="none" stroke="currentColor" stroke-width="2"
-                   viewBox="0 0 24 24">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
-            <div *ngIf="isLessonOpen(ci, li)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
-              <ul class="list-disc pl-5 space-y-1">
-                <li *ngFor="let t of ls.topics">{{ t }}</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+
+
+        
       </div>
+
     </div>
-  </section>
+  </div>
+</section>
+
 </div>
   

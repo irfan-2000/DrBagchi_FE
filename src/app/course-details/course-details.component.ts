@@ -12,7 +12,7 @@ export class CourseDetailsComponent
 {
  
   
-
+  isLoading :boolean = false;
   // Pricing state
   totals: any = { basePrice: 0, discount: 0, finalPrice: 0 };
   couponCode = '';
@@ -198,6 +198,8 @@ export class CourseDetailsComponent
 Pricing:any = [];
 getPricing() 
 {
+  debugger
+  this.isLoading = true;
   if (!this.CourseId) {
     alert("Internal Server Error");
     return;

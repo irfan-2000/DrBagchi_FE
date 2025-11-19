@@ -10,6 +10,7 @@ import { CoursesService } from '../courses.service';
 export class InsideCourseDetailsComponent {
   
   // Pricing state
+  isLoading:boolean = false;
   totals: any = { basePrice: 0, discount: 0, finalPrice: 0 };
   couponCode = '';
   couponValid = false;
@@ -46,20 +47,11 @@ export class InsideCourseDetailsComponent {
     
     // Load mock data for demo; replace with API call later
    }
-
-  // Toggle lesson open/close
-  toggleLesson(ci: number, li: number) {
-    const key = `${ci}-${li}`;
-    this.openMap.set(key, !this.openMap.get(key));
-  }
-
-  isLessonOpen(ci: number, li: number): boolean {
-    return !!this.openMap.get(`${ci}-${li}`);
-  }
-
+ 
   // Apply coupon logic (simple demo)
   applyCoupon() 
   {
+    this.isLoading = true;
     const code = (this.couponCode || '').trim().toUpperCase();
     const base = this.totals.basePrice;
 
@@ -213,6 +205,7 @@ export class InsideCourseDetailsComponent {
 Pricing:any = [];
 getPricing() 
 {
+  debugger
   if (!this.CourseId) {
     alert("Internal Server Error");
     return;
@@ -277,6 +270,86 @@ payNow(option: any)
       // Process amount: installment.Amount (apply discounts if any)
     }
   }
+}
+
+
+course = {
+    title: "Physics Foundation",
+    chapters: [
+      {
+        title: "Chapter 1: Motion & Measurements",
+        lessons: [
+          {
+            title: "Understanding Motion",
+            topics: [
+              "Definition of motion",
+              "Types of motion",
+              "Speed & velocity basics"
+            ]
+          },
+          {
+            title: "Units & Measurements",
+            topics: [
+              "Standard units",
+              "Measurement tools",
+              "Accuracy & precision"
+            ]
+          }
+        ]
+      },
+      {
+        title: "Chapter 2: Force & Pressure",
+        lessons: [
+          {
+            title: "Introduction to Force",
+            topics: [
+              "Balanced & unbalanced forces",
+              "Resultant force",
+              "Newton’s laws overview"
+            ]
+          }
+        ]
+      }
+    ]
+  };
+
+    openLessons: any = {};
+
+  toggleLesson(ci: number, li: number) {
+    const key = `${ci}-${li}`;
+    this.openLessons[key] = !this.openLessons[key];
+  }
+
+  isLessonOpen(ci: number, li: number) {
+    return !!this.openLessons[`${ci}-${li}`];
+  }
+  
+courseModules = [
+  {
+    moduleNo: 1,
+    moduleName: "Diversity in the Living World",
+    topics: "The Living World|Biological Classification|Plant Kingdom|Animal Kingdom",
+    lessons: 12,
+    hours: 18,
+    outcomes: "Ability to classify organisms, understand biodiversity",
+    includes: "Notes + PYQs + MCQs",
+    open: false
+  },
+  {
+    moduleNo: 2,
+    moduleName: "Structural Organisation in Plants & Animals",
+    topics: "Morphology of Flowering Plants|Anatomy|Structural Organisation in Animals",
+    lessons: 10,
+    hours: 19,
+    outcomes: "Understanding plant & animal structures",
+    includes: "Notes + Diagrams + MCQs",
+    open: false
+  }
+];
+
+
+  toggleModule(i: number) {
+  this.courseModules[i].open = !this.courseModules[i].open;
 }
 
 
