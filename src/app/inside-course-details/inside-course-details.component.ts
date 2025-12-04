@@ -1,13 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CoursesService } from '../courses.service';
+import { environment } from '../environments/environment';
+import { env } from 'process';
+
+declare var Razorpay: any;
+  
 @Component({
   selector: 'app-inside-course-details',
   standalone: false,
   templateUrl: './inside-course-details.component.html',
   styleUrl: './inside-course-details.component.css'
 })
-export class InsideCourseDetailsComponent {
+export class InsideCourseDetailsComponent 
+{
+  private razorpay_key_id =  environment.razorpay_key_id;
+  private razorpay_key_secret =  environment.razorpay_key_secret;
   
   // Pricing state
   isLoading:boolean = false;
@@ -25,6 +33,9 @@ export class InsideCourseDetailsComponent {
 
   CourseId:any = [];
   Course:any = [];
+courseModules :any = [];
+paymentType:any = "";
+fixed_paymentMode:any = "";
 
   constructor(private route: ActivatedRoute, private router: Router,private Courses:CoursesService)
    {
@@ -37,9 +48,10 @@ export class InsideCourseDetailsComponent {
   if(this.CourseId)
   {
     this.getCourseById(this.CourseId);
-    this.getPricing();
+    //this.getPricing();
+    this.getCoursePayments( );
   }
-
+ 
 }
 
   ngOnInit(): void 
@@ -165,7 +177,7 @@ export class InsideCourseDetailsComponent {
           console.warn('Empty response received');
           return;
         }
-
+         
         // Extract both parts
         const item1 = response.Item1 || {};
         const item2 = response.Item2 || {};
@@ -186,7 +198,7 @@ export class InsideCourseDetailsComponent {
  
         // Optional: Store separately if needed
         this.parsedDescription = item2;
-
+        this.courseModules = response.Item3 || [];
         console.log('Parsed Course:', this.Course);
         console.log(this.Course?.Highlights);
       },
@@ -204,8 +216,7 @@ export class InsideCourseDetailsComponent {
 
 Pricing:any = [];
 getPricing() 
-{
-  debugger
+{ 
   if (!this.CourseId) {
     alert("Internal Server Error");
     return;
@@ -259,9 +270,12 @@ formatTime(time: string): string {
 
 payNow(option: any) 
 {
+ console.log(option)
+
       this.paymentMessage = `Proceeding to payment for ₹${this.totals.finalPrice}. (Demo)`;
 
-  if (option === 'full') {
+  if (option === 'full') 
+    {
     // Process full payment of discountedPrice or Course.Price
   } else {
     // Find installment by number and process that amount payment
@@ -272,47 +286,7 @@ payNow(option: any)
   }
 }
 
-
-course = {
-    title: "Physics Foundation",
-    chapters: [
-      {
-        title: "Chapter 1: Motion & Measurements",
-        lessons: [
-          {
-            title: "Understanding Motion",
-            topics: [
-              "Definition of motion",
-              "Types of motion",
-              "Speed & velocity basics"
-            ]
-          },
-          {
-            title: "Units & Measurements",
-            topics: [
-              "Standard units",
-              "Measurement tools",
-              "Accuracy & precision"
-            ]
-          }
-        ]
-      },
-      {
-        title: "Chapter 2: Force & Pressure",
-        lessons: [
-          {
-            title: "Introduction to Force",
-            topics: [
-              "Balanced & unbalanced forces",
-              "Resultant force",
-              "Newton’s laws overview"
-            ]
-          }
-        ]
-      }
-    ]
-  };
-
+ 
     openLessons: any = {};
 
   toggleLesson(ci: number, li: number) {
@@ -323,33 +297,190 @@ course = {
   isLessonOpen(ci: number, li: number) {
     return !!this.openLessons[`${ci}-${li}`];
   }
-  
-courseModules = [
-  {
-    moduleNo: 1,
-    moduleName: "Diversity in the Living World",
-    topics: "The Living World|Biological Classification|Plant Kingdom|Animal Kingdom",
-    lessons: 12,
-    hours: 18,
-    outcomes: "Ability to classify organisms, understand biodiversity",
-    includes: "Notes + PYQs + MCQs",
-    open: false
-  },
-  {
-    moduleNo: 2,
-    moduleName: "Structural Organisation in Plants & Animals",
-    topics: "Morphology of Flowering Plants|Anatomy|Structural Organisation in Animals",
-    lessons: 10,
-    hours: 19,
-    outcomes: "Understanding plant & animal structures",
-    includes: "Notes + Diagrams + MCQs",
-    open: false
-  }
-];
+
 
 
   toggleModule(i: number) {
   this.courseModules[i].open = !this.courseModules[i].open;
+}
+
+
+selectedPlan:any = '';
+Subscriptionplans:any =[];
+getCoursePayments() 
+{
+
+  this.Courses.getCoursePayments(this.CourseId).subscribe({
+    next: (response: any) => 
+      {
+
+ 
+      this.paymentType = response.result.PaymentType;
+      if(this.paymentType === 'subscription')
+      {
+        this.Subscriptionplans.push({
+          monthlyAmount: response.result.MonthlyAmount,
+          quarterlyAmount: response.result.QuarterlyAmount,
+          halfYearlyAmount: response.result.HalfYearlyAmount,
+          yearlyAmount: response.result.YearlyAmount
+        });
+      }
+      this.Subscriptionplans = this.Subscriptionplans[0]
+
+
+      if (!response || !response.result) {
+        console.warn("No course payment data found");
+        return;
+      }
+
+      const result = response.result;
+      console.log("course payment details", result);
+
+      // // Always patch common fields
+      // this.paymentForm.patchValue({
+      //   coursePaymentId: result.coursePaymentId || 0,
+      //   paymentType: result.paymentType || '',
+      //   fixed_paymentMode: result.fixed_paymentMode || '',
+      //   totalPrice: result.totalPrice || 0
+      // });
+
+      // -------------------------------------------------------------------
+      // FIXED PAYMENT TYPE
+      // -------------------------------------------------------------------
+      if (result.paymentType === 'fixed') {
+
+        // Load installments only if payment mode is installments or both
+        if (result.fixed_paymentMode === 'installments' || 
+            result.fixed_paymentMode === 'both') {
+
+         // this.installments.clear();
+
+          const instList = result.installments || [];
+
+          for (let i = 0; i < instList.length; i++) {
+            const inst = instList[i];
+
+            // // Breakpoint friendly
+            // this.installments.push(
+            //   this.fb.group({
+            //     installmentid: [inst.installmentid],
+            //     installmentNumber: [inst.installmentNumber],
+            //     amount: [inst.amount],
+            //     dueDaysFromStart: [inst.dueDaysFromStart],
+            //     remarks: [inst.remarks]
+            //   })
+            // );
+          }
+        }
+      }
+
+      // -------------------------------------------------------------------
+      // SUBSCRIPTION PAYMENT TYPE
+      // -------------------------------------------------------------------
+      if (result.paymentType === 'subscription') {
+
+        // this.paymentForm.patchValue({
+        //   monthlyAmount: result.monthlyAmount || 0,
+        //   quarterlyAmount: result.quarterlyAmount || 0,
+        //   halfYearlyAmount: result.halfYearlyAmount || 0,
+        //   yearlyAmount: result.yearlyAmount || 0
+        // });
+      }
+
+    },
+    error: (err: any) => {
+      this.isLoading = false;
+      alert("Error submitting course details: " + (err.error?.ErrorMessage || err.message));
+    }
+  });
+
+}
+
+ Createorder_razorpay_NewOrder_subscription()
+  {
+
+    if(this.selectedPlan === '' || this.selectedPlan === null || this.selectedPlan === undefined)
+    {
+      alert("Please select a subscription plan.");
+      return;
+    }
+
+    if(this.selectedBatchId === null || this.selectedBatchId === undefined ||this.selectedBatchId === 0)
+    {
+      alert("Please select a batch.");
+      return;
+    }
+
+  this.Courses.Createorder_razorpay_NewOrder_subscription(this.paymentType, this.CourseId, this.selectedPlan,this.selectedBatchId)
+    .subscribe({
+      next: (response: any) => {
+        console.log("Razorpay Order Response:", response);
+
+        const order = response.result;
+
+        const options: any = {
+          key:this. razorpay_key_id,  // your Razorpay Key ID
+          amount: Number(order.amount) * 100, // amount in paise
+          currency: order.currency,
+          name: "Dr Bagchi’s Classes",
+          description: "Course Subscription",
+          order_id: order.orderId,
+          handler: (paymentResponse: any) => {
+            console.log("Payment Response:", paymentResponse);
+
+            // Step 3: Send payment details to backend for verification
+            const payload = {
+              razorpay_order_id: paymentResponse.razorpay_order_id,
+              razorpay_payment_id: paymentResponse.razorpay_payment_id,
+              razorpay_signature: paymentResponse.razorpay_signature,
+              courseId: this.CourseId,
+              plan: this.selectedPlan,
+              amount: order.amount
+            };
+             
+
+            this.Courses.verifyPayment(payload).subscribe({
+              next: (vres: any) =>
+                 {
+                  
+                console.log("Payment Verified:", vres);
+                alert("Payment successful and verified!");
+              },
+              error: (err: any) => {
+                console.error("Payment verification failed", err);
+                alert("Payment verification failed!");
+              }
+            });
+          },
+          prefill: {
+            name: '',   // optional: user name
+            email: '',  // optional: user email
+            contact: '' // optional: user phone
+          },
+          theme: { color: "#0b5ed7" }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        alert("Error creating Razorpay order: " + (err.error?.ErrorMessage || err.message));
+      }
+    });
+}
+
+
+
+selectedBatchId: number | null = null;
+selectedBatch: any = null;
+
+selectBatch(batch: any)
+ {
+  debugger
+  this.selectedBatchId = batch.batchId;
+  this.selectedBatch = batch;
+  console.log("Selected Batch:", batch);
 }
 
 

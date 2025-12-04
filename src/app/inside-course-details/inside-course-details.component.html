@@ -70,23 +70,30 @@
       </div>
 
       <!-- Batches Info -->
-      <div class="mt-8">
-        <h3 class="text-lg font-semibold text-indigo-800 mb-2">Upcoming Batches</h3>
-        <div class="grid sm:grid-cols-2 gap-2">
-          <div *ngFor="let b of Course.Batches" class="bg-indigo-50 rounded-lg px-4 py-3 text-sm">
-            <div class="font-semibold">{{ b.batchName }}</div>
-            <div>🗓 {{ b.startDate | date:'MMM dd, yyyy' }} – {{ b.endDate | date:'MMM dd, yyyy' }}</div>
-           <div>⏰ {{ formatTime(b.startTime) }} – {{ formatTime(b.endTime) }}</div>
+     <div class="mt-8">
+  <h3 class="text-lg font-semibold text-indigo-800 mb-2">Upcoming Batches</h3>
+  <div class="grid sm:grid-cols-2 gap-2">
+    
+    <div *ngFor="let b of Course.Batches"
+         class="bg-indigo-50 rounded-lg px-4 py-3 text-sm cursor-pointer"
+         [class.border-2]="selectedBatchId === b.batchId"
+         [class.border-indigo-600]="selectedBatchId === b.batchId"
+         (click)="selectBatch(b)">
+         
+      <div class="font-semibold">{{ b.batchName }}</div>
+      <div>🗓 {{ b.startDate | date:'MMM dd, yyyy' }} – {{ b.endDate | date:'MMM dd, yyyy' }}</div>
+      <div>⏰ {{ formatTime(b.startTime) }} – {{ formatTime(b.endTime) }}</div>
+    </div>
 
-          </div>
-        </div>
-      </div>
+  </div>
+</div>
+
     </section>
 
     <!-- Right panel: pricing, coupon, payment -->
-   <aside class="bg-white rounded-2xl shadow-lg p-6 h-max space-y-6">
+<aside class="bg-white rounded-2xl shadow-lg p-6 h-max space-y-6">
 
-  <!-- Price Display -->
+  <!-- Price & Discount -->
   <div class="flex items-end gap-3">
     <span class="text-3xl font-bold text-indigo-700">
       ₹{{ discountedPrice || Course?.Price }}
@@ -95,14 +102,9 @@
           class="text-base text-gray-500 line-through">₹{{ Course?.OldPrice }}</span>
   </div>
 
-  <!-- Payment Type Info -->
-  <div *ngIf="Course?.PaymentType === 'installments'" class="mt-1 text-xs text-gray-600">
-    Payable in <span class="font-bold">{{ Course.Installments.length }}</span> installments
-  </div>
-
-  <!-- Coupon Code -->
+  <!-- Discount / Coupon Section -->
   <div>
-    <label class="block text-sm font-medium text-gray-800 mb-1">Coup on code</label>
+    <label class="block text-sm font-medium text-gray-800 mb-1">Coupon Code</label>
     <div class="flex items-center gap-2">
       <input
         type="text"
@@ -118,26 +120,41 @@
         Apply
       </button>
     </div>
-    <div *ngIf="couponMessage" [ngClass]="{ 'text-green-700': couponValid, 'text-red-700': !couponValid }" class="mt-2 text-sm">
+    <div *ngIf="couponMessage" 
+         [ngClass]="{ 'text-green-700': couponValid, 'text-red-700': !couponValid }" 
+         class="mt-2 text-sm">
       {{ couponMessage }}
     </div>
   </div>
 
-  <!-- Payment Option Selector (Full or Installment) -->
-<div *ngIf="Course?.PaymentType === 'installments' || Course?.PaymentType === 'both'" class="mt-4">
-  <label class="block font-medium text-gray-800 mb-2">Select Payment Option</label>
-  <select [(ngModel)]="selectedPaymentOption" class="w-full rounded-lg border border-indigo-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-       <option value="" disabled selected>Select a payment option</option>
+  <!-- Payment Type / Installment Selector -->
+  <div *ngIf="Course?.PaymentType === 'installments' || Course?.PaymentType === 'both'" class="mt-4 space-y-3">
 
-    <option [value]="'full'">Full Payment (₹{{ discountedPrice || Course?.Price }})</option>
-    <option *ngFor="let inst of Course.Installments" [value]="inst.InstallmentNumber">
-      Installment {{ inst.InstallmentNumber }} - ₹{{ inst.Amount }} (Due in {{ inst.DueDaysFromStart }} days)
-    </option>
-  </select>
-</div>
-select batch also
+    <!-- Batch Selection -->
+    <!-- <div>
+      <label class="block font-medium text-gray-800 mb-1">Select Batch</label>
+      <select [(ngModel)]="selectedBatch" class="w-full rounded-lg border border-indigo-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="" disabled selected>Select a batch</option>
+        <option *ngFor="let batch of Course?.Batches" [value]="batch.BatchId">
+          {{ batch.BatchName }}
+        </option>
+      </select>
+    </div> -->
 
-  <!-- Installments Breakdown -->
+    <!-- Payment Option -->
+    <div>
+      <label class="block font-medium text-gray-800 mb-1">Select Payment Option</label>
+      <select [(ngModel)]="selectedPaymentOption" class="w-full rounded-lg border border-indigo-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="" disabled selected>Select a payment option</option>
+        <option [value]="'full'">Full Payment (₹{{ discountedPrice || Course?.Price }})</option>
+        <option *ngFor="let inst of Course.Installments" [value]="inst.InstallmentNumber">
+          Installment {{ inst.InstallmentNumber }} - ₹{{ inst.Amount }} (Due in {{ inst.DueDaysFromStart }} days)
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Installments Breakdown Table -->
   <table *ngIf="Course?.Installments?.length" class="w-full text-sm mt-3 rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-900">
     <thead>
       <tr>
@@ -150,28 +167,120 @@ select batch also
     <tbody>
       <tr *ngFor="let inst of Course.Installments">
         <td class="px-2 py-1">#{{ inst.InstallmentNumber }}</td>
-        <td class="px-2 py-1">₹{{ inst.Amount }}</td>
+        <td   class="px-2 py-1">₹{{ inst.Amount }}</td>
         <td class="px-2 py-1">{{ inst.DueDaysFromStart }} days</td>
         <td class="px-2 py-1">{{ inst.Remarks }}</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- Enroll/Pay Button -->
-  <button
-    (click)="payNow(selectedPaymentOption)"
+  <!-- Enroll / Pay Button -->
+  <!-- <button
+    (click)="payNow(selectedPaymentOption, selectedBatch)"
     class="w-full mt-3 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition"
   >
     Pay Now
+  </button> -->
+  <!-- Subscription Payment Options -->
+<div *ngIf="paymentType === 'subscription'" class="mt-6 space-y-5">
+
+  <label class="block font-semibold text-gray-800 text-base">
+    Choose Subscription Plan
+  </label>
+
+  <div class="space-y-4"> <!-- STACK ITEMS VERTICALLY -->
+
+    <!-- Monthly -->
+    <label *ngIf="Subscriptionplans?.monthlyAmount > 0"
+      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
+
+      <div>
+        <p class="font-semibold text-indigo-800">Monthly Plan</p>
+        <p class="text-sm text-gray-600">Billed every month</p>
+      </div>
+
+      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
+        ₹{{ Subscriptionplans?.monthlyAmount }}
+      </span>
+
+      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
+             value="monthly" class="h-5 w-5 accent-indigo-600" />
+    </label>
+
+    <!-- Quarterly -->
+    <label *ngIf="Subscriptionplans?.quarterlyAmount > 0"
+      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
+
+      <div>
+        <p class="font-semibold text-indigo-800">Quarterly Plan</p>
+        <p class="text-sm text-gray-600">Every 3 months</p>
+      </div>
+
+      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
+        ₹{{ Subscriptionplans?.quarterlyAmount }}
+      </span>
+
+      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
+             value="quarterly" class="h-5 w-5 accent-indigo-600" />
+    </label>
+
+    <!-- Half-Yearly -->
+    <label *ngIf="Subscriptionplans?.halfYearlyAmount > 0"
+      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
+
+      <div>
+        <p class="font-semibold text-indigo-800">Half-Yearly Plan</p>
+        <p class="text-sm text-gray-600">Every 6 months</p>
+      </div>
+
+      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
+        ₹{{ Subscriptionplans?.halfYearlyAmount }}
+      </span>
+
+      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
+             value="halfyearly" class="h-5 w-5 accent-indigo-600" />
+    </label>
+
+    <!-- Yearly -->
+    <label *ngIf="Subscriptionplans?.yearlyAmount > 0"
+      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
+
+      <div>
+        <p class="font-semibold text-indigo-800">
+          Yearly Plan <span class="text-green-600 font-semibold">(Best Value)</span>
+        </p>
+        <p class="text-sm text-gray-600">Save more yearly</p>
+      </div>
+
+      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
+        ₹{{ Subscriptionplans?.yearlyAmount }}
+      </span>
+
+      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
+             value="yearly" class="h-5 w-5 accent-indigo-600" />
+    </label>
+
+  </div>
+
+  <button
+    (click)="Createorder_razorpay_NewOrder_subscription()"
+    class="w-full mt-3 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition">
+    Pay Now
   </button>
 
+</div>
+
+
+
+
 </aside>
+
 
   </div>
 
   <!-- Course Curriculum -->
   <section class="bg-white rounded-2xl shadow-lg p-6">
-  <h2 class="text-xl font-bold text-indigo-900 mb-2">Cou rse Con tent</h2>
+  <h2 class="text-xl font-bold text-indigo-900 mb-2">Course Content</h2>
   <p class="text-sm text-gray-600 mb-4">
     A structured breakdown of chapters, lessons, and topics.
   </p>
@@ -187,7 +296,7 @@ select batch also
           <button (click)="toggleLesson(ci, ci)"
             class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
 
-            <span class="font-medium text-gray-900">Module {{ch.moduleNo}}:{{ ch.moduleName }}</span>
+            <span class="font-medium text-gray-900">Module {{ch.ModuleNo}}:{{ ch.ModuleName }}</span>
 
             <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
               [ngClass]="{ 'rotate-180': isLessonOpen(ci, ci) }"
@@ -201,7 +310,7 @@ select batch also
           <!-- Topics -->
          <div *ngIf="isLessonOpen(ci, ci)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
           <ul class="list-disc pl-5 space-y-1">
-            <li *ngFor="let t of ch.topics.split('|')">
+            <li *ngFor="let t of ch.Topics.split('|')">
               {{ t }}
             </li>
           </ul>
