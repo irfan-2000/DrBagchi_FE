@@ -1,0 +1,50 @@
+<div class="quiz-container">
+  <div class="status left">Violations: <span id="violations">0</span></div>
+  <div class="status right" id="securityStatus">SECURE MODE</div>
+
+  <h1 class="title">Ultra-Secure Quiz System</h1>
+  <p class="subtitle">This quiz runs in an enhanced secured environment.</p>
+
+  <!-- Start Screen -->
+  <div id="startScreen" *ngIf="!quizActive">
+    <h2>Security Protocol Active</h2>
+    <p>This quiz requires fullscreen and anti-cheating mode.</p>
+
+    <ul class="rules">
+      <li>Fullscreen required</li>
+      <li>Tab switching disabled</li>
+      <li>Right-click blocked</li>
+      <li>Clipboard & DevTools locked</li>
+    </ul>
+
+    <p class="warning">⚠ Violations will auto-submit the quiz!</p>
+    <button id="startQuizBtn" (click)="startQuiz()">Start Secure Quiz</button>
+  </div>
+
+  <!-- Quiz Section -->
+<div id="quizSection" *ngIf="quizActive">
+    <div class="timer" id="timerDisplay">Time Left: 05:00</div>
+
+    <form>
+      <div class="question-card" *ngFor="let q of questions; let i = index">
+        <p class="q-title">{{ i + 1 }}. {{ q.text }}</p>
+
+        <img *ngIf="q.image" class="q-image" [src]="q.image" alt="question-image" />
+
+        <div class="options">
+          <label *ngFor="let opt of q.options">
+            <input
+              type="radio"
+              [name]="'q'+q.id"
+              [value]="opt"
+              (change)="selectAnswer(q.id, opt)"
+            />
+            {{ opt }}
+          </label>
+        </div>
+      </div>
+
+      <button id="submitQuizBtn">Submit Quiz</button>
+    </form>
+  </div>
+</div>

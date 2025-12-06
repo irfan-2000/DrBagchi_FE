@@ -23,7 +23,8 @@ import { InsideCoursesComponent } from './inside-courses/inside-courses.componen
 import { InsideCourseDetailsComponent } from './inside-course-details/inside-course-details.component';
 import { MyCoursesComponent } from './my-courses/my-courses.component';
 import { QuizComponent } from './quiz/quiz.component';
-
+import { AssessmentComponent } from './assessment/assessment.component';
+ 
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,8 +43,8 @@ import { QuizComponent } from './quiz/quiz.component';
     InsideCoursesComponent,
     InsideCourseDetailsComponent,
     MyCoursesComponent,
-    QuizComponent 
-  ],
+    QuizComponent,
+    AssessmentComponent ],
   imports: [
     BrowserModule,
     AppRoutingModule,FormsModule,ReactiveFormsModule,HttpClientModule, BrowserAnimationsModule,   ToastrModule.forRoot({

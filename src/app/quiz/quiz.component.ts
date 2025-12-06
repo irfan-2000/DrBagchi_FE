@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-quiz',
@@ -7,6 +8,8 @@ import { Component } from '@angular/core';
   styleUrl: './quiz.component.css'
 })
 export class QuizComponent {
+
+  constructor(private router: Router) {}
 ongoingQuizzes = [
     {
       id: 1,
@@ -98,6 +101,10 @@ ongoingQuizzes = [
 
   startQuiz(quizId: number) {
     alert('Starting Quiz ID: ' + quizId);
+const url = `/assessment-page?quizId=${encodeURIComponent(quizId)}&isStarted=true`;
+
+// Use the native window.open() method to navigate to this relative URL in a new tab/window
+window.open(url, '_blank');
     this.closeModal();
   }
 

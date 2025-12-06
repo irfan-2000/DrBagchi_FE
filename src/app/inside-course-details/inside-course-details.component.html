@@ -181,8 +181,94 @@
   >
     Pay Now
   </button> -->
+<!-- PAYMENT DIV FOR FRESH USER -->
+ <div *ngIf="paymentType !== 'subscription' && paymentType =='fixed' && IsSusbcribed.isActive != '1' " class="mt-5 space-y-4 bg-white rounded-xl shadow p-4 sm:p-6 border border-indigo-200">
+
+  <h3 class="text-lg font-semibold text-gray-800 mb-2">Payment Options</h3>
+
+  <!-- ONE TIME PAYMENT -->
+  <div *ngIf="fixedpaymentplans.fixed_paymentMode === 'oneTime' || fixedpaymentplans.fixed_paymentMode === 'both'" class="space-y-2">
+    <p class="text-base font-semibold text-indigo-800">One-Time Payment</p>
+
+    <p class="text-2xl font-bold text-indigo-900">₹{{ fixedpaymentplans.Totalprice }}</p>
+
+    <p class="text-sm text-green-700 font-medium mt-1">✔ 1 year access included</p>
+
+    <button
+      (click)="Createorder_razorpay_NewOrder_fixed('oneTime')"
+      class="w-full mt-4 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition">
+      Pay Now
+    </button>
+  </div>
+
+  <!-- INSTALLMENTS -->
+  <div *ngIf="fixedpaymentplans.fixed_paymentMode === 'installments' || fixedpaymentplans.fixed_paymentMode === 'both'">
+
+    <p class="font-medium text-gray-700 mb-3">Installment Breakdown</p>
+
+    <div class="space-y-3">
+      <div
+        *ngFor="let inst of fixedpaymentplans.Installments; let i = index"
+        class="cursor-pointer border rounded-xl p-4 flex justify-between items-center transition bg-indigo-50"
+        [ngClass]="i === 0 ? 'border-indigo-600 ring-2 ring-indigo-400 shadow-md' : 'opacity-60'"
+      >
+        <div>
+          <p class="font-semibold text-indigo-900">Installment {{ inst.InstallmentNo }}</p>
+          <p class="text-sm text-gray-600">Due in {{ inst.DaysAfterEnrollment }} days</p>
+        </div>
+
+        <span class="text-indigo-900 font-bold text-lg ml-3">₹{{ inst.Amount }}</span>
+      </div>
+    </div>
+
+    <!-- PAY NOW BUTTON FOR FIRST INSTALLMENT -->
+    <button
+      (click)=" Createorder_razorpay_NewOrder_fixed('installments',fixedpaymentplans.Installments[0].InstallmentNo)"
+      class="w-full mt-4 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition">
+      Pay   Installment (₹{{ fixedpaymentplans.Installments[0].Amount }})
+    </button>
+
+    <!-- DISABLED BUTTONS FOR OTHERS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+      <button
+        *ngFor="let inst of fixedpaymentplans.Installments; let i = index"
+        [disabled]="i !== 0"
+        class="w-full h-10 rounded-lg border font-semibold"
+        [ngClass]="i === 0 ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed'"
+      >
+        Pay Installment {{ inst.InstallmentNo }}
+      </button>
+    </div>
+
+  </div>
+
+
+</div>
+
+
+
+
   <!-- Subscription Payment Options -->
-<div *ngIf="paymentType === 'subscription'" class="mt-6 space-y-5">
+   <div *ngIf="IsSusbcribed.paymentType == 'subscription' && IsSusbcribed.isActive == '2'"
+     class="bg-white rounded-xl shadow p-4 sm:p-6 space-y-3 border border-red-300">
+
+  <div class="flex items-center justify-between flex-wrap gap-2">
+    <h3 class="text-lg font-semibold text-gray-800">Subscription Expired</h3>
+
+    <span class="px-3 py-1 text-sm font-medium text-white rounded-full bg-red-600">
+      Expired
+    </span>
+  </div>
+
+  <p class="text-sm text-gray-700">
+    Your subscription expired on
+    <span class="font-semibold text-red-700">{{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}</span>
+  </p>
+
+  <p class="text-sm font-medium text-gray-800">Please renew to continue access</p>
+</div>
+
+<div *ngIf="paymentType === 'subscription' && IsSusbcribed.isActive != '1'" class="mt-6 space-y-5">
 
   <label class="block font-semibold text-gray-800 text-base">
     Choose Subscription Plan
@@ -271,6 +357,114 @@
 </div>
 
 
+
+<div *ngIf="IsSusbcribed.paymentType == 'subscription' && IsSusbcribed.isActive == '1'"
+     class="bg-white rounded-xl shadow p-4 sm:p-6 space-y-3 border border-green-300">
+
+  <div class="flex items-center justify-between flex-wrap gap-2">
+    <h3 class="text-lg font-semibold text-gray-800">Subscription Status</h3>
+
+    <span class="px-3 py-1 text-sm font-medium text-white rounded-full bg-green-600">
+      {{ IsSusbcribed.message || 'Active' }}
+    </span>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base">
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Plan Selected</span>
+      <span class="font-semibold text-gray-800 capitalize">
+        {{ IsSusbcribed.selectedPlan }}
+      </span>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Amount Paid</span>
+      <span class="font-semibold text-gray-800">
+        ₹ {{ IsSusbcribed.amountPaid }}
+      </span>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Valid From</span>
+      <span class="font-semibold text-gray-800">
+        {{ IsSusbcribed.validFrom | date:'dd MMM yyyy' }}
+      </span>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Valid Till</span>
+      <span class="font-semibold text-gray-800">
+        {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
+      </span>
+    </div>
+
+  </div>
+
+  <!-- <div class="pt-2">
+    <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg">
+      Renew / Upgrade Plan
+    </button>
+  </div> -->
+</div>
+
+<div *ngIf="IsSusbcribed.paymentType == 'fixed' && IsSusbcribed.isActive == '1'"
+     class="bg-white rounded-xl shadow p-4 sm:p-6 space-y-3 border border-green-300">
+
+  <div class="flex items-center justify-between flex-wrap gap-2">
+    <h3 class="text-lg font-semibold text-gray-800">Subscription Status</h3>
+
+    <span class="px-3 py-1 text-sm font-medium text-white rounded-full bg-green-600">
+      {{ IsSusbcribed.message || 'Active' }}
+    </span>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base">
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Plan Selected</span>
+      <span class="font-semibold text-gray-800 capitalize">
+        {{ IsSusbcribed.selectedPlan }}
+      </span>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Amount Paid</span>
+      <span class="font-semibold text-gray-800">
+        ₹ {{ IsSusbcribed.amountPaid }}
+      </span>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Valid From</span>
+      <span class="font-semibold text-gray-800">
+        {{ IsSusbcribed.validFrom | date:'dd MMM yyyy' }}
+      </span>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="text-gray-500 font-medium">Valid Till</span>
+      <span class="font-semibold text-gray-800">
+        {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
+      </span>
+    </div>
+
+    <div>
+      Next Payment Due On:
+      <span class="font-semibold text-gray-800">
+        {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
+      </span>
+    </div>
+
+
+  </div>
+
+  <!-- <div class="pt-2">
+    <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg">
+      Renew / Upgrade Plan
+    </button>
+  </div> -->
+</div>
 
 
 </aside>

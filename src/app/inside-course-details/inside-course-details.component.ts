@@ -30,14 +30,18 @@ export class InsideCourseDetailsComponent
   // UI state for accordion: map "ci-li" -> boolean
   openMap = new Map<string, boolean>();
 
-
-  CourseId:any = [];
-  Course:any = [];
+CourseId:any = [];
+Course:any = [];
 courseModules :any = [];
 paymentType:any = "";
 fixed_paymentMode:any = "";
 
-  constructor(private route: ActivatedRoute, private router: Router,private Courses:CoursesService)
+selectedBatchId: number | null = null;
+selectedBatch: any = null;
+IsSusbcribed: any = [];
+fixedpaymentplans:any=[];
+
+constructor(private route: ActivatedRoute, private router: Router,private Courses:CoursesService)
    {
     this.couponCode = 'summer special'
  this.route.queryParams.subscribe(params => {
@@ -50,6 +54,7 @@ fixed_paymentMode:any = "";
     this.getCourseById(this.CourseId);
     //this.getPricing();
     this.getCoursePayments( );
+    this.CheckIsSubscribed();
   }
  
 }
@@ -313,7 +318,6 @@ getCoursePayments()
   this.Courses.getCoursePayments(this.CourseId).subscribe({
     next: (response: any) => 
       {
-
  
       this.paymentType = response.result.PaymentType;
       if(this.paymentType === 'subscription')
@@ -325,8 +329,7 @@ getCoursePayments()
           yearlyAmount: response.result.YearlyAmount
         });
       }
-      this.Subscriptionplans = this.Subscriptionplans[0]
-
+      this.Subscriptionplans = this.Subscriptionplans[0];
 
       if (!response || !response.result) {
         console.warn("No course payment data found");
@@ -335,43 +338,21 @@ getCoursePayments()
 
       const result = response.result;
       console.log("course payment details", result);
-
-      // // Always patch common fields
-      // this.paymentForm.patchValue({
-      //   coursePaymentId: result.coursePaymentId || 0,
-      //   paymentType: result.paymentType || '',
-      //   fixed_paymentMode: result.fixed_paymentMode || '',
-      //   totalPrice: result.totalPrice || 0
-      // });
-
+ 
       // -------------------------------------------------------------------
       // FIXED PAYMENT TYPE
       // -------------------------------------------------------------------
-      if (result.paymentType === 'fixed') {
-
-        // Load installments only if payment mode is installments or both
-        if (result.fixed_paymentMode === 'installments' || 
-            result.fixed_paymentMode === 'both') {
-
-         // this.installments.clear();
-
-          const instList = result.installments || [];
-
-          for (let i = 0; i < instList.length; i++) {
-            const inst = instList[i];
-
-            // // Breakpoint friendly
-            // this.installments.push(
-            //   this.fb.group({
-            //     installmentid: [inst.installmentid],
-            //     installmentNumber: [inst.installmentNumber],
-            //     amount: [inst.amount],
-            //     dueDaysFromStart: [inst.dueDaysFromStart],
-            //     remarks: [inst.remarks]
-            //   })
-            // );
-          }
-        }
+       debugger
+      if (this.paymentType === 'fixed')
+         {
+          this.fixedpaymentplans = 
+          {
+            fixed_paymentMode: result.fixed_paymentMode || '',
+            Totalprice: result.Totalprice || 0,
+            NoOfInstallments: result.Installments.length || 0,
+            Installments: result.Installments || []
+          }         
+        
       }
 
       // -------------------------------------------------------------------
@@ -444,7 +425,8 @@ getCoursePayments()
                  {
                   
                 console.log("Payment Verified:", vres);
-                alert("Payment successful and verified!");
+                //alert("Payment successful and verified!");
+                window.location.reload();
               },
               error: (err: any) => {
                 console.error("Payment verification failed", err);
@@ -472,16 +454,115 @@ getCoursePayments()
 
 
 
-selectedBatchId: number | null = null;
-selectedBatch: any = null;
 
 selectBatch(batch: any)
  {
-  debugger
+   
   this.selectedBatchId = batch.batchId;
-  this.selectedBatch = batch;
+ // this.selectedBatch = batch;
   console.log("Selected Batch:", batch);
 }
 
+
+
+CheckIsSubscribed()
+{
+  this.Courses.CheckIsSubscribed( localStorage.getItem('userid'),this.CourseId).subscribe
+  ({
+    next: (response: any) =>
+    {
+      this.IsSusbcribed = response.result;
+
+      if(this.IsSusbcribed.isActive == '1')
+      {
+        this.selectedBatchId = Number(this.IsSusbcribed.batchId);
+         
+      }
+       console.log("Subscription Status:",   this.IsSusbcribed.isActive );
+      
+    },error: (err: any) => {  
+      console.log("Error checking subscription status:", err);
+    }
+});
+
+}
+
+
+
+ Createorder_razorpay_NewOrder_fixed(fixed_paymentMode:any,InstallmentNumber:any = 0)
+  {
+ 
+    if(fixed_paymentMode === '' || fixed_paymentMode === null || fixed_paymentMode === undefined)
+    {
+      alert("Please select a subscription plan.");
+      return;
+    }
+
+    if(this.selectedBatchId === null || this.selectedBatchId === undefined ||this.selectedBatchId === 0)
+    {
+      alert("Please select a batch.");
+      return;
+    }
+
+     
+  this.Courses.Createorder_razorpay_NewOrder_fixed(this.paymentType, this.CourseId, fixed_paymentMode,this.selectedBatchId,InstallmentNumber)
+    .subscribe({
+      next: (response: any) => {
+        console.log("Razorpay Order Response:", response);
+
+        const order = response.result;
+
+        const options: any = {
+          key:this. razorpay_key_id,  // your Razorpay Key ID
+          amount: Number(order.amount) * 100, // amount in paise
+          currency: order.currency,
+          name: "Dr Bagchi’s Classes",
+          description: "Course Subscription",
+          order_id: order.orderId,
+          handler: (paymentResponse: any) => {
+            console.log("Payment Response:", paymentResponse);
+
+            // Step 3: Send payment details to backend for verification
+            const payload = {
+              razorpay_order_id: paymentResponse.razorpay_order_id,
+              razorpay_payment_id: paymentResponse.razorpay_payment_id,
+              razorpay_signature: paymentResponse.razorpay_signature,
+              courseId: this.CourseId,
+              plan: this.selectedPlan,
+              amount: order.amount
+            };
+             
+
+            this.Courses.verifyPayment_fixed(payload).subscribe({
+              next: (vres: any) =>
+                 {
+                  
+                console.log("Payment Verified:", vres);
+                //alert("Payment successful and verified!");
+                window.location.reload();
+              },
+              error: (err: any) => {
+                console.error("Payment verification failed", err);
+                alert("Payment verification failed!");
+              }
+            });
+          },
+          prefill: {
+            name: '',   // optional: user name
+            email: '',  // optional: user email
+            contact: '' // optional: user phone
+          },
+          theme: { color: "#0b5ed7" }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        alert("Error creating Razorpay order: " + (err.error?.ErrorMessage || err.message));
+      }
+    });
+}
 
 }

@@ -13,29 +13,45 @@
     <!-- Enrolled Courses Grid -->
     <h2 class="mt-8 mb-4 text-xl font-bold text-indigo-900">Enrolled Courses</h2>
     <div class="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-      <div *ngFor="let course of enrolledCourses" class="bg-white rounded-2xl shadow overflow-hidden flex flex-col">
+      <div *ngFor="let course of AvailableCourse" class="bg-white rounded-2xl shadow overflow-hidden flex flex-col">
         <div class="h-32 w-full relative">
-          <img [src]="course.image" class="rounded-t-2xl object-cover h-full w-full" />
-          <span *ngIf="course.live.isLive"
+          <img [src]="course.CourseImage" class="rounded-t-2xl object-cover h-full w-full" />
+          <!-- <span *ngIf="course.live.isLive"
                 class="absolute top-2 left-2 bg-red-600 text-white py-1 px-3 text-xs rounded shadow">LIVE</span>
           <span *ngIf="course.quizzing.isQuizLive"
-                class="absolute top-2 right-2 bg-yellow-500 text-white py-1 px-3 text-xs rounded shadow">Quiz Live</span>
+                class="absolute top-2 right-2 bg-yellow-500 text-white py-1 px-3 text-xs rounded shadow">Quiz Live</span> -->
         </div>
         <div class="p-5 flex-1 flex flex-col">
           <div class="flex items-center justify-between text-sm text-gray-500 mb-1">
-            <span class="font-semibold">{{course.batch}}</span>
-            <span>{{course.status}}</span>
+            <span class="font-semibold">Batch:{{course.batchName}}</span>
+            <span> Active</span>
           </div>
-          <h3 class="font-bold text-lg text-indigo-900 mb-1">{{course.title}}</h3>
-          <div class="text-sm text-gray-700 mb-2">Current Topic: <span class="font-semibold">{{course.currentTopic}}</span></div>
-          <div class="h-2 w-full bg-indigo-100 rounded-full overflow-hidden mb-4 relative">
+          <h3 class="font-bold text-lg text-indigo-900 mb-1">{{course.CourseName}}</h3>
+          <!-- <div class="text-sm text-gray-700 mb-2">Current Topic: <span class="font-semibold">{{course.currentTopic}}</span></div> -->
+          <!-- <div class="h-2 w-full bg-indigo-100 rounded-full overflow-hidden mb-4 relative">
             <div class="h-2 bg-indigo-600 rounded-full" [style.width.%]="course.percent"></div>
             <span class="absolute right-2 top-[-18px] text-gray-500 text-xs">{{course.percent}}%</span>
-          </div>
-          <button (click)="continueLearning(course)"
-                  class="w-full mt-auto h-10 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">
-            Continue Learning
-          </button>
+          </div> -->
+        <button
+          (click)="continueLearning(course)"
+          *ngIf="course?.isActive === '1'"
+          class="w-full h-9 rounded-lg bg-[#3F51B5] text-white text-xs font-medium
+                hover:bg-[#303F9F] hover:translate-y-[-2px] active:translate-y-[0px]
+                transition-transform duration-200 cursor-pointer">
+          Continue Learning
+        </button>
+
+      <button
+        (click)="RenewCourse(AvailableCourse.courseId)"
+        *ngIf="course?.isActive === '2'"
+        class="w-full h-9 rounded-lg bg-[#d32f2f] text-white text-xs font-medium
+              hover:bg-[#b71c1c] hover:translate-y-[-2px] active:translate-y-[0px]
+              transition-transform duration-200 cursor-pointer">
+        Subscription Expired! Renew Now
+      </button>
+
+
+
         </div>
       </div>
     </div>
@@ -81,15 +97,40 @@
           <span class="text-gray-600 text-sm">Background Part 1 (IO Devices, CPU and Memory)</span>
           <button class="ml-auto bg-green-600 text-white rounded px-4 py-1 font-semibold hover:bg-green-700 transition">Resume</button>
         </div> -->
-        <div>
-          <details class="mb-3">
-            <summary class="cursor-pointer py-2 text-lg font-bold text-indigo-700 pl-1">Java Fundamentals</summary>
-            <ul class="pl-6 mt-2 space-y-2">
-              <li class="text-sm flex items-center"><span class="mr-3">•</span>Java Basics</li>
-              <li class="text-sm flex items-center"><span class="mr-3">•</span>OOPs & Advanced</li>
-            </ul>
-          </details>
-        </div>
+       <!-- MODULES SECTION -->
+<div class="mt-4 divide-y divide-indigo-50">
+  <div *ngFor="let ch of courseModules; let ci = index" class="py-4">
+
+    <!-- Accordion Button -->
+    <div class="mt-2 rounded-lg border border-indigo-200 divide-y">
+      <button (click)="toggleLesson(ci)"
+        class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
+
+        <span class="font-semibold text-indigo-700 text-base">
+          Module {{ch.ModuleNo}}: {{ ch.ModuleName }}
+        </span>
+
+        <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
+          [ngClass]="{ 'rotate-180': isLessonOpen(ci) }"
+          fill="none" stroke="currentColor" stroke-width="2"
+          viewBox="0 0 24 24">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+
+      <!-- TOPICS LIST -->
+      <div *ngIf="isLessonOpen(ci)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
+        <ul class="list-disc pl-5 space-y-1">
+          <li *ngFor="let topic of ch.Topics.split('|')">
+            {{ topic }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
       </ng-container>
 
       <!-- LIVE tab -->

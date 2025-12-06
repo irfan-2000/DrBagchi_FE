@@ -19,10 +19,11 @@ sidebarOpen = false;
     { name: 'Payments', icon: 'credit-card', route: '/payments' },
     { name: 'Settings', icon: 'cog', route: '/settings' },
     {name:'Quiz',icon:'cog',route:'/app/quiz'}
+    
   ];
 
 
-
+  
 
 
   toggleSidebar() {

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { MyCoursesService } from '../my-courses.service';
+import { CoursesService } from '../courses.service';
 
 @Component({
   selector: 'app-my-courses',
@@ -8,6 +10,14 @@ import { Component } from '@angular/core';
 })
 export class MyCoursesComponent {
  
+
+constructor(private mycourses:MyCoursesService,private Courses:CoursesService) 
+{
+
+this.  GetMyCourses( );
+
+ }
+
   // IST Timezone example
   now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
 
@@ -76,9 +86,18 @@ export class MyCoursesComponent {
   }
 
   // When user clicks a course card
-  continueLearning(course: any) {
-    this.selectedCourse = course;
+  continueLearning(course: any) 
+  {
+    this.selectedCourse =this. enrolledCourses[0] ;//course;
     this.view = 'course';
+      this.getCourseById(course.courseId);
+  }
+
+
+  RenewCourse(CourseId:any)
+  {
+///app/course-details?id=33
+window.open(`/app/course-details?id=${CourseId}`,'_blank');
   }
 
   // When user goes back
@@ -87,4 +106,81 @@ export class MyCoursesComponent {
     this.selectedCourse = null;
     this.activeTab = 'chapters';
   }
+
+AvailableCourse:any = [];
+Course:any
+courseModules:any = [];
+
+  GetMyCourses( )
+  {
+    this.mycourses.GetMyCourses().subscribe({
+      next: (response: any) => 
+        {
+          this.AvailableCourse = response.result;
+           
+          console.log('My Courses:', this.AvailableCourse);
+      },
+      error: (error: any) => {
+        console.error('Error fetching courses:', error);
+      }
+    }); 
+
+  }
+
+
+  getCourseById(id: any) {
+  try {
+    this.Courses.GetCourseById_admin(id).subscribe({
+      next: (response: any) => {
+        if (!response) {
+          console.warn('Empty response received');
+          return;
+        }
+         
+        // Extract both parts
+        const item1 = response.Item1 || {};
+        const item2 = response.Item2 || {};
+
+        // Merge key fields from Item2 into Item1 if missing
+        this.Course = {
+          ...item1,
+          ShortDescription: item2.ShortDescription || item1.ShortDescription || '',
+          Overview: item2.Overview   || '',
+          Duration: item2.Duration || '',
+          Level: item2.Level || item1.CourseLevel || '',
+          Highlights: item2.Highlights || item1.Highlights || [],
+          Requirements: item1.Requirements || [],
+          Objectives: item1.Objectives || [],
+          Batches: item1.Batches || [],
+          Installments: item1.Installments || [],
+        };
+ 
+        // Optional: Store separately if needed
+      
+        this.courseModules = response.Item3 || [];
+        debugger
+        console.log('Parsed Course:', this.Course);
+        console.log(this.Course?.Highlights);
+      },
+      error: (err) => {
+        console.error('API Error:', err);
+      },
+    });
+  } catch (err) {
+    console.error('Unexpected Error:', err);
+  }
+}
+
+
+  openLessons: boolean[] = [];
+
+toggleLesson(index: number) {
+  this.openLessons[index] = !this.openLessons[index];
+}
+
+isLessonOpen(index: number): boolean {
+  return this.openLessons[index];
+}
+
+
 }
