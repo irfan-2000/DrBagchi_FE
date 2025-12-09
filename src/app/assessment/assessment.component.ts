@@ -1,4 +1,7 @@
 import { AfterViewInit, Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { QuizserviceService } from '../quizservice.service';
+import { error } from 'console';
 
 @Component({
   selector: 'app-assessment',
@@ -9,8 +12,7 @@ import { AfterViewInit, Component } from '@angular/core';
  
 export class AssessmentComponent implements AfterViewInit {
 
-  timeLeft: number = 300;
-  timer: any;
+   timer: any;
   violations: number = 0;
   quizActive: any = false;
 
@@ -58,13 +60,28 @@ export class AssessmentComponent implements AfterViewInit {
   quizSection: any;
   timerDisplay: any;
   violationsEl: any;
+  timeLeft: string = '00:00:00';
 
-  constructor() {}
+quizId:any;
+sessionId:any;
+constructor(private router: Router,private quizservice:QuizserviceService, private route: ActivatedRoute) 
+  {
+  this.route.queryParams.subscribe(params => 
+    {
+    this.quizId = params['quizid'];
+    this.sessionId = params['sessionid'];
 
-  ngAfterViewInit(): void {
+     this.startServerTimer()
+    console.log("Quiz ID:", this.quizId);
+    console.log("Session ID:", this.sessionId);
+  });
+  }
+
+  ngAfterViewInit(): void
+   {
     this.quizSection = document.getElementById('quizSection');
-    this.timerDisplay = document.getElementById('timerDisplay');
-    this.violationsEl = document.getElementById('violations');
+    
+     this.violationsEl = document.getElementById('violations');
 
     const submitBtn = document.getElementById('submitQuizBtn');
     submitBtn?.addEventListener('click', () => this.submitQuiz(false));
@@ -87,7 +104,7 @@ export class AssessmentComponent implements AfterViewInit {
   { 
     // document.getElementById('startScreen')!.style.display = 'none';
     this.quizActive = true;
-    this.startServerTimer();
+   // this.startServerTimer();
     this.setupSecurity();
   }
 
@@ -95,35 +112,6 @@ export class AssessmentComponent implements AfterViewInit {
 serverCurrentTime!: Date;
 remainingSeconds!: number;
 timerInterval: any;
-
-startServerTimer(endTimeUtc: string, serverTimeUtc: string)
- {
-  this.serverEndTime = new Date(endTimeUtc);
-  this.serverCurrentTime = new Date(serverTimeUtc);
-
-  // Calculate initial difference
-  this.remainingSeconds = Math.floor(
-    (this.serverEndTime.getTime() - this.serverCurrentTime.getTime()) / 1000
-  );
-
-  this.timerInterval = setInterval(() => {
-    this.remainingSeconds--;
-
-    const m = Math.floor(this.remainingSeconds / 60).toString().padStart(2, '0');
-    const s = (this.remainingSeconds % 60).toString().padStart(2, '0');
-    this.timerDisplay.textContent = `Time Left: ${m}:${s}`;
-
-    if (this.remainingSeconds <= 0) {
-      clearInterval(this.timerInterval);
-      this.submitQuiz(true);
-    }
-  }, 1000);
-
-  // periodic server check every 30s
-  setInterval(() => {
-    //this.refreshServerTime();
-  }, 30000);
-}
 
 // // API call to validate server time
 // refreshServerTime() {
@@ -195,6 +183,98 @@ startServerTimer(endTimeUtc: string, serverTimeUtc: string)
 
 
  
+  startServerTimer() 
+  {
+  this.quizservice.syncQuizTime(this.sessionId, this.quizId).subscribe({
+    next: (res: any) =>
+       {
+         
+      if (!res.result || !res.result.endTimeUTC || !res.result.serverTimeUTC)
+     {
+        console.error('Invalid server response for quiz timing');
+        return;
+      }
+
+      // Parse server times
+      this.serverEndTime = new Date(res.result.endTimeUTC);
+      this.serverCurrentTime = new Date(res.result.serverTimeUTC);
+
+      // Calculate initial remaining seconds
+      this.remainingSeconds = Math.floor(
+        (this.serverEndTime.getTime() - this.serverCurrentTime.getTime()) / 1000
+      );
+
+      console.log('Initial remaining seconds:', this.remainingSeconds);
+
+      // Start countdown timer
+      this.timerInterval = setInterval(() => {
+        this.remainingSeconds--;
+
+        const m = Math.floor(this.remainingSeconds / 60)
+          .toString()
+          .padStart(2, '0');
+        const s = (this.remainingSeconds % 60)
+          .toString()
+          .padStart(2, '0');
+
+        console.log(`Time Left: ${m}:${s}`);
+        this.timerDisplay= `Time Left: ${m}:${s}`;
+
+        if (this.remainingSeconds <= 0)
+       {
+          clearInterval(this.timerInterval);
+          this.submitQuiz(true);
+        }
+      }, 1000);
+
+      // Periodic server sync every 30s
+      setInterval(() => {
+        this.syncWithServer();
+      }, 3000);
+    },
+    error: (err: any) => 
+      {
+      console.error('Error fetching quiz time:', err);
+    }
+  });
+}
+
+syncWithServer() {
+  this.quizservice.syncQuizTime(this.sessionId, this.quizId).subscribe({
+    next: (res: any) => {
+      if (res.result && res.result.endTimeUTC && res.result.serverTimeUTC) {
+        const newServerEndTime = new Date(res.result.endTimeUTC);
+        const nowUTC = new Date(res.result.serverTimeUTC);
+
+        const newRemaining = Math.floor(
+          (newServerEndTime.getTime() - nowUTC.getTime()) / 1000
+        );
+
+        this.remainingSeconds = newRemaining;
+
+        console.log('Synced remaining seconds:', this.remainingSeconds);
+
+        // Auto submit if server time is over
+        if (this.remainingSeconds <= 0) 
+          {
+          clearInterval(this.timerInterval);
+          this.submitQuiz(true);
+        }
+      } else {
+        console.error('Invalid server response during sync');
+      }
+    },
+    error: (err: any) => {
+      console.error('Error syncing with server:', err);
+    }
+  });
+}
 
 
+
+
+
+  isCorrect(option: string, question: any) {
+    
+  }
 }

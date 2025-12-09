@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { error } from 'console';
+import { response } from 'express';
+import { QuizserviceService } from '../quizservice.service';
 
 @Component({
   selector: 'app-quiz',
@@ -9,8 +12,12 @@ import { Router } from '@angular/router';
 })
 export class QuizComponent {
 
-  constructor(private router: Router) {}
-ongoingQuizzes = [
+  constructor(private router: Router,private quizservice:QuizserviceService) 
+  {
+    this. Getquizbystatus('UN');
+
+  }
+ongoingQuizzes1 = [
     {
       id: 1,
       title: 'Java Basics Mock Test',
@@ -70,7 +77,7 @@ ongoingQuizzes = [
     }
   ];
 
-  upcomingQuizzes = [
+  upcomingQuizzes1 = [
     {
       id: 5,
       title: 'Inheritance Deep Dive',
@@ -85,11 +92,14 @@ ongoingQuizzes = [
   showInstructionsModal = false;
   selectedQuiz: any = null;
 
-  ISTString(dateStr: string) {
+  ISTString(dateStr: string)
+   {
     return new Date(dateStr).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   }
 
-  attendQuiz(quiz: any) {
+  attendQuiz(quiz: any) 
+  {
+     
     this.selectedQuiz = quiz;
     this.showInstructionsModal = true;
   }
@@ -99,15 +109,109 @@ ongoingQuizzes = [
     this.selectedQuiz = null;
   }
 
-  startQuiz(quizId: number) {
-    alert('Starting Quiz ID: ' + quizId);
-const url = `/assessment-page?quizId=${encodeURIComponent(quizId)}&isStarted=true`;
+  startQuiz(quizId: number,courseid:any)
+  {
+debugger
 
-// Use the native window.open() method to navigate to this relative URL in a new tab/window
-window.open(url, '_blank');
-    this.closeModal();
+    this.quizservice.startQuiz(quizId,courseid).subscribe({
+      next: (response: any) =>
+      {
+          this.closeModal();
+          debugger
+         const url = `/assessment-page?quizId=${encodeURIComponent(quizId)}&sessionid=${response.result.Sessionid}&quizid=${quizId}&isStarted=true`;
+      // Use the native window.open() method to navigate to this relative URL in a new tab/window
+        window.open(url, '_blank');
+      
+        console.log('Quiz started successfully:', response);
+      },error: (err: any) => 
+      {
+        console.log("error starting quiz:", err); 
+      }
+ 
+    })
+
+
   }
 
+Quizbystatus:any
+ongoingQuizzes:any =[]
+upcomingQuizzes:any =[]
+Getquizbystatus(flag: any)
+ {
+  this.quizservice.getQuizByStatus(flag).subscribe({
+    next: (response: any) =>
+      {
+        
+        this.Quizbystatus = response.result; 
+        //"StartDateTime": "06-12-2025",
+        // "StartTime": "16:00:00",
+   this.ongoingQuizzes = this.Quizbystatus.filter((q:any) => 
+    {
+  const now = new Date();
+  const start = this.combineDateAndTime(q.StartDateTime, q.StartTime);
+  const end = this.combineDateAndTime(q.EndDateTime, q.EndTime);
+  return start <= now && end >= now; // started but not finished
+});
+
+
+this.upcomingQuizzes = this.Quizbystatus.filter((q:any) =>
+  this.combineDateAndTime(q.StartDateTime, q.StartTime) > new Date()
+);
+ 
+
+       console.log(response);
+    },
+    error: (err: any) => {
+      console.log('Error fetching quizzes by status:', err);
+    }
+  });
+}
+combineDateAndTime(dateStr: string, timeStr: string): Date 
+{
+  const [day, month, year] = dateStr.split('-');
+  console.log("Final time "   , new Date(`${year}-${month}-${day}T${timeStr}`))
+  return new Date(`${year}-${month}-${day}T${timeStr}`);
+}
+ 
+convertToAmPm(time24: string): string 
+{ 
+  if (!time24) return "";
+
+  // Split hours and minutes
+  const [hourStr, minuteStr] = time24.split(":");
+  let hour = parseInt(hourStr, 10);
+  const minutes = minuteStr;
+
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  hour = hour ? hour : 12; // Convert 0 to 12
+
+  return `${hour}:${minutes} ${ampm}`;
+}
+formatDuration(duration: string): string {
+  if (!duration) return "";
+
+  const timePart = duration.split(".")[0];  // remove milliseconds
+  const [hours, minutes, seconds] = timePart.split(":").map(Number);
+
+  let result = "";
+
+  if (hours > 0) result += `${hours}h `;
+  if (minutes > 0) result += `${minutes}m `;
+  if (seconds > 0) result += `${seconds}s`;
+
+  return result.trim();
+}
   
+// convert string time to comparable number format e.g. "16:00:00" → 160000
+to24HrTime(time: string): number 
+{debugger
+  if (!time) return 0;
+  return Number(time.replace(/:/g, ""));
+}
+
+
+
+ 
 
 }
