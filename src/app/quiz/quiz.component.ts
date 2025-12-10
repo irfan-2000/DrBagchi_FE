@@ -117,6 +117,7 @@ debugger
       next: (response: any) =>
       {
           this.closeModal();
+          this.Getquizbystatus('UN');
           debugger
          const url = `/assessment-page?quizId=${encodeURIComponent(quizId)}&sessionid=${response.result.Sessionid}&quizid=${quizId}&isStarted=true`;
       // Use the native window.open() method to navigate to this relative URL in a new tab/window

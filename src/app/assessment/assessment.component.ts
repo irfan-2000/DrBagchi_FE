@@ -17,44 +17,7 @@ export class AssessmentComponent implements AfterViewInit {
   quizActive: any = false;
 
   // Hardcoded Dummy Quiz Payload For UI
-  questions: any[] = [
-    {
-      id: 1,
-      text: "Identify the structure labeled X in the diagram of a hibiscus plant.",
-      image: "/uploads/qimages/hibiscus_flower.png",
-      options: ["Root", "Stem", "Leaf", "Flower"],
-      correct: "Flower"
-    },
-    {
-      id: 2,
-      text: "Which of the following is not a mammal?",
-      image: "",
-      options: ["Whale", "Bat", "Crocodile", "Dolphin"],
-      correct: "Crocodile"
-    },
-    {
-      id: 3,
-      text: "Observe the two images of hibiscus and rose. Identify which flower has fused petals.",
-      image: "",
-      options: ["Hibiscus", "Rose", "Both", "None"],
-      correct: "Hibiscus"
-    },
-    {
-      id: 4,
-      text: "The diagram shows two types of roots. Identify the taproot system.",
-      image: "/uploads/qimages/taproot_vs_fibrous.png",
-      options: ["Image A", "Image B", "Both", "None"],
-      correct: "Image A"
-    },
-    {
-      id: 5,
-      text: "What part of the plant is mainly responsible for photosynthesis?",
-      image: "/uploads/qimages/leaf_structure.png",
-      options: ["Leaf", "Stem", "Flower", "Root"],
-      correct: "Leaf"
-    }
-  ];
-
+  questions: any =[]  
   userAnswers: any = {};
 
   quizSection: any;
@@ -74,6 +37,7 @@ constructor(private router: Router,private quizservice:QuizserviceService, priva
      this.startServerTimer()
     console.log("Quiz ID:", this.quizId);
     console.log("Session ID:", this.sessionId);
+    this.GetQuizData();
   });
   }
 
@@ -128,13 +92,14 @@ timerInterval: any;
 // }
 
 
-  submitQuiz(autoSubmit: boolean = false, violation: boolean = false) {
+  submitQuiz(autoSubmit: boolean = false, violation: boolean = false)
+   {
     if (!this.quizActive) return;
     clearInterval(this.timer);
     this.quizActive = false;
 
     let score = 0;
-    this.questions.forEach(q => {
+    this.questions.forEach((q:any) => {
       if (this.userAnswers[q.id] === q.correct) score++;
     });
 
@@ -142,9 +107,11 @@ timerInterval: any;
     if (violation) msg = "Security Violation! Quiz Terminated\n\n" + msg;
     else if (autoSubmit) msg = "⏳ Time Up - Auto Submitted\n\n" + msg;
 
-    alert(msg);
-    this.exitFullscreen();
-    location.reload();
+
+    
+    //alert(msg);
+    //this.exitFullscreen();
+    //location.reload();
   }
 
   setupSecurity() {
@@ -188,6 +155,12 @@ timerInterval: any;
   this.quizservice.syncQuizTime(this.sessionId, this.quizId).subscribe({
     next: (res: any) =>
        {
+
+        if(res.status != "200")
+        {
+          alert("Error:" + res.message);
+          return
+        }
          
       if (!res.result || !res.result.endTimeUTC || !res.result.serverTimeUTC)
      {
@@ -268,13 +241,38 @@ syncWithServer() {
       console.error('Error syncing with server:', err);
     }
   });
+} 
+  isCorrect(option: string, question: any)
+   {
+    
+  }
+
+GetQuizData()
+{
+  this.quizservice.GetQuizData(this.quizId,this.sessionId).subscribe(
+    {
+    next: (res: any) =>
+       {
+        this.questions= res.result;
+        debugger
+       },
+    error: (err: any) => 
+      {
+      console.error('Error fetching quiz data:', err);
+}});
+}
+
+toggleMSQ(q: any, key: string) {
+  if (!q.selectedAnswer) {
+    q.selectedAnswer = [];
+  }
+
+  if (q.selectedAnswer.includes(key)) {
+    q.selectedAnswer = q.selectedAnswer.filter((x: string) => x !== key);
+  } else {
+    q.selectedAnswer.push(key);
+  }
 }
 
 
-
-
-
-  isCorrect(option: string, question: any) {
-    
-  }
 }

@@ -70,5 +70,24 @@ headers,withCredentials: false
 }
 
 
+GetQuizData(  quizId:any,sessionId:any)
+{
+  const token = localStorage.getItem('token'); // Or wherever you store your token
+const headers = new HttpHeaders({
+  'Authorization': `Bearer ${token}`
+}); 
+const unique = Math.random();
+
+let params = new HttpParams().set('quizId',quizId.toString()).set('sessionId',sessionId.toString());
+
+return this.http.post<any>(`${this.baseurl}api/GetQuizData?_=${unique}`,null,
+ {
+  params:params,
+headers,withCredentials: false
+ });
+
+
+}
+
 }
      
