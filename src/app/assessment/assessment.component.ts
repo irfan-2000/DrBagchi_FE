@@ -38,11 +38,13 @@ constructor(private router: Router,private quizservice:QuizserviceService, priva
     console.log("Quiz ID:", this.quizId);
     console.log("Session ID:", this.sessionId);
     this.GetQuizData();
+
   });
-  }
+   }
 
   ngAfterViewInit(): void
    {
+    this.startQuiz();
     this.quizSection = document.getElementById('quizSection');
     
      this.violationsEl = document.getElementById('violations');
@@ -141,7 +143,8 @@ timerInterval: any;
     this.violationsEl.textContent = this.violations;
 
     if (this.violations >= 3) this.submitQuiz(false, true);
-    else alert(`${reason} | Violation ${this.violations}/3`);
+    //else 
+      //alert(`${reason} | Violation ${this.violations}/3`);
   }
 
   async exitFullscreen() {
@@ -253,7 +256,22 @@ GetQuizData()
     {
     next: (res: any) =>
        {
-        this.questions= res.result;
+        //this.questions= res.result;
+        this.questions = res.result.map((q: any) => {
+  let options = [];
+
+  if (q.OptionA) options.push({ key: 'A', text: q.OptionA });
+  if (q.OptionB) options.push({ key: 'B', text: q.OptionB });
+  if (q.OptionC) options.push({ key: 'C', text: q.OptionC });
+  if (q.OptionD) options.push({ key: 'D', text: q.OptionD });
+
+  return {
+    ...q,
+    uiOptions: options,
+    selectedAnswer: q.QuestionType === 'MSQ' ? [] : ''
+  };
+});
+
         debugger
        },
     error: (err: any) => 
@@ -273,6 +291,16 @@ toggleMSQ(q: any, key: string) {
     q.selectedAnswer.push(key);
   }
 }
+selectedImage: string | null = null;
+
+openImage(img: string) {
+  this.selectedImage = img;
+  this.activeImage= img;
+}
+
+ // in your component
+activeImage: string | null = null;
+ 
 
 
 }
