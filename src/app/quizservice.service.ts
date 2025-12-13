@@ -84,10 +84,28 @@ return this.http.post<any>(`${this.baseurl}api/GetQuizData?_=${unique}`,null,
  {
   params:params,
 headers,withCredentials: false
+ }); 
+}
+
+
+submitQuiz(payload:any)
+{  
+  const token = localStorage.getItem('token'); // Or wherever you store your token
+const headers = new HttpHeaders({
+  'Authorization': `Bearer ${token}`
+}); 
+const unique = Math.random(); 
+debugger
+return this.http.post<any>(`${this.baseurl}api/submitquiz?_=${unique}`,payload,
+ {
+ headers,withCredentials: false
  });
 
 
 }
+
+
+
 
 }
      

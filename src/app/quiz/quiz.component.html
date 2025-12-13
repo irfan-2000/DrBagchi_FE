@@ -1,51 +1,126 @@
 <div class="max-w-4xl  px-4 py-8 space-y-8">
 
   <!-- Ongoing Quizzes: Compact Card Grid Layout -->
-  <h2 class="text-2xl font-bold text-indigo-900 mb-4">Ongoing Quizzes</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+ <h2 class="text-2xl font-bold text-indigo-900 mb-4">
+  Ongoing Quizzes
+</h2>
+
+<!-- GRID / EMPTY STATE WRAPPER -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+
+  <!-- QUIZ CARDS -->
+  <ng-container *ngIf="ongoingQuizzes?.length > 0; else noQuiz">
     <div *ngFor="let quiz of ongoingQuizzes"
          class="bg-white rounded-xl shadow p-4 flex flex-col justify-between h-48">
+
       <div class="flex-1">
-        <h3 class="font-semibold text-indigo-800 text-sm mb-1">{{quiz.Title}}</h3>
-        <p class="text-xs text-gray-600 mb-1">{{quiz.CourseName}} • Batch: {{quiz.BatchName}}</p>
-        <p class="text-xs text-gray-500 mb-1">Start: {{(quiz.StartDateTime)}} - {{convertToAmPm(quiz.StartTime)}}</p>
-        <p class="text-xs text-gray-500 mb-2">End: {{ (quiz.EndDateTime)}} - {{convertToAmPm(quiz.EndTime)}}</p>
-            <span
-        
-        class="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-       Live
-      </span>
+        <h3 class="font-semibold text-indigo-800 text-sm mb-1">
+          {{ quiz.Title }}
+        </h3>
 
-      <!-- <span
-        *ngIf="isActive(quiz.status)"
-        class="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-        {{ quiz.status }}
-      </span> -->
+        <p class="text-xs text-gray-600 mb-1">
+          {{ quiz.CourseName }} • Batch: {{ quiz.BatchName }}
+        </p>
 
+        <p class="text-xs text-gray-500 mb-1">
+          Start: {{ quiz.StartDateTime }} - {{ convertToAmPm(quiz.StartTime) }}
+        </p>
+
+        <p class="text-xs text-gray-500 mb-2">
+          End: {{ quiz.EndDateTime }} - {{ convertToAmPm(quiz.EndTime) }}
+        </p>
+
+        <span
+          class="inline-block px-2 py-1 rounded-full text-xs font-semibold
+                 bg-red-100 text-red-800">
+          Live
+        </span>
       </div>
-      <button (click)="attendQuiz(quiz)"
-              class="w-full mt-3 px-4 py-2 rounded-lg bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition shadow">
+
+      <button
+        (click)="attendQuiz(quiz)"
+        class="w-full mt-3 px-4 py-2 rounded-lg bg-indigo-600 text-white
+               font-bold text-sm hover:bg-indigo-700 transition shadow">
         Attend
       </button>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- EMPTY STATE CARD (SAME SIZE & POSITION) -->
+  <ng-template #noQuiz>
+    <div
+      class="bg-white rounded-xl shadow p-4 flex flex-col
+             items-center justify-center h-48 col-span-1 md:col-span-2 lg:col-span-3">
+
+      <div class="text-4xl mb-2">📭</div>
+      <p class="text-sm font-semibold text-gray-700">
+        No ongoing quiz found
+      </p>
+      <p class="text-xs text-gray-400 mt-1">
+        Please check back later
+      </p>
+    </div>
+  </ng-template>
+
+</div>
+
 
   <!-- Upcoming Quizzes: Compact Card Grid Layout -->
   <h2 class="text-xl font-bold text-indigo-900 mb-4">Upcoming Quizzes</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+
+  <!-- UPCOMING QUIZ CARDS -->
+  <ng-container *ngIf="upcomingQuizzes?.length > 0; else noUpcomingQuiz">
     <div *ngFor="let quiz of upcomingQuizzes"
          class="bg-white rounded-xl border p-4 flex flex-col justify-between h-40">
+
       <div class="flex-1">
-         <h3 class="font-semibold text-indigo-800 text-sm mb-1">{{quiz.Title}}</h3>
-        <p class="text-xs text-gray-600 mb-1">{{quiz.CourseName}} • Batch: {{quiz.BatchName}}</p>
-        <p class="text-xs text-gray-500 mb-1">Start: {{(quiz.StartDateTime)}} - {{convertToAmPm(quiz.StartTime)}}</p>
-        <p class="text-xs text-gray-500 mb-2">End: {{ (quiz.EndDateTime)}} - {{convertToAmPm(quiz.EndTime)}}</p>
-       </div>
+        <h3 class="font-semibold text-indigo-800 text-sm mb-1">
+          {{ quiz.Title }}
+        </h3>
+
+        <p class="text-xs text-gray-600 mb-1">
+          {{ quiz.CourseName }} • Batch: {{ quiz.BatchName }}
+        </p>
+
+        <p class="text-xs text-gray-500 mb-1">
+          Start: {{ quiz.StartDateTime }} - {{ convertToAmPm(quiz.StartTime) }}
+        </p>
+
+        <p class="text-xs text-gray-500 mb-2">
+          End: {{ quiz.EndDateTime }} - {{ convertToAmPm(quiz.EndTime) }}
+        </p>
+      </div>
+
       <div class="flex justify-between items-center mt-2">
-        <span class="px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700">Scheduled</span>
+        <span
+          class="px-2 py-1 rounded text-xs font-semibold
+                 bg-yellow-100 text-yellow-700">
+          Scheduled
+        </span>
       </div>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- EMPTY STATE (SAME SIZE & POSITION) -->
+  <ng-template #noUpcomingQuiz>
+    <div
+      class="bg-white rounded-xl border p-4 h-40
+             flex flex-col items-center justify-center
+             col-span-1 md:col-span-2 lg:col-span-3">
+
+      <div class="text-4xl mb-2">📅</div>
+      <p class="text-sm font-semibold text-gray-700">
+        No upcoming quizzes
+      </p>
+      <p class="text-xs text-gray-400 mt-1">
+        Please check back later
+      </p>
+    </div>
+  </ng-template>
+
+</div>
+
 
   <!-- Quiz History as Table -->
   <h2 class="text-xl font-bold text-indigo-900 mb-4">Quiz History</h2>
@@ -113,8 +188,7 @@
             class="w-full mt-4 py-2 rounded-lg bg-[#3F51B5] text-white font-bold text-sm hover:bg-[#303F9F] hover:translate-y-[-2px] active:translate-y-[0px] transition-all duration-200">
       Start Quiz
     </button>
-  </div>
-
+  </div> 
 </div>
 
 </div>

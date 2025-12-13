@@ -93,28 +93,59 @@ timerInterval: any;
 //   });
 // }
 
+ submitQuiz(autoSubmit: boolean = false, violation: boolean = false): void {
+  if (!this.quizActive) return;
 
-  submitQuiz(autoSubmit: boolean = false, violation: boolean = false)
-   {
-    if (!this.quizActive) return;
-    clearInterval(this.timer);
-    this.quizActive = false;
+  // stop timers
+  clearInterval(this.timerInterval);
+  this.quizActive = false;
 
-    let score = 0;
-    this.questions.forEach((q:any) => {
-      if (this.userAnswers[q.id] === q.correct) score++;
-    });
+  const submittedAnswers = this.questions.map((q: any) => {
+    return {
+      questionId: q.QuestionId,
+      questionType: q.QuestionType,
 
-    let msg = `Score: ${score}/${this.questions.length}\n`;
-    if (violation) msg = "Security Violation! Quiz Terminated\n\n" + msg;
-    else if (autoSubmit) msg = "⏳ Time Up - Auto Submitted\n\n" + msg;
+      // MCQ → string
+      // MSQ → string[]
+      // NUM → string
+      answer:
+        q.QuestionType === 'MSQ'
+          ? (q.selectedAnswer || [])                     // array
+          : q.selectedAnswer ?? null                     // string / number
+    };
+  });
 
+  const payload = {
+    quizId: this.quizId,
+    sessionId: this.sessionId,
+    autoSubmit: autoSubmit,
+    violation: violation,
+    submittedAtUTC: new Date().toISOString(),
+    answers: submittedAnswers
+  };
 
-    
-    //alert(msg);
-    //this.exitFullscreen();
-    //location.reload();
+  // ✅ PRINT FINAL RESULT IN CONSOLE
+  console.log('📤 Quiz Submitted Payload:', payload);
+ 
+  this.quizservice.submitQuiz(payload).subscribe({
+    next: (res: any) => {
+      console.log('✅ Quiz submission success:', res);
+    },
+    error: (err: any) => {
+      console.error('❌ Quiz submission failed:', err);
+    }
+  });
+
+  // Optional message
+  if (violation) {
+    console.warn('🚫 Quiz auto-submitted due to violation');
+  } else if (autoSubmit) {
+    console.warn('⏳ Quiz auto-submitted due to time up');
+  } else {
+    console.log('📝 Quiz submitted manually');
   }
+}
+
 
   setupSecurity() {
     document.addEventListener('visibilitychange', () => {
@@ -161,7 +192,7 @@ timerInterval: any;
 
         if(res.status != "200")
         {
-          alert("Error:" + res.message);
+        //    alert("Error:" + res.message);
           return
         }
          
@@ -215,9 +246,11 @@ timerInterval: any;
   });
 }
 
-syncWithServer() {
+syncWithServer()
+ {
   this.quizservice.syncQuizTime(this.sessionId, this.quizId).subscribe({
-    next: (res: any) => {
+    next: (res: any) =>
+      { 
       if (res.result && res.result.endTimeUTC && res.result.serverTimeUTC) {
         const newServerEndTime = new Date(res.result.endTimeUTC);
         const nowUTC = new Date(res.result.serverTimeUTC);
@@ -249,33 +282,57 @@ syncWithServer() {
    {
     
   }
+showpopup:any = false;
+IsExpired:any = false;
+quizstatus:any;
 
 GetQuizData()
 {
   this.quizservice.GetQuizData(this.quizId,this.sessionId).subscribe(
     {
     next: (res: any) =>
-       {
-        //this.questions= res.result;
+       {debugger
+
+        if(res.status != 200)
+        {
+          if(res.status == 410)
+          {
+            this.showpopup = true;
+            this.quizstatus = "Quiz time has been expired. You can no longer take this quiz.";
+          }
+          else if(res.status == 404)
+          {
+             this.showpopup = true;
+            this.quizstatus = "Quiz not found. Please check the quiz link or contact support.";
+        
+          }
+
+        }
+        else
+          {
+           //this.questions= res.result;
         this.questions = res.result.map((q: any) => {
-  let options = [];
+        let options = [];
 
-  if (q.OptionA) options.push({ key: 'A', text: q.OptionA });
-  if (q.OptionB) options.push({ key: 'B', text: q.OptionB });
-  if (q.OptionC) options.push({ key: 'C', text: q.OptionC });
-  if (q.OptionD) options.push({ key: 'D', text: q.OptionD });
+        if (q.OptionA) options.push({ key: 'A', text: q.OptionA });
+        if (q.OptionB) options.push({ key: 'B', text: q.OptionB });
+        if (q.OptionC) options.push({ key: 'C', text: q.OptionC });
+        if (q.OptionD) options.push({ key: 'D', text: q.OptionD });
 
-  return {
-    ...q,
-    uiOptions: options,
-    selectedAnswer: q.QuestionType === 'MSQ' ? [] : ''
-  };
-});
+        return {
+          ...q,
+          uiOptions: options,
+          selectedAnswer: q.QuestionType === 'MSQ' ? [] : ''
+        };
+      });
 
-        debugger
+        }
+       
+
+        
        },
     error: (err: any) => 
-      {
+      { 
       console.error('Error fetching quiz data:', err);
 }});
 }
