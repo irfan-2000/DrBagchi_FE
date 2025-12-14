@@ -9,7 +9,37 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
 
   <!-- QUIZ CARDS -->
-  <ng-container *ngIf="ongoingQuizzes?.length > 0; else noQuiz">
+  <ng-container *ngIf="ongoingQuizzes?.length > 0 || runningquiz.length > 0; else noQuiz">
+    <div *ngFor="let quiz of runningquiz"
+         class="bg-white rounded-xl shadow p-4 flex flex-col justify-between h-48">
+    <h3 class="text-red-900">You have unfinished quiz</h3>
+      <div class="flex-1">
+        <h3 class="font-semibold text-indigo-800 text-sm mb-1">
+          {{ quiz.Title }}
+        </h3>
+
+        <p class="text-xs text-gray-600 mb-1">
+          {{ quiz.CourseName }} • Batch: {{ quiz.BatchName }}
+        </p>
+
+        <p class="text-xs text-gray-500 mb-1">
+          Start: {{ quiz.StartTime }} - {{ convertToAmPm(quiz.StartTime) }}
+        </p>
+
+        <p class="text-xs text-gray-500 mb-2">
+          End: {{ quiz.EndTime }} - {{ convertToAmPm(quiz.EndTime) }}
+        </p>
+ 
+      </div>
+
+      <button
+        (click)="attendQuiz(quiz)"
+        class="w-full mt-3 px-4 py-2 rounded-lg bg-red-600 text-white
+               font-bold text-sm hover:bg-red-700 transition shadow">
+        Resume
+      </button>
+    </div>
+
     <div *ngFor="let quiz of ongoingQuizzes"
          class="bg-white rounded-xl shadow p-4 flex flex-col justify-between h-48">
 
@@ -44,6 +74,8 @@
         Attend
       </button>
     </div>
+
+    
   </ng-container>
 
   <!-- EMPTY STATE CARD (SAME SIZE & POSITION) -->

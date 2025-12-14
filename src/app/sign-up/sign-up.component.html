@@ -1,149 +1,172 @@
-<div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-8 pt-20">
+<div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-8 pt-18">
   <div class="bg-white rounded-lg shadow-lg p-6 md:p-10 w-full max-w-4xl">
-    <h2 class="text-3xl font-bold text-indigo-700 mb-6 text-center">Student Signup</h2>
+    <h2 class="text-3xl font-bold text-indigo-700 mb-6 text-center">
+      Create Your Student  Account
+    </h2>
 
     <form  [formGroup]="signupForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <!-- ========== Student Details ========== -->
-      <div class="md:col-span-2">
-        <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">Student Details</h3>
-      </div>
+     <!-- ========== Student Details ========== -->
+<div class="md:col-span-2">
+  <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">
+    Student Details
+  </h3>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">Full Name</label>
-        <input type="text" name="fullName" formControlName="fullName" class="w-full border rounded-lg px-3 py-2" required>
-          <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['fullName']">
+<!-- Row 1 -->
+<div>
+  <label class="block font-semibold mb-1">Full Name</label>
+  <input type="text" formControlName="fullName" class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['fullName']">
     {{ errorMessages['fullName'] }}
   </span>
-      </div>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">Email Address</label>
-        <input  formcontrolnaem type="email" name="email" formControlName="email" class="w-full border rounded-lg px-3 py-2" required>
-        <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['email']">
+<div>
+  <label class="block font-semibold mb-1">Email Address</label>
+  <input type="email" formControlName="email" class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['email']">
     {{ errorMessages['email'] }}
   </span>
-       </div>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">Mobile Number</label>
-        <input type="tel" name="mobile" pattern="[0-9]{10}" formControlName="mobile" class="w-full border rounded-lg px-3 py-2" required>
-       <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['mobile']">
+<!-- Row 2 -->
+<div>
+  <label class="block font-semibold mb-1">Mobile Number</label>
+  <input type="tel" maxlength="10" formControlName="mobile"
+         class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['mobile']">
     {{ errorMessages['mobile'] }}
   </span>
-      
-      </div>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">Gender</label>
-        <select name="gender" formControlName="gender" required class="w-full border rounded-lg px-3 py-2">
-          <option value="" disabled>Select</option>
-          <option value="M">Male</option>
-          <option value="F">Female</option>
-          <option  value="O"> Other</option>
-        </select>
- <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['gender']">
+<div>
+  <label class="block font-semibold mb-1">Gender</label>
+  <select formControlName="gender" class="w-full border rounded-lg px-3 py-2">
+    <option value="">Select</option>
+    <option value="M">Male</option>
+    <option value="F">Female</option>
+    <option value="O">Other</option>
+  </select>
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['gender']">
     {{ errorMessages['gender'] }}
   </span>
+</div>
 
-      </div>
+<!-- Row 3 -->
+<div>
+  <label class="block font-semibold mb-1">Date of Birth</label>
+  <input type="date" formControlName="dob" class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['dob']">
+    {{ errorMessages['dob'] }}
+  </span>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">Date of Birth</label>
-        <input type="date" name="dob" formControlName="dob" class="w-full border rounded-lg px-3 py-2" required>
-         <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['dob']">
-          {{ errorMessages['dob'] }}
-          </span>     
-      </div>
+<div>
+  <label class="block font-semibold mb-1">Caste</label>
 
-    
-        <div>
-          <label class="block text-gray-600 font-medium text-sm md:text-base">Profile Picture</label>
-          <div class="relative w-48 h-48 mx-auto">
-            <input type="file" id="profileImage" (change)="onFileChange($event)"  formControlName="profileImage"
-            class="hidden w-full p-1 border rounded text-sm md:text-base md:p-2" />          
-            <label for="profileImage" class="absolute top-0 right-0 px-2 py-1 rounded-full bg-[#004687] text-white border cursor-pointer"> <i class="fa-solid fa-pen"></i> </label>
-            
-            <img  [src]="profileImagePreview" alt="Preview" 
-            class="mt-2 w-48 h-48 rounded-full shadow-md" />
-            <span *ngIf="errorMessages['profileImage']" class="text-red-500">{{
-              errorMessages["profileImage"]
-            }}</span>
-          </div>
-        </div> 
+  <select
+    formControlName="caste"
+    class="w-full border rounded-lg px-3 py-2"
+  >
+    <option value="">Select Caste</option>
+    <option *ngFor="let c of castes" [value]="c">
+      {{ c }}
+    </option>
+  </select>
 
-
-
-
-
-
-
+  <span
+    class="text-sm text-red-600 font-medium"
+    *ngIf="errorMessages['caste']"
+  >
+    {{ errorMessages['caste'] }}
+  </span>
+</div>
 
 
+<!-- ========== Profile Picture (FULL ROW LEFT) ========== -->
+<div class="md:col-span-2">
+  <label class="block text-sm font-medium text-gray-600 mb-2">
+    Profile Picture
+  </label>
 
+  <div class="flex">
+    <div class="relative w-40 h-40">
+      <input type="file" id="profileImage"
+             formControlName="profileImage"
+             (change)="onFileChange($event)"
+             class="hidden">
 
-      <div>
-        <label class="block font-semibold mb-1">Parent/Guardian Name</label>
-        <input type="text" name="parentName" formControlName="parentName" class="w-full border rounded-lg px-3 py-2" required>
-      
-             <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['parentName']">
+      <label for="profileImage" class="cursor-pointer">
+        <img [src]="profileImagePreview"
+             class="w-40 h-40 rounded-full object-cover border shadow">
+      </label>
+    </div>
+  </div>
+
+  <p *ngIf="errorMessages['profileImage']" class="mt-2 text-sm text-red-600">
+    {{ errorMessages['profileImage'] }}
+  </p>
+</div>
+
+<!-- Row 4 -->
+<div>
+  <label class="block font-semibold mb-1">Parent/Guardian Name</label>
+  <input type="text" formControlName="parentName" class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['parentName']">
     {{ errorMessages['parentName'] }}
   </span>
-      
-      </div>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">Parent/Guardian Mobile</label>
-        <input type="tel" name="parentMobile" pattern="[0-9]{10}" formControlName="parentMobile" class="w-full border rounded-lg px-3 py-2" required>
-                     <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['parentMobile']">
+<div>
+  <label class="block font-semibold mb-1">Parent/Guard ian Mobile</label>
+  <input type="tel" maxlength="10" formControlName="parentMobile"
+         class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['parentMobile']">
     {{ errorMessages['parentMobile'] }}
   </span>
-      </div>
+</div>
 
-      <div class="md:col-span-2">
-        <label class="block font-semibold mb-1">Street Address</label>
-        <input type="text" name="address" formControlName="address" class="w-full border rounded-lg px-3 py-2" required>
-    
-                         <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['address']">
+<!-- ========== Address ========== -->
+<div class="md:col-span-2">
+  <label class="block font-semibold mb-1">Street Address</label>
+  <input type="text" formControlName="address" class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['address']">
     {{ errorMessages['address'] }}
   </span>
-    
-      </div>
+</div>
 
-      <div>
-        <label class="block font-semibold mb-1">City</label>
-        <input type="text" name="city" formControlName="city" class="w-full border rounded-lg px-3 py-2" required>
-                                 <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['city']">
+<div>
+  <label class="block font-semibold mb-1">City</label>
+  <input type="text" formControlName="city" class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['city']">
     {{ errorMessages['city'] }}
   </span>
-    
+</div>
 
-      </div>
-
-       
-
-      <div>
-      <label class="block font-semibold mb-1">State</label>
-      <select name="state" formControlName="state" class="w-full border rounded-lg px-3 py-2" required>
-        <option value="">Select</option>
-        <option *ngFor="let state of states" [value]="state">{{state}}</option>
-      </select>
-
-    <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['state']">
+<div>
+  <label class="block font-semibold mb-1">State</label>
+  <select formControlName="state" class="w-full border rounded-lg px-3 py-2">
+    <option value="">Select</option>
+    <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+  </select>
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['state']">
     {{ errorMessages['state'] }}
   </span>
-    </div>
+</div>
 
-
-
-      <div>
-        <label class="block font-semibold mb-1">Pincode</label>
-        <input type="text" name="pincode" pattern="[0-9]{6}" formControlName="pincode" class="w-full border rounded-lg px-3 py-2" required>
-        
-       <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['pincode']">
+<div>
+  <label class="block font-semibold mb-1">Pincode</label>
+  <input type="text" maxlength="6" formControlName="pincode"
+         class="w-full border rounded-lg px-3 py-2">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['pincode']">
     {{ errorMessages['pincode'] }}
   </span>
-      </div>
+</div>
+
+
+
+
   <!-- ========== Institution Details ========== -->
       <div class="md:col-span-2">
         <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">Institution Details</h3>
@@ -154,7 +177,7 @@
         <label class="block font-semibold mb-1">Institution</label>
         <input type="text" name="pincode" pattern="[0-9]{6}" formControlName="institution" class="w-full border rounded-lg px-3 py-2" required>
     
-      <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['institution']">
+      <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['institution']">
     {{ errorMessages['institution'] }}
   </span>
     
@@ -168,7 +191,7 @@
       {{ b.BoardName }}
     </option>
   </select>
-  <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['board']">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['board']">
     {{ errorMessages['board'] }}
   </span>
 
@@ -186,7 +209,7 @@
           <option *ngFor="let c of availableClasses" [value]="c.ClassId">{{c.ClassName}}</option>
         </select>
 
-          <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['class']">
+          <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['class']">
     {{ errorMessages['class'] }}
   </span>
 
@@ -194,27 +217,27 @@
 
       <div>
         <label class="block font-semibold mb-1">Subject</label>
-        <select name="course" formControlName="subject" class="w-full border rounded-lg px-3 py-2" required  (change)="getAvailableBatches()">
+        <select name="course" formControlName="subject" class="w-full border rounded-lg px-3 py-2" required  >
           <option value=""  >Select</option>
           <option *ngFor="let sub of availableSubjects" [value]="sub.SubjectId">{{sub.SubjectName}}</option>
         </select>
 
-           <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['subject']">
+           <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['subject']">
     {{ errorMessages['subject'] }}
   </span>
       </div>
 
-      <div>
+      <!-- <div>
         <label class="block font-semibold mb-1">Preferred Batch Time</label>
         <select name="batch" formControlName="batch" class="w-full border rounded-lg px-3 py-2" required>
           <option value="" disabled>Select</option>
           <option *ngFor="let batch of availableBatches" [value]="batch.BatchId">{{batch.BatchName}}</option>
         </select>
-     <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['batch']">
+     <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['batch']">
     {{ errorMessages['batch'] }}
   </span>
 
-      </div>
+      </div> -->
 
       <!-- ========== Login Details ========== -->
       <div class="md:col-span-2">
@@ -225,7 +248,7 @@
         <label class="block font-semibold mb-1">Password</label>
         <input type="password" name="password" formControlName="password" class="w-full border rounded-lg px-3 py-2" required minlength="6">
       
-      <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['password']">
+      <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['password']">
     {{ errorMessages['password'] }}
   </span>
       </div>
@@ -235,7 +258,7 @@
         <input type="password" name="confirmPassword" formControlName="confirmPassword" class="w-full border rounded-lg px-3 py-2" required>
       
         
-      <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['confirmPassword']">
+      <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['confirmPassword']">
     {{ errorMessages['confirmPassword'] }}
   </span>
       </div>
@@ -248,22 +271,38 @@
   </div>
   
   <!-- Error message below the checkbox -->
-  <span class="text-red-600 text-sm mt-1 block" *ngIf="errorMessages['terms']">
+  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['terms']">
     {{ errorMessages['terms'] }}
   </span>
 </div>
 
 
+
+
       <!-- Submit -->
-      <div class="md:col-span-2">
+    <div class="md:col-span-2 flex flex-col items-center gap-3">
+  <!-- Signup Button -->
+    <span class="text-sm text-red-600 font-medium text-center" *ngIf="errorMessages['form']">
+   {{  errorMessages['form']}}
+  </span>
   <button 
     type="submit" 
     (click)="SubmitSignUp()" 
-    class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-indigo-700 transition-transform transform active:scale-95 focus:outline-none"
+    class="w-full md:w-2/3 bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow
+           hover:bg-indigo-700 transition-transform transform active:scale-95 focus:outline-none"
   >
-    Signup
+    Sign Up
   </button>
+
+  <!-- Login Link -->
+  <p class="text-sm text-gray-600">
+    Already have an account?
+    <a routerLink="/login" class="text-indigo-600 font-medium hover:underline">
+      Login
+    </a>
+  </p>
 </div>
+
 
 
     </form>

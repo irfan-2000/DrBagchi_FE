@@ -15,6 +15,7 @@ export class QuizComponent {
   constructor(private router: Router,private quizservice:QuizserviceService) 
   {
     this. Getquizbystatus('UN');
+    this.Runningquiz('RN');
 
   }
 ongoingQuizzes1 = [
@@ -137,6 +138,7 @@ debugger
 Quizbystatus:any
 ongoingQuizzes:any =[]
 upcomingQuizzes:any =[]
+runningquiz :any=[]
 Getquizbystatus(flag: any)
  {
   this.quizservice.getQuizByStatus(flag).subscribe({
@@ -160,13 +162,14 @@ this.upcomingQuizzes = this.Quizbystatus.filter((q:any) =>
 );
  
 
-       console.log(response);
-    },
+     },
     error: (err: any) => {
       console.log('Error fetching quizzes by status:', err);
     }
   });
 }
+
+
 combineDateAndTime(dateStr: string, timeStr: string): Date 
 {
   const [day, month, year] = dateStr.split('-');
@@ -212,7 +215,19 @@ to24HrTime(time: string): number
 }
 
 
-
+Runningquiz(flag: any)
+ {
+  this.quizservice.getQuizByStatus(flag).subscribe({
+    next: (response: any) =>
+      {
+         
+        this.runningquiz = response.result;
+     },
+    error: (err: any) => {
+      console.log('Error fetching quizzes by status:', err);
+    }
+  });
+}
  
 
 }

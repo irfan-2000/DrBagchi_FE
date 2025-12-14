@@ -8,10 +8,22 @@
       <li><a href="#" class="hover:text-indigo-700 transition">Contact</a></li>
     </ul>
 
-     <div class="hidden md:flex space-x-4">
-      <button class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-indigo-700 transition"><a routerLink="/login">Login</a></button>
-      <button class="border border-indigo-600 text-indigo-600 px-5 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition" > <a routerLink="/signup">Signup</a></button>
-    </div>
+    <div class="hidden md:flex space-x-4">
+  <a
+    routerLink="/login"
+    class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-indigo-700 transition inline-flex items-center justify-center"
+  >
+    Login
+  </a>
+
+  <a
+    routerLink="/signup"
+    class="border border-indigo-600 text-indigo-600 px-5 py-2 rounded-lg font-semibold hover:bg-indigo-100 transition inline-flex items-center justify-center"
+  >
+    Signup
+  </a>
+</div>
+
 
      <button
       class="md:hidden text-indigo-600 p-2 hover:bg-indigo-100 rounded-lg transition"

@@ -66,24 +66,24 @@
       <div class="sticky top-[56px] xl:top-[56px] max-h-[calc(100vh-56px)] overflow-y-auto px-3 py-4">
        <nav class="space-y-1">
   <!-- Dynamic Menu -->
-  <a
-    *ngFor="let item of menu"
-    [routerLink]="item.route"
-    routerLinkActive="bg-[#EBF2FF] text-[#303F9F] font-semibold"
-    [routerLinkActiveOptions]="{ exact: true }"
-    class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[#3F51B5] hover:bg-indigo-50 hover:text-[#303F9F] transition cursor-pointer"
-  >
-    <svg
-      class="w-5 h-5 text-[#3F51B5] group-hover:text-[#303F9F]"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      viewBox="0 0 24 24"
+    <a
+      *ngFor="let item of menu"
+      [routerLink]="item.route"
+      routerLinkActive="bg-[#EBF2FF] text-[#303F9F] font-semibold"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[#3F51B5] hover:bg-indigo-50 hover:text-[#303F9F] transition cursor-pointer"
     >
-      <use [attr.href]="'#icon-' + item.icon"></use>
-    </svg>
-    <span>{{ item.name }}</span>
-  </a>
+      <svg
+        class="w-5 h-5 text-[#3F51B5] group-hover:text-[#303F9F]"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <use [attr.href]="'#icon-' + item.icon"></use>
+      </svg>
+      <span>{{ item.name }}</span>
+    </a>
 
   <!-- Divider -->
   <div class="pt-2 mt-2 border-t border-[#EBF2FF]"></div>

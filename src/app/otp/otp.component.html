@@ -1,0 +1,43 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+  <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
+
+    <!-- Heading -->
+    <h4 class="text-2xl font-bold text-indigo-700 text-center mb-6">
+      A 6 digit OTP has been sent to your registered mobile number
+    </h4>
+
+    <!-- OTP Inputs -->
+    <div class="flex justify-center gap-2 mb-6">
+      <input
+        *ngFor="let i of [0,1,2,3,4,5]; let idx = index"
+        type="text"
+        maxlength="1"
+        (input)="onInput($event, idx)"
+        (keydown)="onBackspace($event, idx)"
+        class="w-10 h-10 text-center text-lg font-semibold border rounded-md
+               focus:outline-none focus:ring-2 focus:ring-indigo-300"
+      />
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="text-center mb-4">
+      <span class="text-sm text-red-600 font-medium">
+        {{ errorMessage }}
+      </span>
+    </div>
+  <div id="verified" class="text-center mb-4 hidden">
+    <span class="text-sm text-green-600 font-medium">
+      OTP verified successfully! You can now proceed to login.
+    </span>
+  </div>
+
+    <!-- Submit -->
+    <button
+      class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold
+             hover:bg-indigo-700 transition"
+      (click)="verifyOtp()">
+      Verify OTP
+    </button>
+
+  </div>
+</div>

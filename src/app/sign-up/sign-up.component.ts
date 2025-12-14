@@ -26,6 +26,16 @@ UploadFile:any
  profileImagePreview:any
  OldselectedFile:any
  IsEditing:boolean = false;
+ castes: string[] = [
+  'SC',
+  'ST',
+  'State OBC',
+  'Central OBC',
+  'UR',
+  'EWS',
+  'PWD'
+];
+
 
 
 states: string[] = [
@@ -42,6 +52,8 @@ states: string[] = [
   {
     this.getAvailableBoards();
     this.getAvailableClasses();
+    this.getAvailableSubjects();
+    this.SendOTP();
      // Set default values in constructor
     this.signupForm = this.fb.group({
       fullName: ['John Doe', Validators.required],
@@ -49,6 +61,7 @@ states: string[] = [
       mobile: ['9999999999', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       gender: ['M', Validators.required],
       dob: ['', Validators.required],
+      caste:['',Validators.required],
       parentName: ['Parent Name', Validators.required],
       parentMobile: ['8888888888', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       address: ['Default Street', Validators.required],
@@ -171,25 +184,13 @@ states: string[] = [
         console.error('API error:', error);
       }
 
-    }  
-
-
-
+    }   
         
    getAvailableSubjects(event:any = '')
-  {
-       let ClassId = '';
-      if(event)
-      {
-           ClassId = (event.target.value);
-    if(ClassId == '' || ClassId == null || ClassId == undefined)
-    {
-      return;
-    } 
-      }
+  { 
    
     try {
-        this. loginsignupservice.getAvailableSubjects(ClassId ).subscribe({
+        this. loginsignupservice.getAvailableSubjects('').subscribe({
           next: (response: any) =>
              {
               this.availableSubjects =response.result
@@ -250,9 +251,11 @@ states: string[] = [
  
 SubmitSignUp() 
 {
+    this.errorMessages['form'] = '';
   const validationResult = this.ValidateFormFields();
   if (validationResult === 1) 
  {  
+  this.errorMessages['form'] = "Please correct the errors in the form before submitting.";
     return;
    }
 
@@ -277,6 +280,7 @@ SubmitSignUp()
   formData.append('confirmPassword', this.signupForm.get('confirmPassword')?.value);
   formData.append('terms', this.signupForm.get('terms')?.value);
   formData.append('IsEditing',this.IsEditing.toString());
+  formData.append('caste',this.signupForm.get('caste')?.value);
 
   
    if (this.IsEditing) 
@@ -302,19 +306,29 @@ next:(response:any)=>
   debugger
    if (response.status == 200) 
     {
-        this.showToast('success', 'SignUp Success Please Login !', 'Success');
-          
-              setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 2000); // 1000 ms = 1 second
+      if(response.result> 0)
+      {
+        localStorage.setItem('signupsuccess','1');
+        localStorage.setItem('registeredemail',this.signupForm.get('email')?.value);
+        localStorage.setItem('registeredmobile',this.signupForm.get('mobile')?.value);
+        localStorage.setItem('registeredname',this.signupForm.get('fullName')?.value);
+        localStorage.setItem('studentid',response.result);   
+        
+        this.router.navigate(
+          ['/OTP'],
+          {
+            queryParams: {              
+              purpose: 'SIGNUP'   // or RESET_PASSWORD
+            }
+          }
+        ); 
+      
+      }
+
 
       }
-       else if (response.status == 409) {
-        this.showToast('error', 'A  email or mobile already exists', 'User Conflict');
-      } else if (response.status == 204) {
-        this.showToast('warning', 'No records inserted', 'Warning');
-      } else {
-        this.showToast('info', 'Unexpected response received', 'Info');
+        else {
+          this.errorMessages['form'] =response.message;
       }             
 
 
@@ -326,12 +340,31 @@ next:(response:any)=>
 }catch(error)
 {
   console.log(error);
+} 
 }
 
+SendOTP()
+{
+  
+   this.loginsignupservice  .SendOTP('this.mobile', 'this.purpose', '' )  .subscribe({
+    next: (response: any) => {
+      console.log('OTP Verification Response:', response);
 
+      if (response.status === 200) 
+        {
+        // ✅ OTP verified successfully
+        // do next step (navigate / emit / close modal)
+      } else {
+        // ❌ OTP failed
+       }
+    },
+    error: (error: any) => {
+      console.error('OTP verification error:', error);
+     }
+  });
 
-  // proceed with API call or further processing
 }
+
 
     
 
@@ -386,6 +419,12 @@ ValidateFormFields(): number {
   // Date of Birth
   if (form.get('dob')?.value === '' || form.get('dob')?.value === null || form.get('dob')?.value === undefined) {
     this.errorMessages['dob'] = "Date of Birth is Required";
+    hasError = 1;
+  }
+
+
+    if (form.get('caste')?.value === '' || form.get('caste')?.value === null || form.get('caste')?.value === undefined) {
+    this.errorMessages['caste'] = "caste is Required";
     hasError = 1;
   }
 
@@ -459,10 +498,10 @@ ValidateFormFields(): number {
   }
 
   // Batch
-  if (form.get('batch')?.value === '' || form.get('batch')?.value === null || form.get('batch')?.value === undefined) {
-    this.errorMessages['batch'] = "Batch is Required";
-    hasError = 1;
-  }
+  // if (form.get('batch')?.value === '' || form.get('batch')?.value === null || form.get('batch')?.value === undefined) {
+  //   this.errorMessages['batch'] = "Batch is Required";
+  //   hasError = 1;
+  // }
 
   // Password
   if (form.get('password')?.value === '' || form.get('password')?.value === null || form.get('password')?.value === undefined) {

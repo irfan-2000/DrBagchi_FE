@@ -49,7 +49,7 @@ getAvailableBoards()
 
 
   const unique = Math.random(); // or crypto.randomUUID() if supported
-  return this.http.get<any>(`${this.baseurl}api/GetAvailableBoards?_=${unique}`, {
+  return this.http.get<any>(`${this.baseurl}api/guest/GetAvailableBoards?_=${unique}`, {
     headers,withCredentials: true
   });
 }
@@ -64,7 +64,7 @@ getAvailableClasses()
     'Authorization': `Bearer ${token}`
   });
   const unique = Math.random(); // or crypto.randomUUID() if supported
-  return this.http.get<any>(`${this.baseurl}api/GetAvailableClasses?_=${unique}`, {
+  return this.http.get<any>(`${this.baseurl}api/guest/GetAvailableClasses?_=${unique}`, {
     headers,withCredentials: true
   });
 }
@@ -76,7 +76,7 @@ let params = new HttpParams()
 .set("ClassId",+ClassId);
 
    const unique = Math.random(); // or crypto.randomUUID() if supported
-  return this.http.get<any>(`${this.baseurl}api/GetAvailableSubjects?_=${unique}`, 
+  return this.http.get<any>(`${this.baseurl}api/guest/GetAvailableSubjects?_=${unique}`, 
     {
       params:params,
     withCredentials: true
@@ -92,7 +92,7 @@ let params = new HttpParams()
 .set("ClassId",+ClassId).set('SubjectId',subjectid).set('BoardId',boardid);
  
    const unique = Math.random(); // or crypto.randomUUID() if supported
-  return this.http.get<any>(`${this.baseurl}api/GetAvailableBatches?_=${unique}`, 
+  return this.http.get<any>(`${this.baseurl}api/guest/GetAvailableBatches?_=${unique}`, 
     {
       params:params,
     withCredentials: true
@@ -103,7 +103,7 @@ let params = new HttpParams()
 SubmitSignUp(formData:any)
 {
   const unique = Math.random(); 
-  return this.http.post<any>(`${this.baseurl}api/SubmitSignup?_=${unique}`,formData,{
+  return this.http.post<any>(`${this.baseurl}api/guest/SubmitSignup?_=${unique}`,formData,{
     withCredentials :true
 
   })
@@ -119,10 +119,44 @@ let dto =
 }
 
 const unique = Math.random(); 
-  return this.http.post<any>(`${this.baseurl}api/Authenticate?_=${unique}`,dto,{
+  return this.http.post<any>(`${this.baseurl}api/guest/Authenticate?_=${unique}`,dto,{
     withCredentials :true
 
   })
+}
+submitOTP(mobile: string, purpose: string, otp: string) {
+
+
+  const params = new HttpParams()
+    .set('mobile', '9999999999')   // 🔹 hardcoded mobile
+    .set('purpose', 'SIGNUP')      // 🔹 hardcoded purpose
+    .set('otp', otp);         // 🔹 hardcoded OTP
+
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/VerifyOTP`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  );
+}
+
+SendOTP(mobile: string, purpose: string, otp: string) 
+{
+  const params = new HttpParams()
+    .set('mobile', '9999999999')   // 🔹 hardcoded mobile
+    .set('purpose', 'SIGNUP')      // 🔹 hardcoded purpose
+ 
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/SendOTP`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  );
+  
 }
 
 

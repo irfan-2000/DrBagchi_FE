@@ -9,7 +9,7 @@
       
       <!-- Student ID / Email -->
       <div class="mb-4">
-        <label class="block font-semibold mb-1">Student ID / Email</label>
+        <label class="block font-semibold mb-1">Mobile</label>
         <input 
           type="text" 
           name="studentId" 
@@ -35,14 +35,17 @@
       </div>
 
       <!-- Submit Button -->
-        <div class="flex justify-center mt-1 mb-2">
-      <span  class="text-red-500 text-xl"> {{ErrorMessage}}</span>
-      </div>
+     <div class="flex justify-center my-2">
+  <span class="text-sm text-red-600 font-medium">
+    {{ ErrorMessage }}
+  </span>
+</div>
+
 
        <div class="md:col-span-2">
   <button 
     type="submit" 
-    class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow 
+    class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow cursor-pointer 
            hover:bg-indigo-700 transition-transform transform active:scale-95 focus:outline-none"
   >
     Login
@@ -51,9 +54,21 @@
 
 
       <!-- Extra Links -->
-      <div class="mt-4 text-center text-sm">
-        <a href="/forgot-password" class="text-indigo-600 hover:underline">Forgot Password?</a>
-      </div>
+     <div class="mt-4 text-center text-sm text-gray-600">
+  <a routerLink="/forgot-password" class="text-indigo-600 hover:underline">
+    Forgot Password?
+  </a>
+
+  <div class="mt-2">
+    Don’t have an account?
+    <a routerLink="/signup" class="text-indigo-600 font-medium hover:underline">
+      Sign up
+    </a>
+  </div>
+</div>
+
+
+
     </form>
   </div>
 

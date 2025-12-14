@@ -12,22 +12,25 @@ import { OutsideLayoutComponent } from './layouts/outside-layout/outside-layout.
 import { LayoutInsideComponent } from './layout-inside/layout-inside.component';
 import { AssessmentComponent } from './assessment/assessment.component';
 import { QuizComponent } from './quiz/quiz.component';
+import { OTPComponent } from './otp/otp.component';
 
 const routes: Routes = 
 [
    // Assessment without layout (full screen)
   { path: 'assessment-page', component: AssessmentComponent },
-  
+        { path: 'login', component: LoginComponent },
+      { path: 'signup', component: SignUpComponent },
+      { path: 'forgot-password', component: ForgotpasswordComponent },
+
+      { path: 'OTP', component: OTPComponent },
+
    {
     path: '',
     component: OutsideLayoutComponent,
     children: [
       { path: '', component: HomeComponent },
       { path: 'courses', component: CoursesComponent },
-      { path: 'course/:id', component: CourseDetailsComponent },
-      { path: 'login', component: LoginComponent },
-      { path: 'signup', component: SignUpComponent },
-      { path: 'forgot-password', component: ForgotpasswordComponent }
+      { path: 'course/:id', component: CourseDetailsComponent }
     ]
   },
     {
