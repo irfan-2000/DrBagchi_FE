@@ -14,7 +14,7 @@ export class OTPComponent {
   mobile: string = '';
   purpose: string = '';
 
-  otpDigits: string[] = ['', '', '', '', '', ''];
+  otpDigits: any = '';
   errorMessage: string = '';
 
   constructor(
@@ -33,7 +33,8 @@ export class OTPComponent {
 
   /* ================= OTP INPUT ================= */
 
-  onInput(event: any, index: number) {
+  onInput(event: any, index: number) 
+  {
     const value = event.target.value;
 
     if (!/^[0-9]$/.test(value)) {
@@ -43,7 +44,8 @@ export class OTPComponent {
 
     this.otpDigits[index] = value;
 
-    if (index < 5) {
+    if (index < 5) 
+      {
       event.target.nextElementSibling?.focus();
     }
   }
@@ -67,7 +69,7 @@ onBackspace(event: KeyboardEvent, index: number) {
 
   verifyOtp() 
   {
-    const otp = this.otpDigits.join('');
+    const otp = this.otpDigits ;
 
     if (otp.length !== 6) {
       this.errorMessage = 'Please enter the 6-digit OTP';
@@ -82,6 +84,7 @@ onBackspace(event: KeyboardEvent, index: number) {
       purpose: this.purpose,
       otp: otp
     });
+    this.mobile = localStorage.getItem('registeredmobile') || '';
 
    this.loginsignupservice  .submitOTP(this.mobile, this.purpose, otp)  .subscribe({
     next: (response: any) => {
@@ -131,4 +134,51 @@ onBackspace(event: KeyboardEvent, index: number) {
     //   this.router.navigate(['/reset-password']);
     // }
   }
+
+
+  
+SendOTP()
+{
+  
+   this.loginsignupservice.SendOTP(localStorage.getItem('registeredmobile'), 'this.purpose', '' )  .subscribe({
+    next: (response: any) => {
+      console.log('OTP Verification Response:', response);
+
+      if (response.status === 200) 
+        {
+           if(Number(response.result.Status)> 0)
+           {                   
+             let el = document.getElementById('OTPResent');
+            if (el)
+               {
+              el.classList.remove('hidden');
+             }
+            
+              setTimeout(() => {  
+                if (el)
+               {
+              el.classList.add('hidden');  
+             }            
+            }, 3000);
+
+            
+           }else{
+                this.errorMessage = response.result.Message;
+            return;
+           }
+        // ✅ OTP verified successfully
+        // do next step (navigate / emit / close modal)
+      } else {
+        this.errorMessage = response.result.Message;
+            return;
+       }
+    },
+    error: (error: any) => {
+      console.error('OTP verification error:', error);
+     }
+  });
+
+}
+
+
 }

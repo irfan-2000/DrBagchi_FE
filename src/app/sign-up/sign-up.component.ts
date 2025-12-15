@@ -53,15 +53,14 @@ states: string[] = [
     this.getAvailableBoards();
     this.getAvailableClasses();
     this.getAvailableSubjects();
-    this.SendOTP();
-     // Set default values in constructor
+      // Set default values in constructor
     this.signupForm = this.fb.group({
       fullName: ['John Doe', Validators.required],
       email: ['johndoe@email.com', [Validators.required, Validators.email]],
-      mobile: ['9999999999', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      mobile: ['7847051616', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       gender: ['M', Validators.required],
       dob: ['', Validators.required],
-      caste:['',Validators.required],
+      caste:['SC',Validators.required],
       parentName: ['Parent Name', Validators.required],
       parentMobile: ['8888888888', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       address: ['Default Street', Validators.required],
@@ -71,10 +70,10 @@ states: string[] = [
       institution: ['Bagchi Institute', Validators.required],
       board: ['1', Validators.required],
       class: ['7', Validators.required],
-      subject: ['', Validators.required],
+      subject: ['1', Validators.required],
       batch: ['', Validators.required],
-      password: ['123', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['123', Validators.required],
+      password: ['123456', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['123456', Validators.required],
       terms: [true, Validators.requiredTrue],
       profileImage: new FormControl(null, Validators.required)
     });
@@ -251,6 +250,15 @@ states: string[] = [
  
 SubmitSignUp() 
 {
+
+localStorage.removeItem('signupsuccess');
+localStorage.removeItem('registeredemail');
+localStorage.removeItem('registeredmobile');
+localStorage.removeItem('registeredname');
+localStorage.removeItem('studentid');
+
+ 
+
     this.errorMessages['form'] = '';
   const validationResult = this.ValidateFormFields();
   if (validationResult === 1) 
@@ -342,33 +350,7 @@ next:(response:any)=>
   console.log(error);
 } 
 }
-
-SendOTP()
-{
-  
-   this.loginsignupservice  .SendOTP('this.mobile', 'this.purpose', '' )  .subscribe({
-    next: (response: any) => {
-      console.log('OTP Verification Response:', response);
-
-      if (response.status === 200) 
-        {
-        // ✅ OTP verified successfully
-        // do next step (navigate / emit / close modal)
-      } else {
-        // ❌ OTP failed
-       }
-    },
-    error: (error: any) => {
-      console.error('OTP verification error:', error);
-     }
-  });
-
-}
-
-
-    
-
-
+ 
 
 
 verifyEmail(email: string): boolean {
@@ -519,6 +501,10 @@ ValidateFormFields(): number {
   }
 
 
+  if(form.get('password')?.value && form.get('password')?.value.length < 6) {
+    this.errorMessages['password'] = "Password must be at least 6 characters long";
+    hasError = 1;
+  }
 
   // Terms
   if (!form.get('terms')?.value) {

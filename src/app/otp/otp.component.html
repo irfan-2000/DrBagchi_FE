@@ -1,14 +1,14 @@
 <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
   <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
 
-    <!-- Heading -->
-    <h4 class="text-2xl font-bold text-indigo-700 text-center mb-6">
-      A 6 digit OTP has been sent to your registered mobile number
-    </h4>
+<h4 class="text-2xl font-semibold text-indigo-700 text-center mb-6">
+  A 6-digit OTP has been sent to your registered mobile number.
+</h4>
+
 
     <!-- OTP Inputs -->
     <div class="flex justify-center gap-2 mb-6">
-      <input
+      <!-- <input
         *ngFor="let i of [0,1,2,3,4,5]; let idx = index"
         type="text"
         maxlength="1"
@@ -16,7 +16,19 @@
         (keydown)="onBackspace($event, idx)"
         class="w-10 h-10 text-center text-lg font-semibold border rounded-md
                focus:outline-none focus:ring-2 focus:ring-indigo-300"
-      />
+      /> -->
+
+
+      <input 
+            type="text" 
+            name="otp" 
+            maxlength="6"
+            pattern="[0-9]{4}"
+            [(ngModel)]="otpDigits"
+            class="w-full border rounded-lg px-3 py-2   tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            required
+            #otpCtrl="ngModel">
+
     </div>
 
     <!-- Error Message -->
@@ -31,6 +43,12 @@
     </span>
   </div>
 
+  <div id="OTPResent" class="text-center mb-4 hidden">
+    <span class="text-sm text-green-600 font-medium">
+      OTP has been sent to registered mobile.
+    </span>
+  </div>
+
     <!-- Submit -->
     <button
       class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold
@@ -38,6 +56,12 @@
       (click)="verifyOtp()">
       Verify OTP
     </button>
+
+    <p class="text-sm text-gray-600">
+   Didn't receive the OTP?
+    <a (click)="SendOTP()" class="text-indigo-600 font-medium hover:underline cursor-pointer">
+      Resend OTP</a> 
+  </p>
 
   </div>
 </div>

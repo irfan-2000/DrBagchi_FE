@@ -128,7 +128,7 @@ submitOTP(mobile: string, purpose: string, otp: string) {
 
 
   const params = new HttpParams()
-    .set('mobile', '9999999999')   // 🔹 hardcoded mobile
+    .set('mobile', mobile)   // 🔹 hardcoded mobile
     .set('purpose', 'SIGNUP')      // 🔹 hardcoded purpose
     .set('otp', otp);         // 🔹 hardcoded OTP
 
@@ -142,10 +142,10 @@ submitOTP(mobile: string, purpose: string, otp: string) {
   );
 }
 
-SendOTP(mobile: string, purpose: string, otp: string) 
+SendOTP(mobile: any, purpose: string, otp: string) 
 {
   const params = new HttpParams()
-    .set('mobile', '9999999999')   // 🔹 hardcoded mobile
+    .set('mobile', mobile)   // 🔹 hardcoded mobile
     .set('purpose', 'SIGNUP')      // 🔹 hardcoded purpose
  
   return this.http.post<any>(
@@ -159,6 +159,37 @@ SendOTP(mobile: string, purpose: string, otp: string)
   
 }
 
+
+CheckMobileExist(mobile:any)
+{
+  
+  const params = new HttpParams()
+    .set('Mobile', mobile)   // 🔹 hardcoded mobile
+  
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/CheckMobileExist`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  ); 
+}
+
+ResetPassword(mobile:any, newpassword:any)
+{ 
+  const params = new HttpParams()
+    .set('Mobile', mobile)    
+    .set('Password', newpassword);
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/ResetPassword`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  );  
+}
 
 
 
