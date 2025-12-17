@@ -86,7 +86,7 @@ onBackspace(event: KeyboardEvent, index: number) {
     });
     this.mobile = localStorage.getItem('registeredmobile') || '';
 
-   this.loginsignupservice  .submitOTP(this.mobile, this.purpose, otp)  .subscribe({
+   this.loginsignupservice .submitOTP(this.mobile, this.purpose, otp)  .subscribe({
     next: (response: any) => {
  
       if (response.status == 200) 
@@ -104,6 +104,13 @@ onBackspace(event: KeyboardEvent, index: number) {
               this.router.navigate(['/login']);
             }
             }, 3000);
+
+            if(this.purpose == 'LOGIN')
+            {
+           this.router.navigate(['/app/dashboard']);
+
+            }
+
 
 
           }else{

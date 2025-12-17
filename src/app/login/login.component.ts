@@ -52,6 +52,18 @@ constructor(private  loginsignupservice:LoginSignUpService,private toastr: Toast
       if (response.status == 200) 
         {
           debugger
+          if(Number(response.result.IsActive) <=0)
+          {
+               this.router.navigate(
+          ['/OTP'],
+          {
+            queryParams: {              
+              purpose: 'LOGIN'   // or RESET_PASSWORD
+            }
+          }
+        ); 
+ 
+          }
         
            this.showToast('success', 'Welcome!', 'Success');
            window.localStorage.setItem("token",response.result.token);

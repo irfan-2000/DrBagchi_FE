@@ -174,10 +174,12 @@ constructor(private route: ActivatedRoute, private router: Router,private Course
     parsedDescription :any = [];
 
 
-  getCourseById(id: any) {
+  getCourseById(id: any) 
+  {
   try {
     this.Courses.GetCourseById_admin(id).subscribe({
-      next: (response: any) => {
+      next: (response: any) =>
+         {
         if (!response) {
           console.warn('Empty response received');
           return;
@@ -222,7 +224,8 @@ constructor(private route: ActivatedRoute, private router: Router,private Course
 Pricing:any = [];
 getPricing() 
 { 
-  if (!this.CourseId) {
+  if (!this.CourseId) 
+    {
     alert("Internal Server Error");
     return;
   }
@@ -254,9 +257,11 @@ getPricing()
   } catch (error: any) {
     console.error("Unexpected error:", error);
   }
+
 }
 
-  safeParse(value: any, defaultValue: any) {
+  safeParse(value: any, defaultValue: any)
+   {
   try {
     return JSON.parse(value);
   } catch {
@@ -264,7 +269,8 @@ getPricing()
   }
 }
 
-formatTime(time: string): string {
+formatTime(time: string): string 
+{
   if (!time) return '';
   const [hours, minutes] = time.split(':').map(Number);
   const date = new Date();
@@ -452,9 +458,7 @@ getCoursePayments()
     });
 }
 
-
-
-
+ 
 selectBatch(batch: any)
  {
    
@@ -462,9 +466,7 @@ selectBatch(batch: any)
  // this.selectedBatch = batch;
   console.log("Selected Batch:", batch);
 }
-
-
-
+ 
 CheckIsSubscribed()
 {
   this.Courses.CheckIsSubscribed( localStorage.getItem('userid'),this.CourseId).subscribe
@@ -485,9 +487,7 @@ CheckIsSubscribed()
     }
 });
 
-}
-
-
+} 
 
  Createorder_razorpay_NewOrder_fixed(fixed_paymentMode:any,InstallmentNumber:any = 0)
   {

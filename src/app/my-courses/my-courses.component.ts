@@ -95,8 +95,7 @@ this.  GetMyCourses( );
 
 
   RenewCourse(CourseId:any)
-  {
-///app/course-details?id=33
+  { 
 window.open(`/app/course-details?id=${CourseId}`,'_blank');
   }
 

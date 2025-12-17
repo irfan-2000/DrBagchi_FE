@@ -29,22 +29,23 @@
     *ngIf="!AvailableCourses.length"
     class="rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/50 p-8 text-center text-gray-600"
   >
-    No courses found. Try adjusting the filters or search query.
+    No courses found.  
   </div>
 
   <!-- Courses Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-    <div
-      *ngFor="let c of AvailableCourses"
-      class="group rounded-xl overflow-hidden bg-white border border-indigo-100 shadow-md shadow-indigo-100/40 hover:shadow-lg hover:shadow-indigo-200/50 hover:border-indigo-300 transition-all duration-300 h-[380px] flex flex-col"
-    >
-      <!-- Course Image -->
-      <div class="relative aspect-[16/9] overflow-hidden">
-        <img
-          [src]="c.CourseImage"
-          alt="{{ c.CourseName }} image"
-          class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-6">
+        <div
+          *ngFor="let c of AvailableCourses"
+          class="group rounded-xl overflow-hidden bg-white border border-indigo-100 shadow-md shadow-indigo-100/40 hover:shadow-lg hover:shadow-indigo-200/50 hover:border-indigo-300 transition-all duration-300 h-[380px] flex flex-col"
+        >
+          <!-- Course Image -->
+          <div class="relative aspect-[16/9] overflow-hidden">
+            <img
+      [src]="c.CourseImage"
+      alt="{{ c.CourseName }} image"
+      class="absolute inset-0 w-full h-full object-contain bg-gray-100 group-hover:scale-105 transition-transform duration-500"
+    />
+
         <span
           class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[#3F51B5] text-[11px] font-semibold px-2 py-0.5 rounded shadow-sm"
         >
