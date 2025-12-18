@@ -10,6 +10,28 @@
       </a>
     </div>
 
+     <div  *ngFor="let ann of classannouncement"   class="mb-2 flex items-center rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-2 shadow-sm text-indigo-900"
+  >
+    <!-- Icon -->
+    <span class="mr-3 text-red-600 text-xl animate-pulse">
+      ⚡
+    </span>
+
+    <!-- Message -->
+    <span class="flex-1 text-sm font-medium">
+      {{ ann.courseName }} class started for {{ ann.batchName }}
+      </span>
+
+    <!-- Button (NOT a link) -->
+    <button
+      *ngIf="ann.zoomJoinUrl" 
+  class="ml-4 text-sm font-semibold text-green-700 bg-green-100 rounded px-3 py-1 border cursor-pointer"    
+    >
+      Join Now
+    </button>
+  </div>
+
+
     <!-- Enrolled Courses Grid -->
     <h2 class="mt-8 mb-4 text-xl font-bold text-indigo-900">Enrolled Courses</h2>
     <div class="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">

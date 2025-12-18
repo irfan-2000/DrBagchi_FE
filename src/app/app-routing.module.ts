@@ -13,6 +13,7 @@ import { LayoutInsideComponent } from './layout-inside/layout-inside.component';
 import { AssessmentComponent } from './assessment/assessment.component';
 import { QuizComponent } from './quiz/quiz.component';
 import { OTPComponent } from './otp/otp.component';
+import { ClassroomComponent } from './classroom/classroom.component';
 
 const routes: Routes = 
 [
@@ -23,6 +24,9 @@ const routes: Routes =
       { path: 'forgot-password', component: ForgotpasswordComponent },
 
       { path: 'OTP', component: OTPComponent },
+      
+      { path: 'classroom', component: ClassroomComponent },
+
 
    {
     path: '',

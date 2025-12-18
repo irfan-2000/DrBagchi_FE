@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MyCoursesService } from '../my-courses.service';
 import { CoursesService } from '../courses.service';
+import { error } from 'console';
 
 @Component({
   selector: 'app-my-courses',
@@ -10,12 +11,13 @@ import { CoursesService } from '../courses.service';
 })
 export class MyCoursesComponent {
  
+  classannouncement:any = [];
 
 constructor(private mycourses:MyCoursesService,private Courses:CoursesService) 
 {
 
 this.  GetMyCourses( );
-
+this. GetOngoingClass();
  }
 
   // IST Timezone example
@@ -179,6 +181,20 @@ toggleLesson(index: number) {
 
 isLessonOpen(index: number): boolean {
   return this.openLessons[index];
+}
+
+GetOngoingClass()
+{
+  this.Courses.GetOngoingClass().subscribe({
+    next: (response: any) => 
+      {
+        this.classannouncement = response.result;
+      console.log('Ongoing Class:', this.classannouncement);
+    },error: (error: any) => {
+      console.error('Error fetching ongoing class:', error);
+    }
+
+  })
 }
 
 
