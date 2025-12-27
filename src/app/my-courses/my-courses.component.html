@@ -22,9 +22,9 @@
       {{ ann.courseName }} class started for {{ ann.batchName }}
       </span>
 
-    <!-- Button (NOT a link) -->
+    <!-- Button (NOT a link) "-->
     <button
-      *ngIf="ann.zoomJoinUrl" 
+      *ngIf="ann.zoomJoinUrl"  (click)="JoinLiveSession(ann)"
   class="ml-4 text-sm font-semibold text-green-700 bg-green-100 rounded px-3 py-1 border cursor-pointer"    
     >
       Join Now

@@ -242,19 +242,4 @@ GetMyCourses( )
 }
 
 
-GetOngoingClass()
-{const token = localStorage.getItem('token'); // Or wherever you store your token
- 
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  }); 
-  const unique = Math.random();  
-  return this.http.get<any>(`${this.baseurl}api/GetOngoingClass?_=${unique}`,
-    {
-    headers,withCredentials: false,
-   });
- 
-
-}
-
 }

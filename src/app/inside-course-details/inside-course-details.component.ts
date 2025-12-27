@@ -348,8 +348,7 @@ getCoursePayments()
       // -------------------------------------------------------------------
       // FIXED PAYMENT TYPE
       // -------------------------------------------------------------------
-       debugger
-      if (this.paymentType === 'fixed')
+       if (this.paymentType === 'fixed')
          {
           this.fixedpaymentplans = 
           {

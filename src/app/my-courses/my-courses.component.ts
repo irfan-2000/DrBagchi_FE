@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MyCoursesService } from '../my-courses.service';
 import { CoursesService } from '../courses.service';
 import { error } from 'console';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-my-courses',
@@ -9,15 +10,19 @@ import { error } from 'console';
   templateUrl: './my-courses.component.html',
   styleUrl: './my-courses.component.css'
 })
-export class MyCoursesComponent {
- 
-  classannouncement:any = [];
-
-constructor(private mycourses:MyCoursesService,private Courses:CoursesService) 
+export class MyCoursesComponent { 
+  classannouncement:any = []; 
+constructor(private mycourses:MyCoursesService,private router:Router,private Courses:CoursesService) 
 {
-
+ 
 this.  GetMyCourses( );
-this. GetOngoingClass();
+this. GetOngoingClass(); 
+console.log("DI Debug →", {
+     mycourses,
+    Courses,
+    router
+  });
+
  }
 
   // IST Timezone example
@@ -175,7 +180,8 @@ courseModules:any = [];
 
   openLessons: boolean[] = [];
 
-toggleLesson(index: number) {
+toggleLesson(index: number) 
+{
   this.openLessons[index] = !this.openLessons[index];
 }
 
@@ -185,7 +191,7 @@ isLessonOpen(index: number): boolean {
 
 GetOngoingClass()
 {
-  this.Courses.GetOngoingClass().subscribe({
+  this.mycourses.GetOngoingClass().subscribe({
     next: (response: any) => 
       {
         this.classannouncement = response.result;
@@ -196,6 +202,19 @@ GetOngoingClass()
 
   })
 }
+JoinLiveSession(data: any) 
+{
+  debugger
+  const params = new URLSearchParams({
+    meetingid: data.zoomMeetingId,
+    zoom: 'success',
+    courseId: data.courseId,
+    type: 'resume',
+  }).toString();
+
+  window.open(`/classroom?${params}`, '_blank');
+}
+
 
 
 }

@@ -22,6 +22,7 @@
     "@angular/router": "^19.2.0",
     "@angular/ssr": "^19.2.4",
     "@tailwindcss/postcss": "^4.1.11",
+    "@zoom/meetingsdk": "^5.0.0",
     "express": "^4.18.2",
     "ngx-toastr": "^19.0.0",
     "postcss": "^8.5.6",

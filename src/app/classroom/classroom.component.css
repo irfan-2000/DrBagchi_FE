@@ -1,0 +1,44 @@
+/* Layout container */
+.tutorial-layout {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* The fixed-size video player box */
+.player-wrapper {
+  position: relative;
+  width: 100%;
+  background-color: #1a1a1a; /* Dark background like a video player */
+  aspect-ratio: 16 / 9; /* Keeps it player-shaped on all screens */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Target the Zoom Containers */
+#video-container, 
+#screen-share-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* IMPORTANT: Zoom generates a <canvas> element. 
+   We force it to fill our player wrapper.
+*/
+::ng-deep #video-container canvas, 
+::ng-deep #screen-share-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain; /* Ensures the video isn't stretched/distorted */
+}
+
+/* Hide the Zoom resize handles (the circles at the corners) */
+::ng-deep .zm-video-canvas-container__resizer {
+  display: none !important;
+  pointer-events: none !important;
+}

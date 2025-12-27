@@ -26,6 +26,8 @@ import { QuizComponent } from './quiz/quiz.component';
 import { AssessmentComponent } from './assessment/assessment.component';
 import { OTPComponent } from './otp/otp.component';
 import { ClassroomComponent } from './classroom/classroom.component';
+import { MyCoursesService } from './my-courses.service';
+import { CoursesService } from './courses.service';
  
 @NgModule({
   declarations: [
