@@ -1,189 +1,279 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, NgZone } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MyCoursesService } from '../my-courses.service';
-import { firstValueFrom } from 'rxjs';
+import { 
+  Component, 
+  ElementRef, 
+  ViewChild, 
+  AfterViewInit, 
+  OnDestroy,
+  NgZone 
+} from '@angular/core';
+import { Room, createLocalAudioTrack, LocalAudioTrack, RoomEvent } from 'livekit-client';
+import Hls from 'hls.js';
 
 @Component({
   selector: 'app-classroom',
   standalone: false,
   templateUrl: './classroom.component.html',
   styleUrl: './classroom.component.css',
- })
-export class ClassroomComponent {
-  courseId: any | null = 1;
-  courseName: string = "Sample Course"; // Can be replaced with API data
-  sessions: any = [];
-  client: any;
+})
+export class ClassroomComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
 
-  MeetingId: any = null;
-  Issuccess: any;
-  meetingDetails: any;
-  islive: boolean = false;
+  private streamUrl: string = 'https://drbagchisclasses.b-cdn.net/1234/index.m3u8';
+  
+  room!: Room;
+  localAudioTrack: LocalAudioTrack | null = null;
+  isMicOn: boolean = false;
+  isJoined: boolean = false; // Controls the overlay
+  chatInput:any = ''
+  private hls: Hls | null = null;
+chatMessages:any = [];
+
+  constructor(private ngZone: NgZone) {}
+
+  ngAfterViewInit() {
+    // We don't auto-start here to avoid Autoplay Blocked errors
+    console.log('Component ready. Waiting for user to click Join.');
+  }
+
+  /**
+   * This method is triggered by a User Gesture (Click)
+   * It solves both the Autoplay and the Hydration stability issues.
+   */
 
 
-  constructor(
-    private route: ActivatedRoute,
-    private ngZone: NgZone ,private mycourses:MyCoursesService
-  ) {}
- 
-  async ngOnInit() 
-  {
-    
-    // Load Zoom Client SDK dynamically
-    debugger
-    if (typeof window !== 'undefined') {
-      const { default: ZoomMtgEmbedded } = await import('@zoom/meetingsdk/embedded');
-      this.client = ZoomMtgEmbedded.createClient();
-    }
+    initializeHlsPlayer(): void {
+    const video = this.videoPlayer.nativeElement;
 
-    // Read query params
-    this.route.queryParams.subscribe(async params => {
-      this.MeetingId = params['meetingid'];
-      this.courseId = params['courseId'];
-      this.Issuccess = params["zoom"];
+    // Hard-set muted and attributes before attaching HLS
+    video.muted = true;
+    video.setAttribute('muted', 'true'); 
+    video.setAttribute('autoplay', 'true');
+    video.setAttribute('playsinline', 'true');
 
-      if (this.Issuccess === 'success' && this.MeetingId) {
-        // Fetch meeting details from backend
-        const response = await firstValueFrom(this.mycourses.GetOngoingClass(this.MeetingId));
-        this.meetingDetails = response.result[0];
-         const signatureResponse = await firstValueFrom(this.mycourses.getClientSignature(this.MeetingId));
-         debugger
-        this.meetingDetails.Signature = signatureResponse.result;
-        if (this.meetingDetails)
-           { 
-          this.joinMeeting();
+    if (Hls.isSupported()) {
+      this.hls = new Hls({
+        // enableWorker: true,
+        // lowLatencyMode: true,
+
+        enableWorker: true,
+        lowLatencyMode: true, // Specifically for LL-HLS
+        
+        // liveSyncDuration: How many seconds behind the live edge to start.
+        // Setting this to 3-6 seconds is usually safe.
+        liveSyncDuration: 4, 
+        
+        // liveMaxLatencyDuration: If the lag grows larger than this, 
+        // the player will skip forward to catch up.
+        liveMaxLatencyDuration: 10,
+        
+        // High-performance buffer management
+        maxBufferLength: 10,
+        liveBackBufferLength: 0 // Don't keep old video in memory
+
+      });
+
+      this.hls.attachMedia(video);
+      this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+        this.hls!.loadSource(this.streamUrl);
+      });
+
+      this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(err => console.error("Play failed after manifest:", err));
+      });
+
+      this.hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) this.hls?.startLoad();
+          else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) this.hls?.recoverMediaError();
         }
-      }
-    });
-  }
-
-
-    // Join meeting using Zoom Client View
-  async joinMeeting() 
-  {
-    if (!this.client) return;
-    this.islive = true;
-
-    const meetingSDKElement = document.getElementById("meetingSDKElement");
-    if (!meetingSDKElement) {
-      console.error("❌ meetingSDKElement not found in DOM");``
-      return;
+      });
+    } 
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = this.streamUrl;
+      video.addEventListener('loadedmetadata', () => video.play());
     }
- 
-
-    this.ngZone.runOutsideAngular(async () => {
-      try {
-        // 1️⃣ Initialize SDK
-        await this.client.init({
-          zoomAppRoot: meetingSDKElement,
-          language: "en-US",
-          patchJsMedia: true
-        });
- 
-        // 2️⃣ Join the meeting
-        await this.client.join({
-          signature: this.meetingDetails.Signature, // Host signature
-          meetingNumber: this.MeetingId,
-          password: this.meetingDetails.zoomPassword,
-          userName: this.meetingDetails.name,
-         // zak: this.meetingDetails.ZakToken // Host ZAK token
-        });
- 
-       // this.startWhiteboard();
-        console.log("✅ Successfully joined meeting!");
-      } catch (err) {
-        console.error("❌ Zoom init/join failed", err);
-      }
-    });
   }
 
-
-  // Fetch meeting details from backend
-  async GetMeetingDetails(meetingid: any) {
-    this.mycourses.GetOngoingClass(meetingid).subscribe({
-      next: (response: any) => {
-        this.meetingDetails = response;
-      },
-      error: (error: any) => {
-        console.log(error);
-      }
+  joinClassroom(): void {
+    this.isJoined = true;
+    
+    // Run outside Angular to prevent NG0506 Hydration errors
+    this.ngZone.runOutsideAngular(() => {
+      this.initializeHlsPlayer();
+      this.connectToLiveKit();
     });
   }
+  
+  isPublishing: boolean = false; // Prevent double-publishing clicks
+isHardLocked:boolean = false;
 
-async getclientsignature(meetingNumber:any,role:any)
+async connectToLiveKit(): Promise<void> 
 {
-  this.mycourses.getClientSignature(meetingNumber).subscribe({
-    next: (response: any) => 
-      {
-        debugger
-      },error: (error: any) => {
-      console.error('Error fetching signature:', error);
-      return null;
-    }
+    try {
+      const identity = 'student_' + Math.floor(Math.random() * 10000);
+      const res = await fetch('http://localhost:8080/api/guest/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identity, room: 'class_2025' })
+      });
+      const data = await res.json();
 
+      this.room = new Room();
+      
+      // Clean up on disconnect
+      this.room.on(RoomEvent.Disconnected, () => {
+        console.log('Disconnected from LiveKit');
+      });
+
+            // Inside connectToLiveKit()
+                // Inside connectToLiveKit()
+     // Inside connectToLiveKit()
+this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) => {
+  if (participant.identity === this.room.localParticipant.identity) {
+    try {
+      const data = JSON.parse(metadata);
+      
+      this.ngZone.run(async () => {
+        if (data.micLocked === false && this.isHardLocked === true) {
+          // 1. Clear the hard lock state
+          this.isHardLocked = false;
+          
+          // 2. CRITICAL: If the mic was "on" when locked, we must reset it
+          if (this.isMicOn) {
+            console.log("Permissions restored. Restarting audio stream...");
+            await this.forceResetMicrophone();
+          }
+          
+          alert("Your microphone is now unlocked. You can speak now.");
+        } else if (data.micLocked === true) {
+          this.isHardLocked = true;
+          this.isMicOn = false;
+          // Stop current track so the "red light" goes off
+          if (this.localAudioTrack) {
+            this.localAudioTrack.stop();
+            this.localAudioTrack = null;
+          }
+        }
+      });
+    } catch (e) { console.error(e); }
+  }
 });
+
+      await this.room.connect('ws://localhost:7880', data.token);
+      console.log('Connected to LiveKit:', identity);
+    } catch (e) {
+      console.error('LiveKit connection failed', e);
+    }
 }
 
-activeSessions: any = {};
-setupParticipantEvents() {
- // Store active sessions mapped by studentId or username
+ async toggleMic(): Promise<void> {
+  if (!this.room || this.isPublishing) return;
 
- 
-  if (!this.client) return;
+  const localParticipant = this.room.localParticipant;
 
-  this.client.on('participant-add', (user: any) => {
-    console.log("👤 Participant joined:", user);
+  // 🚫 HARD MUTE CHECK (Muted for everyone by admin)
+  if (!localParticipant.permissions?.canPublish) {
+    alert('❌ You are muted by the teacher. Mic access is disabled.');
+    return;
+  }
 
-    // ------- IDENTIFY REAL STUDENT -------
-    // You can use user.userName OR mapping based on backend
-    const realStudentId = user.userName;  
-    // Example: if your username looks like "student_45", parse integer
+  this.isPublishing = true;
 
-    if (!this.activeSessions[realStudentId]) {
-      this.activeSessions[realStudentId] = [];
-    }
+  try {
+    // 🎙️ MIC ON
+    if (!this.isMicOn) {
 
-    this.activeSessions[realStudentId].push(user);
+      if (!this.localAudioTrack) {
+        this.localAudioTrack = await createLocalAudioTrack({
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        });
 
-    // ------- IF DUPLICATE SESSIONS FOUND -------
-    if (this.activeSessions[realStudentId].length > 1) {
-
-      const oldSession = this.activeSessions[realStudentId][0];
-      const newSession = this.activeSessions[realStudentId][1];
-
-      console.log("⚠️ Duplicate detected. Removing old session:", oldSession);
-
-      try {
-        this.client.expel(oldSession.userId);   // 🔥 KICK OLD GHOST USER
-      } catch (e) {
-        console.error("❌ Could not expel:", e);
+        await localParticipant.publishTrack(this.localAudioTrack);
       }
 
-      // keep only new session
-      this.activeSessions[realStudentId] = [newSession];
+      await this.localAudioTrack.unmute();
+      this.isMicOn = true;
+      console.log('🎙️ Mic ON');
+
+    } 
+    // 🔇 MIC OFF
+    else {
+      if (this.localAudioTrack) {
+        await this.localAudioTrack.mute();
+      }
+
+      this.isMicOn = false;
+      console.log('🔇 Mic OFF');
     }
+
+  } catch (error) {
+    console.error('Mic toggle error:', error);
+  } finally {
+    this.isPublishing = false;
+  }
+}
+
+
+  ngOnDestroy() {
+    // 3. CRITICAL: Cleanup to prevent listener leaks on HMR reload
+    if (this.hls) this.hls.destroy();
+    if (this.room) {
+      this.room.disconnect();
+    }
+    if (this.localAudioTrack) {
+      this.localAudioTrack.stop();
+    }
+  }
+
+
+  sendMessage(): void {
+  if (!this.chatInput.trim()) return;
+
+  this.chatMessages.push({
+    sender: 'You',
+    text: this.chatInput.trim(),
+    time: new Date()
   });
 
-  this.client.on('participant-remove', (user: any) => {
-    console.log("👤 Participant left:", user);
+  this.chatInput = '';
+}
 
-    const realStudentId = user.userName;
+ async forceResetMicrophone() {
+  try {
+    const localParticipant = this.room.localParticipant;
 
-    if (this.activeSessions[realStudentId]) {
-      // remove from tracking list
-      this.activeSessions[realStudentId] = this.activeSessions[realStudentId]
-        .filter((u: any) => u.userId !== user.userId);
+    // 🔥 Unpublish all existing audio tracks safely
+    const audioPublications = Array.from(
+      localParticipant.audioTrackPublications.values()
+    );
 
-      // clean empty arrays
-      if (this.activeSessions[realStudentId].length === 0) {
-        delete this.activeSessions[realStudentId];
+    for (const pub of audioPublications) {
+      if (pub.track) {
+        await localParticipant.unpublishTrack(pub.track);
+        pub.track.stop();
       }
     }
-  });
+
+    // 🎙️ Create a fresh audio track
+    this.localAudioTrack = await createLocalAudioTrack({
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    });
+
+    // 🚀 Publish fresh track
+    await localParticipant.publishTrack(this.localAudioTrack);
+
+    this.isMicOn = true;
+    console.log('🎙️ Fresh audio track published');
+
+  } catch (err) {
+    console.error('Failed to restart mic automatically:', err);
+    this.isMicOn = false;
+  }
 }
 
+
 }
-
-
-
- 

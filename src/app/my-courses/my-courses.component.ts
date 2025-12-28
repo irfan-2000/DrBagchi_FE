@@ -205,8 +205,9 @@ GetOngoingClass()
 JoinLiveSession(data: any) 
 {
   debugger
+  //localStorage.setItem('cdn',data.HlsPlaybackUrl);
   const params = new URLSearchParams({
-    meetingid: data.zoomMeetingId,
+    meetingid: data.liveSessionId,
     zoom: 'success',
     courseId: data.courseId,
     type: 'resume',

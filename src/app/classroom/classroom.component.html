@@ -1,7 +1,114 @@
-<div class="classroom-container" style="display: flex; height: 100vh;">
-  <!-- Left: Zoom meeting -->
-  <div id="meetingSDKElement" style="flex: 1; border-right: 1px solid #ccc;"></div>
+<div class="h-screen w-screen bg-slate-950 flex flex-col lg:flex-row overflow-hidden font-sans">
 
-  <!-- Right: Whiteboard -->
+  <!-- VIDEO SECTION -->
+  <div class="w-full lg:w-4/5 flex items-center justify-center p-3 lg:p-5 relative">
 
+    <!-- JOIN OVERLAY -->
+    <div *ngIf="!isJoined"
+      class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md rounded-xl m-3">
+      <h2 class="text-white text-xl sm:text-2xl font-semibold mb-5">
+        Ready to join the class?
+      </h2>
+      <button
+        (click)="joinClassroom()"
+        class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-full shadow-xl transition">
+        Join Classroom
+      </button>
+    </div>
+
+    <!-- VIDEO WRAPPER -->
+    <div
+      class="w-full h-full bg-black rounded-xl shadow-2xl flex items-center justify-center relative">
+
+      <video
+        #videoPlayer
+        class="w-full h-full object-contain rounded-xl"
+        autoplay
+        playsinline
+        muted
+        controls>
+        Your browser does not support HLS playback.
+      </video>
+
+      <!-- LIVE BADGE -->
+      <div class="absolute top-3 left-3">
+        <span *ngIf="isJoined"
+          class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500 text-black animate-pulse">
+          LIVE
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT SECTION -->
+  <div
+    class="w-full lg:w-1/5 bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-700 flex flex-col">
+
+    <!-- CHAT HEADER -->
+    <div class="px-4 py-3 border-b border-slate-700 text-white flex justify-between items-center">
+      <span class="font-medium text-sm">Live Chat</span>
+      <span
+        class="text-[10px] bg-slate-700 px-2 py-1 rounded-full tracking-wide text-gray-300">
+        STUDENT
+      </span>
+    </div>
+
+    <!-- MESSAGES -->
+    <div
+      class="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm text-gray-200 scrollbar-thin scrollbar-thumb-slate-700">
+
+      <div *ngIf="chatMessages.length === 0"
+        class="text-gray-500 italic text-center mt-8">
+        No messages yet
+      </div>
+
+      <div *ngFor="let msg of chatMessages"
+        class="bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 shadow-sm">
+        <div class="flex justify-between text-xs mb-1">
+          <span class="font-semibold text-indigo-400">
+            {{ msg.sender }}
+          </span>
+          <span class="text-gray-400">
+            {{ msg.time | date:'shortTime' }}
+          </span>
+        </div>
+        <p class="text-gray-100 leading-relaxed">
+          {{ msg.text }}
+        </p>
+      </div>
+    </div>
+
+    <!-- CHAT INPUT -->
+    <div
+      class="p-3 border-t border-slate-700 bg-slate-950 sticky bottom-0">
+
+      <div class="flex items-center gap-2 mb-2">
+        <button
+          (click)="toggleMic()"
+          [disabled]="!isJoined"
+          [ngClass]="isMicOn
+            ? 'bg-red-600 hover:bg-red-700'
+            : 'bg-slate-700 hover:bg-slate-600'"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg transition disabled:opacity-50">
+          {{ isMicOn ? '🎙️' : '🔇' }}
+        </button>
+
+        <input
+          type="text"
+          [(ngModel)]="chatInput"
+          (keyup.enter)="sendMessage()"
+          [disabled]="!isJoined"
+          placeholder="Type message..."
+          class="flex-1 bg-slate-800 text-white px-3 py-2 rounded-lg outline-none border border-transparent focus:border-indigo-500 placeholder-gray-400 disabled:opacity-50">
+      </div>
+
+      <button
+        (click)="sendMessage()"
+        [disabled]="!isJoined || !chatInput.trim()"
+        class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 rounded-lg text-sm font-semibold transition">
+        Send
+      </button>
+    </div>
+
+  </div>
 </div>

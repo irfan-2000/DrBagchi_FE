@@ -11,7 +11,6 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^19.2.14",
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
@@ -24,6 +23,8 @@
     "@tailwindcss/postcss": "^4.1.11",
     "@zoom/meetingsdk": "^5.0.0",
     "express": "^4.18.2",
+    "hls.js": "^1.6.15",
+    "livekit-client": "^2.16.1",
     "ngx-toastr": "^19.0.0",
     "postcss": "^8.5.6",
     "rxjs": "~7.8.0",
