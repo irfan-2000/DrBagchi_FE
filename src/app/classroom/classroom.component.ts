@@ -165,15 +165,14 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
       console.error('LiveKit connection failed', e);
     }
 }
-
  async toggleMic(): Promise<void> {
   if (!this.room || this.isPublishing) return;
 
   const localParticipant = this.room.localParticipant;
 
-  // 🚫 HARD MUTE CHECK (Muted for everyone by admin)
+  // 🚫 Admin hard mute check
   if (!localParticipant.permissions?.canPublish) {
-    alert('❌ You are muted by the teacher. Mic access is disabled.');
+    alert('❌ You are muted by the teacher.');
     return;
   }
 
@@ -183,7 +182,19 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
     // 🎙️ MIC ON
     if (!this.isMicOn) {
 
-      if (!this.localAudioTrack) {
+      // 🔥 CRITICAL FIX
+      if (!this.localAudioTrack || this.localAudioTrack.isMuted) {
+
+        // Ensure old track is fully gone
+        const pubs = Array.from(localParticipant.audioTrackPublications.values());
+        for (const pub of pubs) {
+          if (pub.track) {
+            await localParticipant.unpublishTrack(pub.track);
+            pub.track.stop();
+          }
+        }
+
+        // Create fresh mic stream
         this.localAudioTrack = await createLocalAudioTrack({
           echoCancellation: true,
           noiseSuppression: true,
@@ -193,7 +204,6 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
         await localParticipant.publishTrack(this.localAudioTrack);
       }
 
-      await this.localAudioTrack.unmute();
       this.isMicOn = true;
       console.log('🎙️ Mic ON');
 
@@ -203,13 +213,12 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
       if (this.localAudioTrack) {
         await this.localAudioTrack.mute();
       }
-
       this.isMicOn = false;
       console.log('🔇 Mic OFF');
     }
 
-  } catch (error) {
-    console.error('Mic toggle error:', error);
+  } catch (err) {
+    console.error('Mic toggle failed:', err);
   } finally {
     this.isPublishing = false;
   }
