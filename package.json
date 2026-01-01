@@ -20,6 +20,7 @@
     "@angular/platform-server": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@angular/ssr": "^19.2.4",
+    "@netlify/angular-runtime": "^3.0.1",
     "@tailwindcss/postcss": "^4.1.11",
     "@zoom/meetingsdk": "^5.0.0",
     "express": "^4.18.2",

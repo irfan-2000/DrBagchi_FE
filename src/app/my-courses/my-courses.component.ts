@@ -202,15 +202,16 @@ GetOngoingClass()
 
   })
 }
+
 JoinLiveSession(data: any) 
 {
   debugger
   //localStorage.setItem('cdn',data.HlsPlaybackUrl);
   const params = new URLSearchParams({
-    meetingid: data.liveSessionId,
-    zoom: 'success',
-    courseId: data.courseId,
-    type: 'resume',
+    CourseId: data.courseId,
+    BatchId: data.batchId,
+    ChatroomId:   data.chatroom_id,
+     type: 'resume',
   }).toString();
 
   window.open(`/classroom?${params}`, '_blank');

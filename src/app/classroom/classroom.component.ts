@@ -8,6 +8,9 @@ import {
 } from '@angular/core';
 import { Room, createLocalAudioTrack, LocalAudioTrack, RoomEvent } from 'livekit-client';
 import Hls from 'hls.js';
+import { environment } from '../environments/environment';
+import { MyCoursesService } from '../my-courses.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-classroom',
@@ -15,8 +18,12 @@ import Hls from 'hls.js';
   templateUrl: './classroom.component.html',
   styleUrl: './classroom.component.css',
 })
-export class ClassroomComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
+export class ClassroomComponent implements AfterViewInit, OnDestroy
+ {
+
+private baseurl = environment.baseUrl;
+
+@ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
 
   private streamUrl: string = 'https://drbagchisclasses.b-cdn.net/1234/index.m3u8';
   
@@ -27,8 +34,28 @@ export class ClassroomComponent implements AfterViewInit, OnDestroy {
   chatInput:any = ''
   private hls: Hls | null = null;
 chatMessages:any = [];
+classannouncement:any = [];
 
-  constructor(private ngZone: NgZone) {}
+
+CourseId:any;
+ChatroomId:any;
+BatchId:any;
+
+
+  constructor(private ngZone: NgZone,private mycourses:MyCoursesService,private router:Router,  private route: ActivatedRoute,
+) {
+
+this.route.queryParamMap.subscribe(params => {
+  this.CourseId   = params.get('CourseId');
+  this.BatchId    = params.get('BatchId');
+  this.ChatroomId = params.get('ChatroomId');
+
+ });
+
+  
+    this.GetOngoingClass();
+
+  }
 
   ngAfterViewInit() {
     // We don't auto-start here to avoid Autoplay Blocked errors
@@ -111,10 +138,10 @@ async connectToLiveKit(): Promise<void>
 {
     try {
       const identity = 'student_' + Math.floor(Math.random() * 10000);
-      const res = await fetch('http://localhost:8080/api/guest/token', {
+      const res = await fetch(`${this.baseurl}api/guest/token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identity, room: 'class_2025' })
+        body: JSON.stringify({ identity, room: this.ChatroomId })
       });
       const data = await res.json();
 
@@ -159,12 +186,13 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
   }
 });
 
-      await this.room.connect('ws://localhost:7880', data.token);
+      await this.room.connect('wss://livekit.race-elearn.com', data.token);
       console.log('Connected to LiveKit:', identity);
     } catch (e) {
       console.error('LiveKit connection failed', e);
     }
 }
+
  async toggleMic(): Promise<void> {
   if (!this.room || this.isPublishing) return;
 
@@ -182,37 +210,36 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
     // 🎙️ MIC ON
     if (!this.isMicOn) {
 
-      // 🔥 CRITICAL FIX
-      if (!this.localAudioTrack || this.localAudioTrack.isMuted) {
-
-        // Ensure old track is fully gone
-        const pubs = Array.from(localParticipant.audioTrackPublications.values());
-        for (const pub of pubs) {
-          if (pub.track) {
-            await localParticipant.unpublishTrack(pub.track);
-            pub.track.stop();
-          }
-        }
-
-        // Create fresh mic stream
-        this.localAudioTrack = await createLocalAudioTrack({
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        });
-
-        await localParticipant.publishTrack(this.localAudioTrack);
+      // Clean up ONLY your own track
+      if (this.localAudioTrack) {
+        try {
+          await localParticipant.unpublishTrack(this.localAudioTrack);
+          this.localAudioTrack.stop();
+        } catch {}
+        this.localAudioTrack = undefined!;
       }
+
+      // Create fresh mic
+      this.localAudioTrack = await createLocalAudioTrack({
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      });
+
+      await localParticipant.publishTrack(this.localAudioTrack);
 
       this.isMicOn = true;
       console.log('🎙️ Mic ON');
+    }
 
-    } 
     // 🔇 MIC OFF
     else {
       if (this.localAudioTrack) {
-        await this.localAudioTrack.mute();
+        await localParticipant.unpublishTrack(this.localAudioTrack);
+        this.localAudioTrack.stop();
+        this.localAudioTrack = undefined!;
       }
+
       this.isMicOn = false;
       console.log('🔇 Mic OFF');
     }
@@ -283,6 +310,26 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
     this.isMicOn = false;
   }
 }
+
+
+
+GetOngoingClass()
+{
+  this.mycourses.GetOngoingClass().subscribe({
+    next: (response: any) => 
+      {
+        let data = response.result;
+         this.classannouncement = data.filter((item: any) => item.courseId == this.CourseId && item.chatroom_id == this.ChatroomId);
+     
+     this.streamUrl = this.classannouncement[0]?.HlsPlaybackUrl || '';
+        console.log('Ongoing Class:', this.classannouncement);
+    },error: (error: any) => {
+      console.error('Error fetching ongoing class:', error);
+    }
+
+  })
+}
+
 
 
 }
