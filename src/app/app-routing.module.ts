@@ -34,7 +34,7 @@ const routes: Routes =
     children: [
       { path: '', component: HomeComponent },
       { path: 'courses', component: CoursesComponent },
-      { path: 'course/:id', component: CourseDetailsComponent }
+      { path: 'course', component: CourseDetailsComponent }
     ]
   },
     {
