@@ -12,8 +12,8 @@ import { Router } from '@angular/router';
 export class LoginComponent {
 
     credentials = {
-    studentId: 'asdasd@email.com',
-    password: '123'
+    Mobile: '',
+    password: ''
   };
  
 constructor(private  loginsignupservice:LoginSignUpService,private toastr: ToastrService,private router:Router )
@@ -26,9 +26,9 @@ constructor(private  loginsignupservice:LoginSignUpService,private toastr: Toast
   ValidateStudent()
    {
 
-    if(this.credentials.studentId == '' && this.credentials.studentId == null && this.credentials.studentId == 'undefined')
+    if(this.credentials.Mobile == '' && this.credentials.Mobile == null && this.credentials.Mobile == 'undefined')
     {
-    this.ErrorMessage = "Id is Required"
+    this.ErrorMessage = "Mobile is Required"
       return;
     }
 
@@ -40,12 +40,13 @@ constructor(private  loginsignupservice:LoginSignUpService,private toastr: Toast
 
 
       localStorage.clear();
+      localStorage.setItem('registeredemail',this.credentials.Mobile); //temp worng name for email 
 
-    
+
     try
     {
     this.ErrorMessage = '';
-    this.loginsignupservice.ValidateUser(this.credentials.studentId,this.credentials.password ).subscribe({
+    this.loginsignupservice.ValidateUser(this.credentials.Mobile,this.credentials.password ).subscribe({
     next:(response:any)=>
     {
       
@@ -62,7 +63,7 @@ constructor(private  loginsignupservice:LoginSignUpService,private toastr: Toast
             }
           }
         ); 
- 
+ return;
           }
         
            this.showToast('success', 'Welcome!', 'Success');

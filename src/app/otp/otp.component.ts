@@ -188,4 +188,117 @@ SendOTP()
 }
 
 
+
+SendEmailOTP()
+{
+  
+   this.loginsignupservice.SendEmailOTP(localStorage.getItem('registeredemail'), 'this.purpose', '' )  .subscribe({
+    next: (response: any) => {
+      console.log('OTP Verification Response:', response);
+
+      if (response.status === 200) 
+        {
+           if(Number(response.result.Status)> 0)
+           {                   
+             let el = document.getElementById('OTPResent');
+            if (el)
+               {
+              el.classList.remove('hidden');
+             }
+            
+              setTimeout(() => {  
+                if (el)
+               {
+              el.classList.add('hidden');  
+             }            
+            }, 3000);
+
+            
+           }else{
+                this.errorMessage = response.result.Message;
+            return;
+           }
+        // ✅ OTP verified successfully
+        // do next step (navigate / emit / close modal)
+      } else {
+        this.errorMessage = response.result.Message;
+            return;
+       }
+    },
+    error: (error: any) => {
+      console.error('OTP verification error:', error);
+     }
+  });
+
+}
+
+
+
+ verifyEmailOtp() 
+  {
+    const otp = this.otpDigits ;
+
+    if (otp.length !== 6) {
+      this.errorMessage = 'Please enter the 6-digit OTP';
+      return;
+    }
+ 
+ 
+   this.loginsignupservice .VerifyEmailOTP(localStorage.getItem('registeredemail') || '', this.purpose, otp)  .subscribe({
+    next: (response: any) => {
+ 
+      if (response.status == 200) 
+        {debugger
+          if(Number(response.result.Status)> 0)
+          { 
+            const el = document.getElementById('verified');
+            if (el) {
+              el.classList.remove('hidden');
+            }
+            setTimeout(() => 
+              {
+             
+            if (this.purpose === 'SIGNUP')
+               {
+              this.router.navigate(['/login']);
+            }
+             if(this.purpose == 'LOGIN')
+            {
+          this.router.navigate(['/login']);
+            }
+
+            }, 3000);
+
+           
+
+
+          }else{
+            this.errorMessage = response.result.Message || 'Invalid OTP';
+            return;
+          }
+        // ✅ OTP verified successfully
+        // do next step (navigate / emit / close modal)
+      } else 
+        {
+        // ❌ OTP failed
+        this.errorMessage = response.result.Message || 'Invalid OTP';
+      }
+    },
+    error: (error: any) => {
+      console.error('OTP verification error:', error);
+      this.errorMessage = 'Something went wrong. Please try again.';
+    }
+  });
+
+
+
+
+    // // Example success redirect
+    // if (this.purpose === 'SIGNUP') {
+    //   this.router.navigate(['/login']);
+    // } else if (this.purpose === 'RESET_PASSWORD') {
+    //   this.router.navigate(['/reset-password']);
+    // }
+  }
+
 }

@@ -2,16 +2,16 @@
 <div class="max-w-6xl mx-auto px-2 py-6">
   <!-- Announcements and live session -->
   <ng-container *ngIf="view === 'dashboard'">
-    <div *ngFor="let ann of announcements" class="mb-2 flex items-center rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-2 shadow-sm text-indigo-900">
+    <!-- uncomment for quiz design -->
+    <!-- <div *ngFor="let ann of announcements" class="mb-2 flex items-center rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-2 shadow-sm text-indigo-900">
       <span class="text-xl mr-3">{{ann.icon}}</span>
       <span class="flex-1">{{ann.message}}</span>
       <a *ngIf="ann.link" [href]="ann.link" class="ml-4 text-sm font-semibold text-green-700 bg-green-100 rounded px-3 py-1 border" target="_blank">
         {{ann.cta}}
       </a>
-    </div>
+    </div> -->
 
-     <div  *ngFor="let ann of classannouncement"   class="mb-2 flex items-center rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-2 shadow-sm text-indigo-900"
-  >
+     <div  *ngFor="let ann of classannouncement"   class="mb-2 flex items-center rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-2 shadow-sm text-indigo-900"  >
     <!-- Icon -->
     <span class="mr-3 text-red-600 text-xl animate-pulse">
       ⚡
@@ -19,7 +19,7 @@
 
     <!-- Message -->
     <span class="flex-1 text-sm font-medium">
-      {{ ann.courseName }} class started for {{ ann.batchName }}
+      {{ ann.courseName }} class started for batch {{ ann.batchName }}
       </span>
 
     <!-- Button (NOT a link) "-->

@@ -28,6 +28,7 @@ import { OTPComponent } from './otp/otp.component';
 import { ClassroomComponent } from './classroom/classroom.component';
 import { MyCoursesService } from './my-courses.service';
 import { CoursesService } from './courses.service';
+import { PaymentsComponent } from './payments/payments.component';
  
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { CoursesService } from './courses.service';
     QuizComponent,
     AssessmentComponent,
     OTPComponent,
-    ClassroomComponent ],
+    ClassroomComponent,
+    PaymentsComponent ],
   imports: [
     BrowserModule,
     AppRoutingModule,FormsModule,ReactiveFormsModule,HttpClientModule, BrowserAnimationsModule,   ToastrModule.forRoot({

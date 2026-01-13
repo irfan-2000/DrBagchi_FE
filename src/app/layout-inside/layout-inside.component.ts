@@ -15,8 +15,7 @@ sidebarOpen = false;
     { name: 'Dashboard', icon: 'home', route: '/app/dashboard' },
     { name: 'Courses', icon: 'book', route: '/app/courses' },
     { name: 'My Courses', icon: 'book', route: '/app/mycourses' },
-    { name: 'special classes', icon: 'users', route: '/students' },
-    { name: 'Payments', icon: 'credit-card', route: '/payments' },
+     { name: 'Payments', icon: 'credit-card', route: '/app/payments' },
     { name: 'Settings', icon: 'cog', route: '/settings' },
     {name:'Quiz',icon:'cog',route:'/app/quiz'}
     

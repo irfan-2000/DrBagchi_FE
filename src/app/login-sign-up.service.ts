@@ -110,11 +110,11 @@ SubmitSignUp(formData:any)
 }
 
 
-ValidateUser(UserId:any,Password:any)
+ValidateUser(Mobile:any,Password:any)
 {
 let dto =
 {
-  UserId : UserId,
+  Email : Mobile,
   Password:Password
 }
 
@@ -159,6 +159,23 @@ SendOTP(mobile: any, purpose: string, otp: string)
   
 }
 
+SendEmailOTP(Email: any, purpose: string, otp: string)
+{
+   const params = new HttpParams()
+    .set('Email', Email)   // 🔹 hardcoded mobile
+    .set('purpose', 'SIGNUP')      // 🔹 hardcoded purpose
+ 
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/SendEmailOTP`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  );
+
+}
+
 
 CheckMobileExist(mobile:any)
 {
@@ -168,6 +185,22 @@ CheckMobileExist(mobile:any)
   
   return this.http.post<any>(
     `${this.baseurl}api/guest/CheckMobileExist`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  ); 
+}
+
+checkEmailExist(Email:any)
+{
+  
+  const params = new HttpParams()
+    .set('Email', Email)   // 🔹 hardcoded Email
+  
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/CheckEmailExist`,
     null,
     {
       params: params,
@@ -189,6 +222,23 @@ ResetPassword(mobile:any, newpassword:any)
       withCredentials: true
     }
   );  
+}
+VerifyEmailOTP(Email: any, purpose: string, otp: string)
+{
+  
+  const params = new HttpParams()
+    .set('Email', Email)   // 🔹 hardcoded Email
+    .set('purpose', 'SIGNUP')      // 🔹 hardcoded purpose
+    .set('otp', otp);         // 🔹 hardcoded OTP
+
+  return this.http.post<any>(
+    `${this.baseurl}api/guest/VerifyEmailOTP`,
+    null,
+    {
+      params: params,
+      withCredentials: true
+    }
+  );
 }
 
 

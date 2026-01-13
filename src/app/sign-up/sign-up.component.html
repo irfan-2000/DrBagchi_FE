@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-8 pt-18">
+<div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-8 pt-15">
   <div class="bg-white rounded-lg shadow-lg p-6 md:p-10 w-full max-w-4xl">
     <h2 class="text-3xl font-bold text-indigo-700 mb-6 text-center">
       Create Your Student  Account
@@ -104,7 +104,7 @@
     </div>
   </div>
 
-  <p *ngIf="errorMessages['profileImage']" class="mt-2 text-sm text-red-600">
+  <p *ngIf="errorMessages['profileImage']" class="text-sm text-red-600 font-medium" >
     {{ errorMessages['profileImage'] }}
   </p>
 </div>
@@ -119,7 +119,7 @@
 </div>
 
 <div>
-  <label class="block font-semibold mb-1">Parent/Guard ian Mobile</label>
+  <label class="block font-semibold mb-1">Parent/Guardian Mobile</label>
   <input type="tel" maxlength="10" formControlName="parentMobile"
          class="w-full border rounded-lg px-3 py-2">
   <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['parentMobile']">

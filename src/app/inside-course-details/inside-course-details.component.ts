@@ -424,7 +424,7 @@ getCoursePayments()
               amount: order.amount
             };
              
-
+              debugger
             this.Courses.verifyPayment(payload).subscribe({
               next: (vres: any) =>
                  {
@@ -451,6 +451,7 @@ getCoursePayments()
         rzp.open();
       },
       error: (err: any) => {
+        debugger
         this.isLoading = false;
         alert("Error creating Razorpay order: " + (err.error?.ErrorMessage || err.message));
       }

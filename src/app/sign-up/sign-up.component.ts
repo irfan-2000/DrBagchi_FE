@@ -331,8 +331,7 @@ next:(response:any)=>
           }
         ); 
       
-      }
-
+      }   
 
       }
         else {
@@ -363,7 +362,8 @@ verifyEmail(email: string): boolean {
   return mobileRegex.test(mobile);
 }
 
-ValidateFormFields(): number {
+ValidateFormFields(): number 
+{
   let form = this.signupForm;
   this.errorMessages = {}; // reset previous errors
   let hasError = 0;
