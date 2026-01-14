@@ -29,7 +29,9 @@ import { ClassroomComponent } from './classroom/classroom.component';
 import { MyCoursesService } from './my-courses.service';
 import { CoursesService } from './courses.service';
 import { PaymentsComponent } from './payments/payments.component';
- 
+import { CommonModule } from '@angular/common';
+  import { NgModel } from '@angular/forms';
+import { StudentLiveClassWebrtcComponent } from './student-live-class-webrtc/student-live-class-webrtc.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -52,10 +54,11 @@ import { PaymentsComponent } from './payments/payments.component';
     AssessmentComponent,
     OTPComponent,
     ClassroomComponent,
-    PaymentsComponent ],
+    PaymentsComponent,StudentLiveClassWebrtcComponent
+      ],
   imports: [
     BrowserModule,
-    AppRoutingModule,FormsModule,ReactiveFormsModule,HttpClientModule, BrowserAnimationsModule,   ToastrModule.forRoot({
+    AppRoutingModule,FormsModule,ReactiveFormsModule,HttpClientModule, BrowserAnimationsModule, CommonModule,  ToastrModule.forRoot({
       timeOut: 5000,
       positionClass: 'toast-top-right',
       progressBar: true,

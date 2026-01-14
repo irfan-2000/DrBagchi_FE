@@ -1,0 +1,27 @@
+<div class="h-screen w-screen bg-black flex items-center justify-center">
+
+  <!-- JOIN OVERLAY -->
+  <div
+    *ngIf="!hasUserInteracted"
+    class="absolute inset-0 z-50 flex items-center justify-center
+           bg-black/80 backdrop-blur-sm">
+
+    <button
+      (click)="joinClass()"
+      class="px-8 py-4 bg-indigo-600 text-white text-lg
+             font-semibold rounded-full shadow-lg
+             hover:bg-indigo-700 transition">
+      Join Live Class
+    </button>
+  </div>
+
+  <!-- TEACHER SCREEN -->
+  <video
+    #teacherScreen
+    autoplay
+    playsinline
+    muted
+    class="w-full h-full object-contain">
+  </video>
+
+</div>

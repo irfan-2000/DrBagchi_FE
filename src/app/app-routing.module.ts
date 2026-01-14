@@ -14,7 +14,8 @@ import { AssessmentComponent } from './assessment/assessment.component';
 import { QuizComponent } from './quiz/quiz.component';
 import { OTPComponent } from './otp/otp.component';
 import { ClassroomComponent } from './classroom/classroom.component';
-
+import { StudentLiveClassWebrtcComponent } from './student-live-class-webrtc/student-live-class-webrtc.component';
+import { CommonModule } from '@angular/common';
 const routes: Routes = 
 [
    // Assessment without layout (full screen)
@@ -26,6 +27,7 @@ const routes: Routes =
       { path: 'OTP', component: OTPComponent },
       
       { path: 'classroom', component: ClassroomComponent },
+ { path: 'studentclass', component: StudentLiveClassWebrtcComponent },
 
 
    {
