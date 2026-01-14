@@ -78,26 +78,25 @@ this.route.queryParamMap.subscribe(params => {
     video.setAttribute('playsinline', 'true');
 
     if (Hls.isSupported()) {
-      this.hls = new Hls({
-        // enableWorker: true,
-        // lowLatencyMode: true,
+     this.hls = new Hls({
+  enableWorker: true,
+  lowLatencyMode: true,
 
-        enableWorker: true,
-        lowLatencyMode: true, // Specifically for LL-HLS
-        
-        // liveSyncDuration: How many seconds behind the live edge to start.
-        // Setting this to 3-6 seconds is usually safe.
-        liveSyncDuration: 4, 
-        
-        // liveMaxLatencyDuration: If the lag grows larger than this, 
-        // the player will skip forward to catch up.
-        liveMaxLatencyDuration: 10,
-        
-        // High-performance buffer management
-        maxBufferLength: 10,
-        liveBackBufferLength: 0 // Don't keep old video in memory
+  // 🔥 Stay VERY close to live edge
+  liveSyncDuration: 1.5,
+  liveMaxLatencyDuration: 3,
 
-      });
+  // 🔥 Kill buffering
+  maxBufferLength: 3,
+  maxLiveSyncPlaybackRate: 1.5,
+
+  // 🔥 Drop old frames immediately
+  liveBackBufferLength: 0,
+
+  // 🔥 Reduce startup lag
+  initialLiveManifestSize: 1,
+});
+
 
       this.hls.attachMedia(video);
       this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
@@ -107,6 +106,19 @@ this.route.queryParamMap.subscribe(params => {
       this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(err => console.error("Play failed after manifest:", err));
       });
+
+
+      this.hls.on(Hls.Events.LEVEL_UPDATED, (_, data:any) => {
+  const video = this.videoPlayer.nativeElement;
+  const liveEdge = data.details.liveEdge;
+
+    if (liveEdge && video.currentTime < liveEdge - 3) {
+      console.warn('⏩ Jumping to live edge');
+      video.currentTime = liveEdge;
+    }
+  });
+
+         
 
       this.hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
@@ -134,7 +146,7 @@ this.route.queryParamMap.subscribe(params => {
   isPublishing: boolean = false; // Prevent double-publishing clicks
 isHardLocked:boolean = false;
 
-async connectToLiveKit(): Promise<void> 
+async connectToLiveKit_old(): Promise<void> 
 {
     try {
       const identity = 'student_' + Math.floor(Math.random() * 10000);
@@ -151,41 +163,42 @@ async connectToLiveKit(): Promise<void>
       this.room.on(RoomEvent.Disconnected, () => {
         console.log('Disconnected from LiveKit');
       });
-
-            // Inside connectToLiveKit()
-                // Inside connectToLiveKit()
-     // Inside connectToLiveKit()
-this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) => {
-  if (participant.identity === this.room.localParticipant.identity) {
-    try {
-      const data = JSON.parse(metadata);
+ 
+// this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) => {
+//   if (participant.identity === this.room.localParticipant.identity) {
+//     try {
+//       const data = JSON.parse(metadata);
       
-      this.ngZone.run(async () => {
-        if (data.micLocked === false && this.isHardLocked === true) {
-          // 1. Clear the hard lock state
-          this.isHardLocked = false;
+//       this.ngZone.run(async () => {
+//         if (data.micLocked === false && this.isHardLocked === true) {
+//           // 1. Clear the hard lock state
+//           this.isHardLocked = false;
           
-          // 2. CRITICAL: If the mic was "on" when locked, we must reset it
-          if (this.isMicOn) {
-            console.log("Permissions restored. Restarting audio stream...");
-            await this.forceResetMicrophone();
-          }
+//           // 2. CRITICAL: If the mic was "on" when locked, we must reset it
+//           if (this.isMicOn) {
+//             console.log("Permissions restored. Restarting audio stream...");
+//             await this.forceResetMicrophone();
+//           }
           
-          alert("Your microphone is now unlocked. You can speak now.");
-        } else if (data.micLocked === true) {
-          this.isHardLocked = true;
-          this.isMicOn = false;
-          // Stop current track so the "red light" goes off
-          if (this.localAudioTrack) {
-            this.localAudioTrack.stop();
-            this.localAudioTrack = null;
-          }
-        }
-      });
-    } catch (e) { console.error(e); }
-  }
-});
+//           alert("Your microphone is now unlocked. You can speak now.");
+//         } else if (data.micLocked === true) {
+//           this.isHardLocked = true;
+//           this.isMicOn = false;
+//           // Stop current track so the "red light" goes off
+//           if (this.localAudioTrack) {
+//             this.localAudioTrack.stop();
+//             this.localAudioTrack = null;
+//           }
+//         }
+//       });
+//     } catch (e) { console.error(e); }
+//   }
+// });
 
+
+// --- ADD THIS INSIDE connectToLiveKit() ---
+
+ 
       await this.room.connect('wss://livekit.race-elearn.com', data.token);
       console.log('Connected to LiveKit:', identity);
     } catch (e) {
@@ -193,10 +206,100 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
     }
 }
 
- async toggleMic(): Promise<void> {
-  if (!this.room || this.isPublishing) return;
 
+async connectToLiveKit(): Promise<void> {
+  try {
+    const identity = 'student_' + Math.floor(Math.random() * 10000);
+    const res = await fetch(`${this.baseurl}api/guest/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identity, room: this.ChatroomId })
+    });
+    const data = await res.json();
+
+    this.room = new Room();
+
+    // 1. Connect FIRST
+    await this.room.connect('wss://livekit.race-elearn.com', data.token);
+    console.log('✅ Connected to LiveKit:', identity);
+
+    // 2. Now that we are connected, check INITIAL permissions
+    // This handles the case where the teacher muted the room before you joined
+    const initialCanPublish = this.room.localParticipant.permissions?.canPublish;
+    console.log(`Initial Permission Check: canPublish = ${initialCanPublish}`);
+    
+    if (initialCanPublish === false) {
+      this.ngZone.run(() => {
+        this.isHardLocked = true;
+        this.isMicOn = false;
+      });
+    }
+
+    // 3. Setup Listeners for LATER changes
+    this.room.on(RoomEvent.ParticipantPermissionsChanged, (prev, participant) => {
+      // Ensure we only react to OUR permissions
+      if (participant.sid === this.room.localParticipant.sid) {
+        const canPublish = participant.permissions?.canPublish;
+        console.log(`%c [Permission Update] Can I Speak? ${canPublish}`, 'background: #222; color: #bada55');
+
+        this.ngZone.run(async () => {
+          if (canPublish === false) {
+            this.handleRemoteMute();
+          } else {
+            this.isHardLocked = false;
+            console.log("Teacher allowed microphone access.");
+          }
+        });
+      }
+    });
+
+    this.room.on(RoomEvent.Disconnected, () => console.log('Disconnected'));
+
+  } catch (e) {
+    console.error('LiveKit connection failed', e);
+  }
+}
+
+/**
+ * Helper to clean up UI and Tracks when muted by teacher
+ */
+private async handleRemoteMute() {
+  this.isHardLocked = true;
+  this.isMicOn = false;
+  console.warn("SERVER REVOKED MIC PERMISSIONS");
+  
+  if (this.localAudioTrack) {
+    try {
+      await this.room.localParticipant.unpublishTrack(this.localAudioTrack);
+      this.localAudioTrack.stop();
+    } catch (e) {
+      console.error("Error stopping track after remote mute:", e);
+    } finally {
+      this.localAudioTrack = null;
+    }
+  }
+}
+ async toggleMic(): Promise<void>
+  {
+    const video = this.videoPlayer?.nativeElement;
+
+// If turning mic ON → mute HLS audio
+if (!this.isMicOn && video) {
+  video.muted = true;
+  video.volume = 0;
+}
+
+// If turning mic OFF → restore HLS audio
+if (this.isMicOn && video) {
+  video.muted = false;
+  video.volume = 1;
+}
+
+  if (  this.isPublishing) return;
+debugger
   const localParticipant = this.room.localParticipant;
+// 🔒 STEP-1: Prevent audio feedback loop
+
 
   // 🚫 Admin hard mute check
   if (!localParticipant.permissions?.canPublish) {
@@ -208,10 +311,12 @@ this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata: any, participant) 
 
   try {
     // 🎙️ MIC ON
-    if (!this.isMicOn) {
+    if (!this.isMicOn) 
+      {
 
       // Clean up ONLY your own track
-      if (this.localAudioTrack) {
+      if (this.localAudioTrack)
+         {
         try {
           await localParticipant.unpublishTrack(this.localAudioTrack);
           this.localAudioTrack.stop();
