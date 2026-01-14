@@ -78,25 +78,26 @@ this.route.queryParamMap.subscribe(params => {
     video.setAttribute('playsinline', 'true');
 
     if (Hls.isSupported()) {
-     this.hls = new Hls({
-  enableWorker: true,
-  lowLatencyMode: true,
+      this.hls = new Hls({
+        // enableWorker: true,
+        // lowLatencyMode: true,
 
-  // 🔥 Stay VERY close to live edge
-  liveSyncDuration: 1.5,
-  liveMaxLatencyDuration: 3,
+        enableWorker: true,
+        lowLatencyMode: true, // Specifically for LL-HLS
+        
+        // liveSyncDuration: How many seconds behind the live edge to start.
+        // Setting this to 3-6 seconds is usually safe.
+        liveSyncDuration: 4, 
+        
+        // liveMaxLatencyDuration: If the lag grows larger than this, 
+        // the player will skip forward to catch up.
+        liveMaxLatencyDuration: 10,
+        
+        // High-performance buffer management
+        maxBufferLength: 10,
+        liveBackBufferLength: 0 // Don't keep old video in memory
 
-  // 🔥 Kill buffering
-  maxBufferLength: 3,
-  maxLiveSyncPlaybackRate: 1.5,
-
-  // 🔥 Drop old frames immediately
-  liveBackBufferLength: 0,
-
-  // 🔥 Reduce startup lag
-  initialLiveManifestSize: 1,
-});
-
+      });
 
       this.hls.attachMedia(video);
       this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
