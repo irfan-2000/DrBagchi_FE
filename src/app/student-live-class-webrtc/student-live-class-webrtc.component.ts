@@ -52,7 +52,7 @@ async joinClass()
     // 3. REGISTER HANDLERS BEFORE CONNECTING
   
 if(data.token)
-{debugger
+{ 
       this.registerTrackHandlers();
 
 }
@@ -112,9 +112,68 @@ await this.room.connect(url, token, {
 
     await this.room.connect(url, token);
     this.isConnected = true;
+ 
+
+
+     this.room.on(
+    RoomEvent.ParticipantMetadataChanged,
+    (metadata, participant) => {
+
+      // ONLY react to my own metadata
+      if (participant.identity !== this.room.localParticipant.identity) return;
+
+      try {
+        const data = JSON.parse(metadata || '{}');
+
+        if (data.micLocked === true) {
+          console.log('🔇 Mic locked by admin');
+          this.forceStopMicrophone();
+        }
+
+      } catch (e) {
+        console.warn('Invalid metadata:', metadata);
+      }
+    }
+  );
+
+  // 🔒 ALSO listen for permission change (backup safety)
+  this.room.on(
+    RoomEvent.ParticipantPermissionsChanged,
+    (permissions, participant) => {
+
+      if (participant.identity !== this.room.localParticipant.identity) return;
+
+      if (!permissions?.canPublish) {
+        console.log('🔇 Publishing disabled by admin');
+        this.forceStopMicrophone();
+      }
+    }
+  );
+
+
 
     console.log('✅ Student connected to LiveKit');
   }
+
+  async forceStopMicrophone() {
+
+  const localParticipant = this.room.localParticipant;
+
+  console.log('🛑 Force stopping mic');
+
+  const audioPublications = Array.from(
+    localParticipant.audioTrackPublications.values()
+  );
+
+  for (const pub of audioPublications) {
+    if (pub.track) {
+      await localParticipant.unpublishTrack(pub.track);
+      pub.track.stop();
+    }
+  }
+
+  this.isMicOn = false;
+}
 
   /* -------------------------------
      STEP 3.2 – RECEIVE TEACHER TRACKS
@@ -234,5 +293,65 @@ hasUserInteracted: boolean = false;
 
   console.log('▶️ User interaction done, media allowed');
 }
+
+// 🔹 UI state for chat panel
+isChatOpen = false;
+
+// 🔹 Toggle chat open / close
+toggleChat() {
+  this.isChatOpen = !this.isChatOpen;
+}
+
+isMicOn = false;
+localAudioTrack: MediaStreamTrack | null = null;
+
+async toggleMic() {
+  if (!this.room) return;
+
+  const videoEl = this.teacherScreen?.nativeElement;
+
+  // 🔇 TURN MIC OFF
+  if (this.isMicOn && this.localAudioTrack) {
+    await this.room.localParticipant.unpublishTrack(
+      this.localAudioTrack
+    );
+    this.localAudioTrack.stop();
+    this.localAudioTrack = null;
+    this.isMicOn = false;
+
+    // Resume teacher audio
+    if (videoEl) {
+      videoEl.muted = false;
+    }
+
+    console.log('🔇 Student mic OFF');
+    return;
+  }
+
+  // 🎙️ TURN MIC ON
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true
+    }
+  });
+
+  this.localAudioTrack = stream.getAudioTracks()[0];
+
+  await this.room.localParticipant.publishTrack(
+    this.localAudioTrack
+  );
+
+  this.isMicOn = true;
+
+  // Mute teacher audio to avoid echo
+  if (videoEl) {
+    videoEl.muted = true;
+  }
+
+  console.log('🎙️ Student mic ON');
+}
+
 
 }

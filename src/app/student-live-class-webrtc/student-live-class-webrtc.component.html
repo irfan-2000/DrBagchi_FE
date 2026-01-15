@@ -1,4 +1,4 @@
-<div class="h-screen w-screen bg-black flex items-center justify-center">
+<div class="h-screen w-screen bg-[#0f172a] flex overflow-hidden relative">
 
   <!-- JOIN OVERLAY -->
   <div
@@ -15,13 +15,80 @@
     </button>
   </div>
 
-  <!-- TEACHER SCREEN -->
-  <video
-    #teacherScreen
-    autoplay
-    playsinline
-    muted
-    class="w-full h-full object-contain">
-  </video>
+  <!-- MAIN VIDEO AREA -->
+  <div class="flex-1 flex items-center justify-center p-2 md:p-4">
+    <div class="w-full h-full bg-black rounded-xl md:rounded-2xl
+                shadow-2xl overflow-hidden">
+    <video
+  #teacherScreen
+  autoplay
+  playsinline
+  controls
+  class="w-full h-full object-contain bg-black">
+</video>
+
+    </div>
+  </div>
+
+  <!-- CHAT PANEL (SLIDE IN) -->
+  <div
+    class="absolute top-0 right-0 h-full w-full md:w-96
+           bg-slate-900 border-l border-slate-700
+           transform transition-transform duration-300 ease-in-out
+           z-40"
+    [class.translate-x-full]="!isChatOpen"
+    [class.translate-x-0]="isChatOpen">
+
+    <!-- Chat Header -->
+    <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+      <span class="text-white font-semibold">Class Chat</span>
+      <button
+        (click)="toggleChat()"
+        class="text-slate-400 hover:text-white text-xl">
+        ✕
+      </button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-slate-200">
+      <div><span class="text-indigo-400">Ayesha:</span> Sir please repeat</div>
+      <div><span class="text-green-400">You:</span> Yes</div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="p-3 border-t border-slate-700">
+      <input
+        type="text"
+        placeholder="Type a message..."
+        class="w-full bg-slate-800 text-white text-sm px-3 py-2
+               rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+    </div>
+  </div>
+
+  <!-- BOTTOM CONTROL BAR -->
+  <div
+    class="absolute bottom-0 left-0 w-full
+           bg-slate-900/90 border-t border-slate-700
+           flex items-center justify-center gap-4 p-3 md:p-4">
+
+    <!-- MIC BUTTON -->
+    <button
+      (click)="toggleMic()"
+      class="px-5 py-2.5 rounded-full font-semibold
+             text-white shadow-lg transition
+             bg-indigo-600 hover:bg-indigo-700">
+      {{ isMicOn ? '🎙️ Mic ON' : '🔇 Mic OFF' }}
+    </button>
+
+    <!-- CHAT TOGGLE -->
+    <button
+      (click)="toggleChat()"
+      class="px-5 py-2.5 rounded-full font-semibold
+             text-white shadow-lg transition
+             bg-slate-700 hover:bg-slate-600">
+      💬 Chat
+    </button>
+
+  </div>
 
 </div>
