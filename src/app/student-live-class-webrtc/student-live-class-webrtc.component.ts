@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RemoteTrack, RemoteTrackPublication, Room, RoomEvent, Track } from 'livekit-client';
 import { environment } from '../environments/environment.prod';
+import { identity } from 'rxjs';
  
 @Component({
   selector: 'app-student-live-class-webrtc',
@@ -18,6 +19,9 @@ export class StudentLiveClassWebrtcComponent {
   teacherScreen!: ElementRef<HTMLVideoElement>;
 
   isConnected = false;
+     studentIdentity = 'student_1'; // 🔑 SINGLE SOURCE OF TRUTH
+roomName = 'class_123';
+
 
   /* -------------------------------
      STEP 3.1 – CONNECT AS STUDENT
@@ -27,48 +31,88 @@ export class StudentLiveClassWebrtcComponent {
   // We only prepare the UI.
 }
 
-async joinClass() 
-{
+
+ async joinClass() {
   this.hasUserInteracted = true;
-  
+
   try {
-    // 1. Get Token
-    const res = await fetch(`${this.baseUrl}api/guest/token`, {
+    // 1️⃣ Get Token
+    const tokenRes = await fetch(`${this.baseUrl}api/guest/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        room: 'class_123',
-        identity: 'student_' + Math.floor(Math.random() * 10000)
+        room: this.roomName,
+        identity: this.studentIdentity
       })
     });
-    const data = await res.json();
 
-    // 2. Setup Room
+    if (!tokenRes.ok) throw new Error('Failed to fetch token');
+    const tokenData = await tokenRes.json();
+    const token = tokenData.token;
+    if (!token) throw new Error('Token missing in response');
+
+    // 2️⃣ Create Room
     this.room = new Room({
       adaptiveStream: true,
-      dynacast: true,
+      dynacast: true
     });
 
-    // 3. REGISTER HANDLERS BEFORE CONNECTING
-  
-if(data.token)
-{ 
-      this.registerTrackHandlers();
+    // 3️⃣ Register track handlers
+    this.registerTrackHandlers();
 
-}
-    // 4. CONNECT ONCE
+    // 4️⃣ Connect
     console.log('🔗 Connecting to LiveKit...');
-    await this.room.connect(this.livekitUrl, data.token);
-    // 5. Explicitly start audio now that we have a user gesture
+    await this.room.connect(this.livekitUrl, token);
+
+    // 5️⃣ Start audio
     await this.room.startAudio();
-    
     this.isConnected = true;
     console.log('✅ Student connected and audio started');
+
+    // 6️⃣ Listen for admin mic lock
+    this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata, participant) => {
+ 
+      try {
+        const data = JSON.parse(metadata || '{}');
+        if (data.micLocked === true) {
+          // Force stop microphone
+          this.forceStopMicrophone();
+          // Show alert box to student
+          //a//lert('🔇 Your microphone has been muted by the admin.');
+        }
+      } catch (e) {
+        console.warn('Invalid metadata:', metadata);
+      }
+    });
+
+    this.room.on(RoomEvent.ParticipantPermissionsChanged, (permissions, participant) => {
+  
+
+      if (!permissions?.canPublish) {
+        // Force stop microphone
+        this.forceStopMicrophone();
+        // Show alert box to student
+       // alert('🔇 You are not allowed to publish audio/video. Microphone muted by admin.');
+      }
+    });
+
+    // 7️⃣ Notify backend about join
+    await fetch(`${this.baseUrl}api/guest/join`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        roomName: this.roomName,
+        identity: this.studentIdentity
+      })
+    });
+
+    console.log('🔔 Notified backend about join');
 
   } catch (err) {
     console.error('Join failed', err);
   }
 }
+
 
 
 registerTrackHandlers() {
@@ -106,56 +150,23 @@ registerTrackHandlers() {
     adaptiveStream: true,
     dynacast: true
    });
-await this.room.connect(url, token, {
-  autoSubscribe: true // ✅ CORRECT PLACE
-});
+   
+    await this.room.connect(url, token, {
+      autoSubscribe: true // ✅ CORRECT PLACE
+    });
 
-    await this.room.connect(url, token);
+   /// await this.room.connect(url, token);
     this.isConnected = true;
  
 
-
-     this.room.on(
-    RoomEvent.ParticipantMetadataChanged,
-    (metadata, participant) => {
-
-      // ONLY react to my own metadata
-      if (participant.identity !== this.room.localParticipant.identity) return;
-
-      try {
-        const data = JSON.parse(metadata || '{}');
-
-        if (data.micLocked === true) {
-          console.log('🔇 Mic locked by admin');
-          this.forceStopMicrophone();
-        }
-
-      } catch (e) {
-        console.warn('Invalid metadata:', metadata);
-      }
-    }
-  );
-
-  // 🔒 ALSO listen for permission change (backup safety)
-  this.room.on(
-    RoomEvent.ParticipantPermissionsChanged,
-    (permissions, participant) => {
-
-      if (participant.identity !== this.room.localParticipant.identity) return;
-
-      if (!permissions?.canPublish) {
-        console.log('🔇 Publishing disabled by admin');
-        this.forceStopMicrophone();
-      }
-    }
-  );
-
-
+ debugger
+   
 
     console.log('✅ Student connected to LiveKit');
   }
 
-  async forceStopMicrophone() {
+  async forceStopMicrophone() 
+  {
 
   const localParticipant = this.room.localParticipant;
 
@@ -304,31 +315,48 @@ toggleChat() {
 
 isMicOn = false;
 localAudioTrack: MediaStreamTrack | null = null;
-
-async toggleMic() {
+ 
+async toggleMic()
+ {
   if (!this.room) return;
 
   const videoEl = this.teacherScreen?.nativeElement;
+debugger
+  // 1️⃣ Check server-side mute-all / admin lock
+  try {
+    const res = await fetch(`${this.baseUrl}api/guest/mute-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        roomName: this.roomName,
+        identity: this.studentIdentity
+      })
+    });
+    const data = await res.json();
+    const muteAllActive = data;
 
-  // 🔇 TURN MIC OFF
+    if (muteAllActive) {
+      alert('🔇 Your microphone is muted by the admin.');
+      return; // prevent toggling mic
+    }
+  } catch (err) {
+    console.warn('Could not check mute status:', err);
+  }
+
+  // 2️⃣ TURN MIC OFF
   if (this.isMicOn && this.localAudioTrack) {
-    await this.room.localParticipant.unpublishTrack(
-      this.localAudioTrack
-    );
+    await this.room.localParticipant.unpublishTrack(this.localAudioTrack);
     this.localAudioTrack.stop();
     this.localAudioTrack = null;
     this.isMicOn = false;
 
-    // Resume teacher audio
-    if (videoEl) {
-      videoEl.muted = false;
-    }
+    if (videoEl) videoEl.muted = false; // resume teacher audio
 
     console.log('🔇 Student mic OFF');
     return;
   }
 
-  // 🎙️ TURN MIC ON
+  // 3️⃣ TURN MIC ON
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: {
       echoCancellation: true,
@@ -339,19 +367,39 @@ async toggleMic() {
 
   this.localAudioTrack = stream.getAudioTracks()[0];
 
-  await this.room.localParticipant.publishTrack(
-    this.localAudioTrack
-  );
+  await this.room.localParticipant.publishTrack(this.localAudioTrack);
 
   this.isMicOn = true;
 
-  // Mute teacher audio to avoid echo
-  if (videoEl) {
-    videoEl.muted = true;
-  }
+  if (videoEl) videoEl.muted = true; // mute teacher to avoid echo
 
   console.log('🎙️ Student mic ON');
 }
+
+   unreadCount = 0;
+  currentSpeaker: string | null = null;
+
+  messages: { user: string; text: string; time: string }[] = [];
+  chatInput = '';
+  @ViewChild('chatContainer') chatContainer!: ElementRef;
+
+  sendMessage() {
+    if (!this.chatInput.trim()) return;
+    this.messages.push({ user: 'You', text: this.chatInput, time: this.getTime() });
+    this.chatInput = '';
+
+    setTimeout(() => this.scrollChatToBottom(), 50);
+  }
+
+  scrollChatToBottom() {
+    const el = this.chatContainer.nativeElement;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  getTime(): string {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
 
 
 }
