@@ -210,11 +210,11 @@ JoinLiveSession(data: any)
   const params = new URLSearchParams({
     CourseId: data.courseId,
     BatchId: data.batchId,
-    ChatroomId:   data.chatroom_id,
+    ChatroomId:   data.streamkey,
      type: 'resume',
   }).toString();
 
-  window.open(`/classroom?${params}`, '_blank');
+  window.open(`/studentclass?${params}`, '_blank');
 }
 
 

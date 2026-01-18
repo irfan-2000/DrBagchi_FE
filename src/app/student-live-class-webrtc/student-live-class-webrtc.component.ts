@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RemoteTrack, RemoteTrackPublication, Room, RoomEvent, Track } from 'livekit-client';
 import { environment } from '../environments/environment.prod';
 import { identity } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
  
 @Component({
   selector: 'app-student-live-class-webrtc',
@@ -18,10 +19,27 @@ export class StudentLiveClassWebrtcComponent {
   @ViewChild('teacherScreen', { static: true })
   teacherScreen!: ElementRef<HTMLVideoElement>;
 
-  isConnected = false;
-     studentIdentity = 'student_1'; // 🔑 SINGLE SOURCE OF TRUTH
-roomName = 'class_123';
+@ViewChild('teacherCamera')
+teacherCamera!: ElementRef<HTMLVideoElement>;
 
+  isConnected = false;
+studentIdentity :any; // 🔑 SINGLE SOURCE OF TRUTH
+roomName :any;
+CourseId:any;
+ BatchId:any;
+
+constructor( private route: ActivatedRoute)
+{
+  this.studentIdentity = window.localStorage.getItem('userid');
+ 
+  this.route.queryParamMap.subscribe(params => {
+  this.CourseId   = params.get('CourseId');
+  this.BatchId    = params.get('BatchId');
+  this.roomName = params.get('ChatroomId');
+
+ });
+ 
+}
 
   /* -------------------------------
      STEP 3.1 – CONNECT AS STUDENT
@@ -32,12 +50,12 @@ roomName = 'class_123';
 }
 
 
- async joinClass() {
+ async joinClass() 
+ {
   this.hasUserInteracted = true;
 
   try {
-    // 1️⃣ Get Token
-    const tokenRes = await fetch(`${this.baseUrl}api/guest/token`, {
+     const tokenRes = await fetch(`${this.baseUrl}api/guest/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -115,34 +133,125 @@ roomName = 'class_123';
 
 
 
+// registerTrackHandlers() {
+//   this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+//     console.log(`📥 Track Subscribed: ${publication.source} from ${participant.identity}`);
+
+//     if (track.kind === Track.Kind.Video)
+//        {
+//       const videoEl = this.teacherScreen.nativeElement;
+      
+//       // Use LiveKit's built-in .attach() - it's much safer than manual MediaStream
+//       track.attach(videoEl);
+      
+//       videoEl.play().catch(err => {
+//         console.warn('⚠️ Auto-play failed, usually requires a click:', err);
+//       });
+//     }
+
+//   if (publication.source === Track.Source.Camera) {
+//         console.log('🎥 Teacher camera received');
+
+//         const videoEl = this.teacherCamera.nativeElement;
+//         videoEl.srcObject = new MediaStream([track.mediaStreamTrack]);
+
+//         videoEl.play().catch(() => {
+//           console.warn('Camera autoplay blocked');
+//         });
+//       }
+
+//     if (track.kind === Track.Kind.Audio) {
+//       // Audio tracks also need to be attached to the DOM to be heard
+//       const audioElement = track.attach();
+//       document.body.appendChild(audioElement);
+//     }
+//   });
+
+//   // Log when teacher is already in room with tracks
+//   this.room.on(RoomEvent.ParticipantConnected, (p) => {
+//      console.log('Teacher/Participant joined:', p.identity);
+//   });
+// }
+ 
 registerTrackHandlers() {
-  this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-    console.log(`📥 Track Subscribed: ${publication.source} from ${participant.identity}`);
 
-    if (track.kind === Track.Kind.Video) {
-      const videoEl = this.teacherScreen.nativeElement;
-      
-      // Use LiveKit's built-in .attach() - it's much safer than manual MediaStream
-      track.attach(videoEl);
-      
-      videoEl.play().catch(err => {
-        console.warn('⚠️ Auto-play failed, usually requires a click:', err);
-      });
+  // 1️⃣ Handle tracks that arrive AFTER join
+  this.room.on(
+    RoomEvent.TrackSubscribed,
+    (track, publication, participant) => {
+
+      console.log(
+        `📥 TrackSubscribed → ${publication.source} | ${track.kind} | ${participant.identity}`
+      );
+
+      this.attachTrack(track, publication);
     }
+  );
 
-    if (track.kind === Track.Kind.Audio) {
-      // Audio tracks also need to be attached to the DOM to be heard
-      const audioElement = track.attach();
-      document.body.appendChild(audioElement);
-    }
-  });
+  // 2️⃣ VERY IMPORTANT: Handle tracks that already exist ON JOIN / RELOAD
+  this.room.remoteParticipants.forEach((participant) => {
+    participant.trackPublications.forEach((publication) => {
+      if (publication.track) {
+        console.log(
+          `♻️ Existing track → ${publication.source} | ${publication.kind} | ${participant.identity}`
+        );
 
-  // Log when teacher is already in room with tracks
-  this.room.on(RoomEvent.ParticipantConnected, (p) => {
-     console.log('Teacher/Participant joined:', p.identity);
+        this.attachTrack(publication.track, publication);
+      }
+    });
   });
 }
- 
+
+private attachTrack(track: any, publication: any) {
+
+  // 🖥️ SCREEN SHARE
+  if (
+    track.kind === Track.Kind.Video &&
+    publication.source === Track.Source.ScreenShare
+  ) {
+    console.log('🖥️ Attaching teacher screen');
+
+    track.attach(this.teacherScreen.nativeElement);
+    return;
+  }
+
+  // 🎥 CAMERA
+// 🎥 CAMERA
+if (
+  track.kind === Track.Kind.Video &&
+  publication.source === Track.Source.Camera
+) {
+  console.log('🎥 Attaching teacher camera');
+
+  const videoEl = this.teacherCamera.nativeElement;
+
+  // 🔥 REQUIRED FOR AUTOPLAY
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  videoEl.autoplay = true;
+
+  track.attach(videoEl);
+
+  // 🔥 FORCE PLAY
+  videoEl.play()
+    .then(() => console.log('✅ Camera playing'))
+    .catch(err => console.warn('❌ Camera play blocked', err));
+
+  return;
+}
+
+
+  // 🔊 AUDIO
+  if (track.kind === Track.Kind.Audio) {
+    console.log('🔊 Attaching audio track');
+
+    const audioEl = track.attach();
+    audioEl.autoplay = true;
+    audioEl.muted = false;
+    document.body.appendChild(audioEl);
+  }
+}
+
 
   async connectAsStudent(url: string, token: string)
    {
@@ -294,7 +403,8 @@ registerTrackHandlers() {
   }
 hasUserInteracted: boolean = false;
 
-  joinClass_old() {
+  joinClass_old()
+   {
   this.hasUserInteracted = true;
 
   // Resume AudioContext safely
