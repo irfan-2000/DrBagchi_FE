@@ -10,7 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { ForgotpasswordComponent } from './forgotpassword/forgotpassword.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashbaordComponent } from './dashbaord/dashbaord.component';
@@ -65,7 +65,7 @@ import { StudentLiveClassWebrtcComponent } from './student-live-class-webrtc/stu
     }), // ToastrModule to show toasts
   ],
   providers: [
-    provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay()),provideHttpClient(withFetch())
   ],
   bootstrap: [AppComponent]
 })
