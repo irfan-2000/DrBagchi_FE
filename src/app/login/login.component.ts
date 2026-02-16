@@ -23,13 +23,13 @@ export class LoginComponent {
   ErrorMessage = "";
 
   ValidateStudent() {
-
-    if (this.credentials.Mobile == '' && this.credentials.Mobile == null && this.credentials.Mobile == 'undefined') {
-      this.ErrorMessage = "Mobile is Required"
+ 
+    if (this.credentials.Mobile == '' ||  this.credentials.Mobile == null || this.credentials.Mobile == 'undefined') {
+      this.ErrorMessage = "Email is Required"
       return;
     }
 
-    if (this.credentials.password == '' && this.credentials.password == null && this.credentials.password == 'undefined') {
+    if (this.credentials.password == '' || this.credentials.password == null || this.credentials.password == 'undefined') {
       this.ErrorMessage = 'Password is Required';
       return;
     }
@@ -72,7 +72,8 @@ export class LoginComponent {
           }
 
         }, error: (error: any) => {
-
+           
+          this.ErrorMessage = error.error.message;
         }
       })
 

@@ -21,9 +21,48 @@ export class DashbaordComponent
   ];
 
   enrolledCourses = [
-    { name: 'Biology 101', completed: 60, paymentStatus: 'Paid' },
-    { name: 'Physics Fundamentals', completed: 20, paymentStatus: 'Due' }
+    {
+      id: 1,
+      name: 'NEET Biology 2026',
+      thumbnail: 'https://via.placeholder.com/150',
+      attendedThisMonth: 6,
+      conductedThisMonth: 8,
+      daysLeft: 5,
+      nextClass: {
+        title: 'Human Physiology - Revision',
+        date: '18 Feb 2026',
+        time: '6:00 PM'
+      }
+    },
+    {
+      id: 2,
+      name: 'Physics Crash Course',
+      thumbnail: 'https://via.placeholder.com/150',
+      attendedThisMonth: 4,
+      conductedThisMonth: 6,
+      daysLeft: 25,
+      nextClass: {
+        title: 'Thermodynamics Concepts',
+        date: '19 Feb 2026',
+        time: '5:00 PM'
+      }
+    },
+    {
+      id: 3,
+      name: 'Organic Chemistry Mastery',
+      thumbnail: 'https://via.placeholder.com/150',
+      attendedThisMonth: 3,
+      conductedThisMonth: 5,
+      daysLeft: 3,
+      nextClass: {
+        title: 'Hydrocarbons Advanced',
+        date: '20 Feb 2026',
+        time: '7:00 PM'
+      }
+    }
   ];
+
+ 
 
   availableCourses = [
     { name: 'Math Foundation', price: 499 },
@@ -31,9 +70,34 @@ export class DashbaordComponent
   ];
 
   upcomingClasses = [
-    { course: 'Biology 101', title: 'Photosynthesis', date: 'Aug 29, 10:00am' },
-    { course: 'Physics Fundamentals', title: 'Newton\'s Laws', date: 'Aug 30, 11:00am' },
+    {
+      course: 'NEET Biology 2026',
+      title: 'Human Physiology - Revision',
+      date: '18 Feb 2026',
+      time: '6:00 PM',
+      duration: 90
+    },
+    {
+      course: 'Physics Crash Course',
+      title: 'Thermodynamics Concepts',
+      date: '19 Feb 2026',
+      time: '5:00 PM',
+      duration: 60
+    },
+    {
+      course: 'Organic Chemistry Mastery',
+      title: 'Hydrocarbons Advanced',
+      date: '20 Feb 2026',
+      time: '7:00 PM',
+      duration: 75
+    }
   ];
+
+    // ================= EXPIRING COURSES =================
+  expiringCourses :any= [];
+
+  // ================= DASHBOARD STATS =================
+  avgClassesAttended = 0;
 
   payments = [
     { course: 'Biology 101', date: '2025-08-21', amount: 699, status: 'Paid' },
@@ -41,10 +105,29 @@ export class DashbaordComponent
   ];
 
   sidebarOpen = false;
-
-  ngOnInit() {}
+   ngOnInit() {}
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+    calculateExpiringCourses() {
+    this.expiringCourses = this.enrolledCourses.filter(c => c.daysLeft <= 7);
+  }
+
+  // ================= CALCULATE AVERAGE ATTENDANCE =================
+  calculateAverageAttendance() {
+
+    let totalAttended = 0;
+    let totalCourses = this.enrolledCourses.length;
+
+    this.enrolledCourses.forEach(c => {
+      totalAttended += c.attendedThisMonth;
+    });
+
+    this.avgClassesAttended =
+      totalCourses > 0
+        ? Math.round(totalAttended / totalCourses)
+        : 0;
   }
 
 }

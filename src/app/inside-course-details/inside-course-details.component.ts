@@ -318,68 +318,73 @@ payNow(option: any)
 
 selectedPlan:any = '';
 Subscriptionplans:any =[];
-getCoursePayments() 
-{
+ 
+getCoursePayments() {
+
+  this.isLoading = true;
 
   this.Courses.getCoursePayments(this.CourseId).subscribe({
-    next: (response: any) => 
-      {
- 
-      this.paymentType = response.result.PaymentType;
-      if(this.paymentType === 'subscription')
-      {
-        this.Subscriptionplans.push({
-          monthlyAmount: response.result.MonthlyAmount,
-          quarterlyAmount: response.result.QuarterlyAmount,
-          halfYearlyAmount: response.result.HalfYearlyAmount,
-          yearlyAmount: response.result.YearlyAmount
-        });
-      }
-      this.Subscriptionplans = this.Subscriptionplans[0];
 
-      if (!response || !response.result) {
+    next: (response: any) => {
+
+      this.isLoading = false;
+
+      if (!response?.result) {
         console.warn("No course payment data found");
         return;
       }
 
       const result = response.result;
-      console.log("course payment details", result);
- 
-      // -------------------------------------------------------------------
+
+      this.paymentType = result.PaymentType;
+      console.log("Course payment details:", result);
+
+      // Reset plans before assigning
+      this.Subscriptionplans = null;
+      this.fixedpaymentplans = null;
+
+      // --------------------------------------------------
       // FIXED PAYMENT TYPE
-      // -------------------------------------------------------------------
-       if (this.paymentType === 'fixed')
-         {
-          this.fixedpaymentplans = 
-          {
-            fixed_paymentMode: result.fixed_paymentMode || '',
-            Totalprice: result.Totalprice || 0,
-            NoOfInstallments: result.Installments.length || 0,
-            Installments: result.Installments || []
-          }         
-        
+      // --------------------------------------------------
+      if (this.paymentType === 'fixed') {
+
+        this.fixedpaymentplans = {
+          fixed_paymentMode: result.fixed_paymentMode || '',
+          Totalprice: result.Totalprice || 0,
+          NoOfInstallments: result.Installments?.length || 0,
+          Installments: result.Installments || []
+        };
       }
 
-      // -------------------------------------------------------------------
+      // --------------------------------------------------
       // SUBSCRIPTION PAYMENT TYPE
-      // -------------------------------------------------------------------
-      if (result.paymentType === 'subscription') {
+      // --------------------------------------------------
+      if (this.paymentType === 'subscription') {
 
-        // this.paymentForm.patchValue({
-        //   monthlyAmount: result.monthlyAmount || 0,
-        //   quarterlyAmount: result.quarterlyAmount || 0,
-        //   halfYearlyAmount: result.halfYearlyAmount || 0,
-        //   yearlyAmount: result.yearlyAmount || 0
-        // });
+        this.Subscriptionplans = {
+          monthlyAmount: result.MonthlyAmount || 0,
+          quarterlyAmount: result.QuarterlyAmount || 0,
+          halfYearlyAmount: result.HalfYearlyAmount || 0,
+          yearlyAmount: result.YearlyAmount || 0
+        };
+
       }
 
     },
-    error: (err: any) => {
-      this.isLoading = false;
-      alert("Error submitting course details: " + (err.error?.ErrorMessage || err.message));
-    }
-  });
 
+    error: (err: any) => {
+
+      this.isLoading = false;
+
+      console.error("Payment API Error:", err);
+
+      alert(
+        "Error loading course payment details: " +
+        (err?.error?.ErrorMessage || err.message)
+      );
+    }
+
+  });
 }
 
  Createorder_razorpay_NewOrder_subscription()

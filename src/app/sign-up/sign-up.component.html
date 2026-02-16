@@ -1,310 +1,278 @@
-<div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-8 pt-15">
-  <div class="bg-white rounded-lg shadow-lg p-6 md:p-10 w-full max-w-4xl">
-    <h2 class="text-3xl font-bold text-indigo-700 mb-6 text-center">
-      Create Your Student  Account
-    </h2>
+<div class="min-h-screen bg-gray-50 py-16 px-4">
 
-    <form  [formGroup]="signupForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-lg p-8 md:p-12">
 
-     <!-- ========== Student Details ========== -->
-<div class="md:col-span-2">
-  <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">
-    Student Details
-  </h3>
-</div>
-
-<!-- Row 1 -->
-<div>
-  <label class="block font-semibold mb-1">Full Name</label>
-  <input type="text" formControlName="fullName" class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['fullName']">
-    {{ errorMessages['fullName'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">Email Address</label>
-  <input type="email" formControlName="email" class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['email']">
-    {{ errorMessages['email'] }}
-  </span>
-</div>
-
-<!-- Row 2 -->
-<div>
-  <label class="block font-semibold mb-1">Mobile Number</label>
-  <input type="tel" maxlength="10" formControlName="mobile"
-         class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['mobile']">
-    {{ errorMessages['mobile'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">Gender</label>
-  <select formControlName="gender" class="w-full border rounded-lg px-3 py-2">
-    <option value="">Select</option>
-    <option value="M">Male</option>
-    <option value="F">Female</option>
-    <option value="O">Other</option>
-  </select>
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['gender']">
-    {{ errorMessages['gender'] }}
-  </span>
-</div>
-
-<!-- Row 3 -->
-<div>
-  <label class="block font-semibold mb-1">Date of Birth</label>
-  <input type="date" formControlName="dob" class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['dob']">
-    {{ errorMessages['dob'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">Caste</label>
-
-  <select
-    formControlName="caste"
-    class="w-full border rounded-lg px-3 py-2"
-  >
-    <option value="">Select Caste</option>
-    <option *ngFor="let c of castes" [value]="c">
-      {{ c }}
-    </option>
-  </select>
-
-  <span
-    class="text-sm text-red-600 font-medium"
-    *ngIf="errorMessages['caste']"
-  >
-    {{ errorMessages['caste'] }}
-  </span>
-</div>
-
-
-<!-- ========== Profile Picture (FULL ROW LEFT) ========== -->
-<div class="md:col-span-2">
-  <label class="block text-sm font-medium text-gray-600 mb-2">
-    Profile Picture
-  </label>
-
-  <div class="flex">
-    <div class="relative w-40 h-40">
-      <input type="file" id="profileImage"
-             formControlName="profileImage"
-             (change)="onFileChange($event)"
-             class="hidden">
-
-      <label for="profileImage" class="cursor-pointer">
-        <img [src]="profileImagePreview"
-             class="w-40 h-40 rounded-full object-cover border shadow">
-      </label>
+    <!-- Heading -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900">
+        Create Your Student Account
+      </h2>
+      <p class="text-gray-600 mt-3 text-sm">
+        Fill in the details below to get started.
+      </p>
     </div>
-  </div>
 
-  <p *ngIf="errorMessages['profileImage']" class="text-sm text-red-600 font-medium" >
-    {{ errorMessages['profileImage'] }}
-  </p>
-</div>
+    <form [formGroup]="signupForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-<!-- Row 4 -->
-<div>
-  <label class="block font-semibold mb-1">Parent/Guardian Name</label>
-  <input type="text" formControlName="parentName" class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['parentName']">
-    {{ errorMessages['parentName'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">Parent/Guardian Mobile</label>
-  <input type="tel" maxlength="10" formControlName="parentMobile"
-         class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['parentMobile']">
-    {{ errorMessages['parentMobile'] }}
-  </span>
-</div>
-
-<!-- ========== Address ========== -->
-<div class="md:col-span-2">
-  <label class="block font-semibold mb-1">Street Address</label>
-  <input type="text" formControlName="address" class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['address']">
-    {{ errorMessages['address'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">City</label>
-  <input type="text" formControlName="city" class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['city']">
-    {{ errorMessages['city'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">State</label>
-  <select formControlName="state" class="w-full border rounded-lg px-3 py-2">
-    <option value="">Select</option>
-    <option *ngFor="let state of states" [value]="state">{{ state }}</option>
-  </select>
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['state']">
-    {{ errorMessages['state'] }}
-  </span>
-</div>
-
-<div>
-  <label class="block font-semibold mb-1">Pincode</label>
-  <input type="text" maxlength="6" formControlName="pincode"
-         class="w-full border rounded-lg px-3 py-2">
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['pincode']">
-    {{ errorMessages['pincode'] }}
-  </span>
-</div>
-
-
-
-
-  <!-- ========== Institution Details ========== -->
-      <div class="md:col-span-2">
-        <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">Institution Details</h3>
+      <!-- ================= Student Details ================= -->
+      <div class="md:col-span-2 border-b border-gray-200 pb-3 mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Student Details</h3>
       </div>
 
-
+      <!-- Full Name -->
       <div>
-        <label class="block font-semibold mb-1">Institution</label>
-        <input type="text" name="pincode" pattern="[0-9]{6}" formControlName="institution" class="w-full border rounded-lg px-3 py-2" required>
-    
-      <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['institution']">
-    {{ errorMessages['institution'] }}
-  </span>
-    
+        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+        <input type="text" formControlName="fullName"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['fullName']">
+          {{ errorMessages['fullName'] }}
+        </span>
       </div>
 
-        <div>
-  <label class="block font-semibold mb-1">Board</label>
-  <select formControlName="board" name="board" class="w-full border rounded-lg px-3 py-2" required (click)="getAvailableBatches()">
-    <option value="" disabled selected>Select Board</option>
-    <option *ngFor="let b of availableBoards" [value]="b.BoardId">
-      {{ b.BoardName }}
-    </option>
-  </select>
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['board']">
-    {{ errorMessages['board'] }}
-  </span>
-
-</div>
-
-      <!-- ========== Course Details ========== -->
-      <div class="md:col-span-2">
-        <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">Course Details</h3>
-      </div>
-
+      <!-- Email -->
       <div>
-        <label class="block font-semibold mb-1">Class</label>
-        <select name="class" formControlName="class" class="w-full border rounded-lg px-3 py-2" required (change)="getAvailableSubjects($event)">
-          <option value="" disabled>Select</option>
-          <option *ngFor="let c of availableClasses" [value]="c.ClassId">{{c.ClassName}}</option>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+        <input type="email" formControlName="email"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['email']">
+          {{ errorMessages['email'] }}
+        </span>
+      </div>
+
+      <!-- Mobile -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+        <input type="tel" maxlength="10" formControlName="mobile"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['mobile']">
+          {{ errorMessages['mobile'] }}
+        </span>
+      </div>
+
+      <!-- Gender -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+        <select formControlName="gender"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+          <option value="">Select</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+          <option value="O">Other</option>
         </select>
-
-          <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['class']">
-    {{ errorMessages['class'] }}
-  </span>
-
+        <span class="text-xs text-red-600" *ngIf="errorMessages['gender']">
+          {{ errorMessages['gender'] }}
+        </span>
       </div>
 
+      <!-- DOB -->
       <div>
-        <label class="block font-semibold mb-1">Subject</label>
-        <select name="course" formControlName="subject" class="w-full border rounded-lg px-3 py-2" required  >
-          <option value=""  >Select</option>
-          <option *ngFor="let sub of availableSubjects" [value]="sub.SubjectId">{{sub.SubjectName}}</option>
-        </select>
-
-           <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['subject']">
-    {{ errorMessages['subject'] }}
-  </span>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+        <input type="date" formControlName="dob"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['dob']">
+          {{ errorMessages['dob'] }}
+        </span>
       </div>
 
-      <!-- <div>
-        <label class="block font-semibold mb-1">Preferred Batch Time</label>
-        <select name="batch" formControlName="batch" class="w-full border rounded-lg px-3 py-2" required>
-          <option value="" disabled>Select</option>
-          <option *ngFor="let batch of availableBatches" [value]="batch.BatchId">{{batch.BatchName}}</option>
+      <!-- Caste -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Caste</label>
+        <select formControlName="caste"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+          <option value="">Select Caste</option>
+          <option *ngFor="let c of castes" [value]="c">{{ c }}</option>
         </select>
-     <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['batch']">
-    {{ errorMessages['batch'] }}
-  </span>
+        <span class="text-xs text-red-600" *ngIf="errorMessages['caste']">
+          {{ errorMessages['caste'] }}
+        </span>
+      </div>
 
-      </div> -->
-
-      <!-- ========== Login Details ========== -->
+      <!-- Profile Picture -->
       <div class="md:col-span-2">
-        <h3 class="text-lg font-bold text-gray-700 border-b pb-1 mb-4">Login Details</h3>
+        <label class="block text-sm font-medium text-gray-700 mb-3">Profile Picture</label>
+        <div class="flex items-center gap-6">
+          <div class="relative w-32 h-32">
+            <input type="file" id="profileImage"
+                   formControlName="profileImage"
+                   (change)="onFileChange($event)"
+                   class="hidden">
+            <label for="profileImage" class="cursor-pointer">
+              <img [src]="profileImagePreview"
+                   class="w-32 h-32 rounded-full object-cover border border-gray-300">
+            </label>
+          </div>
+        </div>
+        <span class="text-xs text-red-600" *ngIf="errorMessages['profileImage']">
+          {{ errorMessages['profileImage'] }}
+        </span>
+      </div>
+
+      <!-- Parent Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Parent/Guardian Name</label>
+        <input type="text" formControlName="parentName"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['parentName']">
+          {{ errorMessages['parentName'] }}
+        </span>
+      </div>
+
+      <!-- Parent Mobile -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Parent/Guardian Mobile</label>
+        <input type="tel" maxlength="10" formControlName="parentMobile"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['parentMobile']">
+          {{ errorMessages['parentMobile'] }}
+        </span>
+      </div>
+
+      <!-- Address -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+        <input type="text" formControlName="address"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['address']">
+          {{ errorMessages['address'] }}
+        </span>
+      </div>
+
+      <!-- City -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+        <input type="text" formControlName="city"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['city']">
+          {{ errorMessages['city'] }}
+        </span>
+      </div>
+
+      <!-- State -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
+        <select formControlName="state"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+          <option value="">Select</option>
+          <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+        </select>
+        <span class="text-xs text-red-600" *ngIf="errorMessages['state']">
+          {{ errorMessages['state'] }}
+        </span>
+      </div>
+
+      <!-- Pincode -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+        <input type="text" maxlength="6" formControlName="pincode"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+        <span class="text-xs text-red-600" *ngIf="errorMessages['pincode']">
+          {{ errorMessages['pincode'] }}
+        </span>
+      </div>
+
+      <!-- ================= Institution Details ================= -->
+      <div class="md:col-span-2 border-b border-gray-200 pb-3 mt-8">
+        <h3 class="text-lg font-semibold text-gray-900">Institution Details</h3>
       </div>
 
       <div>
-        <label class="block font-semibold mb-1">Password</label>
-        <input type="password" name="password" formControlName="password" class="w-full border rounded-lg px-3 py-2" required minlength="6">
-      
-      <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['password']">
-    {{ errorMessages['password'] }}
-  </span>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Institution</label>
+        <input type="text" formControlName="institution"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
       </div>
 
       <div>
-        <label class="block font-semibold mb-1">Confirm Password</label>
-        <input type="password" name="confirmPassword" formControlName="confirmPassword" class="w-full border rounded-lg px-3 py-2" required>
-      
-        
-      <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['confirmPassword']">
-    {{ errorMessages['confirmPassword'] }}
-  </span>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Board</label>
+        <select formControlName="board"
+                (click)="getAvailableBatches()"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+          <option value="">Select Board</option>
+          <option *ngFor="let b of availableBoards" [value]="b.BoardId">
+            {{ b.BoardName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- ================= Course Details ================= -->
+      <div class="md:col-span-2 border-b border-gray-200 pb-3 mt-8">
+        <h3 class="text-lg font-semibold text-gray-900">Course Details</h3>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Class</label>
+        <select formControlName="class"
+                (change)="getAvailableSubjects($event)"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+          <option value="">Select</option>
+          <option *ngFor="let c of availableClasses" [value]="c.ClassId">
+            {{ c.ClassName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+        <select formControlName="subject"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+          <option value="">Select</option>
+          <option *ngFor="let sub of availableSubjects" [value]="sub.SubjectId">
+            {{ sub.SubjectName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- ================= Login Details ================= -->
+      <div class="md:col-span-2 border-b border-gray-200 pb-3 mt-8">
+        <h3 class="text-lg font-semibold text-gray-900">Login Details</h3>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+        <input type="password" formControlName="password"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+        <input type="password" formControlName="confirmPassword"
+               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:border-purple-600 outline-none transition">
       </div>
 
       <!-- Terms -->
-    <div class="md:col-span-2">
-  <div class="flex items-center">
-    <input type="checkbox" name="terms" formControlName="terms" class="mr-2" required>
-    <label>I agree to the <a href="#" class="text-indigo-600 underline">Terms & Conditions</a></label>
-  </div>
-  
-  <!-- Error message below the checkbox -->
-  <span class="text-sm text-red-600 font-medium" *ngIf="errorMessages['terms']">
-    {{ errorMessages['terms'] }}
-  </span>
-</div>
-
-
-
+      <div class="md:col-span-2 mt-6">
+        <div class="flex items-center">
+          <input type="checkbox" formControlName="terms" class="mr-2">
+          <label class="text-sm text-gray-600">
+            I agree to the
+            <a href="#" class="text-purple-700 hover:underline font-medium">
+              Terms & Conditions
+            </a>
+          </label>
+        </div>
+      </div>
 
       <!-- Submit -->
-    <div class="md:col-span-2 flex flex-col items-center gap-3">
-  <!-- Signup Button -->
-    <span class="text-sm text-red-600 font-medium text-center" *ngIf="errorMessages['form']">
-   {{  errorMessages['form']}}
-  </span>
-  <button 
-    type="submit" 
-    (click)="SubmitSignUp()" 
-    class="w-full md:w-2/3 bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow
-           hover:bg-indigo-700 transition-transform transform active:scale-95 focus:outline-none"
-  >
-    Sign Up
-  </button>
+      <div class="md:col-span-2 text-center mt-8">
+        <span class="text-sm text-red-600 block mb-3" *ngIf="errorMessages['form']">
+          {{ errorMessages['form'] }}
+        </span>
 
-  <!-- Login Link -->
-  <p class="text-sm text-gray-600">
-    Already have an account?
-    <a routerLink="/login" class="text-indigo-600 font-medium hover:underline">
-      Login
-    </a>
-  </p>
-</div>
+        <button type="submit"
+                (click)="SubmitSignUp()"
+                class="w-full md:w-2/3 bg-purple-700 text-white py-3 rounded-md font-semibold hover:bg-purple-800 transition duration-200">
+          Sign Up
+        </button>
 
-
+        <p class="text-sm text-gray-600 mt-4">
+          Already have an account?
+          <a routerLink="/login"
+             class="text-purple-700 font-semibold hover:underline ml-1">
+            Login
+          </a>
+        </p>
+      </div>
 
     </form>
+
   </div>
 </div>

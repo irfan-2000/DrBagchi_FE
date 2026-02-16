@@ -11,15 +11,14 @@ export class LayoutInsideComponent
 {
 sidebarOpen = false;
  
-  menu = [
-    { name: 'Dashboard', icon: 'home', route: '/app/dashboard' },
-    { name: 'Courses', icon: 'book', route: '/app/courses' },
-    { name: 'My Courses', icon: 'book', route: '/app/mycourses' },
-     { name: 'Payments', icon: 'credit-card', route: '/app/payments' },
-    { name: 'Settings', icon: 'cog', route: '/settings' },
-    {name:'Quiz',icon:'cog',route:'/app/quiz'}
-    
-  ];
+ menu = [
+  { name: 'Dashboard', icon: 'home', route: '/app/dashboard' },
+  { name: 'Courses', icon: 'book', route: '/app/courses' },
+  { name: 'My Courses', icon: 'users', route: '/app/mycourses' },
+  { name: 'Payments', icon: 'credit-card', route: '/app/payments' },
+  { name: 'Quiz', icon: 'clipboard-check', route: '/app/quiz' },
+  { name: 'Settings', icon: 'cog', route: '/settings' }
+];
 
 
   

@@ -1,522 +1,574 @@
 <!-- course-details.component.html -->
-   <div *ngIf="isLoading" class="bagchi-loader-overlay">
-  <div class="bagchi-loader-content">
+ <div *ngIf="isLoading" class="bagchi-loader-overlay">
+  <div class="bagchi-loader-card">
     <div class="bagchi-spinner"></div>
-    <div class="bagchi-loading-text">Loading please wait…</div>
+    <div class="bagchi-loading-text">Please wait…</div>
   </div>
 </div>
 <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-10">
 
-  <!-- Header / Hero -->
-  <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
-    <!-- Left panel: course meta and description -->
-    <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col">
-      <!-- Cover Image -->
-      <div class="aspect-[16/9] rounded-xl overflow-hidden bg-indigo-50">
-        <img [src]="Course?.ImagewithPath" alt="{{Course?.CourseName}} cover"
-             class="object-cover w-full h-full transition-transform duration-300 hover:scale-105" />
-      </div>
+   <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
+    <section class="bg-white border border-gray-200 rounded-xl p-8 space-y-10">
 
-      <h1 class="mt-6 text-2xl md:text-3xl font-extrabold text-indigo-900">
-        {{ Course?.CourseName }}
-      </h1>
+  <!-- ================= COURSE COVER ================= -->
+  <div class="aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
+    <img
+      [src]="Course?.ImagewithPath"
+      alt="{{Course?.CourseName}} cover"
+      class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+    />
+  </div>
 
-      <!-- Instructor & Level -->
-      <div class="mt-2 flex items-center gap-3 text-sm text-gray-700">
-        <span class="font-semibold">{{Course?.Teacher}}</span>
-        <span>·</span>
-        <span>{{ Course?.CourseLevel }}</span>
-      </div>
-      <div *ngIf="parsedDescription?.duration" class="mt-1 text-xs text-gray-600">
-        Duration: <span class="font-medium">{{parsedDescription?.duration}}</span>
-      </div>
+  <!-- ================= TITLE & META ================= -->
+  <div class="space-y-3">
 
-      <!-- Description Section -->
-      <div class="mt-6 bg-gray-50 rounded-xl p-5 shadow-sm">
-        <h2 class="text-xl font-semibold text-indigo-800 mb-2">Course Description</h2>
-        <p class="text-gray-800 text-base mb-2 line-clamp-4">
-          {{ Course?.ShortDescription || 'No short description available.' }}
-        </p>
-        <p class="text-gray-600 mb-2">
-          {{ Course?.Overview || 'Detailed overview coming soon.' }}
-        </p>
-      </div>
+    <h1 class="text-3xl font-semibold text-gray-900 leading-tight">
+      {{ Course?.CourseName }}
+    </h1>
 
-      <!-- Highlights, Requirements, Objectives -->
-      <div class="mt-6 grid md:grid-cols-3 gap-6">
-        <!-- Highlights -->
-        <div *ngIf="Course?.Highlights">
-          <h3 class="text-lg font-semibold text-indigo-800 mb-2">Highlights</h3>
-          <ul class="space-y-2">
-            <li *ngFor="let h of Course.Highlights" class="flex gap-2 items-center text-gray-700">
-              <span class="text-green-600">✔</span> <span>{{ h }}</span>
-            </li>
-          </ul>
-        </div>
-        <!-- Requirements -->
-        <div *ngIf="Course?.Requirements?.length">
-          <h3 class="text-lg font-semibold text-indigo-800 mb-2">Requirements</h3>
-          <ul class="space-y-2">
-            <li *ngFor="let r of Course.Requirements" class="text-gray-700">{{ r }}</li>
-          </ul>
-        </div>
-        <!-- Objectives -->
-        <div *ngIf="Course?.Objectives?.length">
-          <h3 class="text-lg font-semibold text-indigo-800 mb-2">Objectives</h3>
-          <ul class="space-y-2">
-            <li *ngFor="let o of Course.Objectives" class="text-gray-700">{{ o }}</li>
-          </ul>
-        </div>
-      </div>
+    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+      <span class="font-medium text-gray-900">
+        {{ Course?.Teacher }}
+      </span>
 
-      <!-- Batches Info -->
-     <div class="mt-8">
-  <h3 class="text-lg font-semibold text-indigo-800 mb-2">Upcoming Batches</h3>
-  <div class="grid sm:grid-cols-2 gap-2">
-    
-    <div *ngFor="let b of Course.Batches"
-         class="bg-indigo-50 rounded-lg px-4 py-3 text-sm cursor-pointer"
-         [class.border-2]="selectedBatchId === b.batchId"
-         [class.border-indigo-600]="selectedBatchId === b.batchId"
-         (click)="selectBatch(b)">
-         
-      <div class="font-semibold">{{ b.batchName }}</div>
-      <div>🗓 {{ b.startDate | date:'MMM dd, yyyy' }} – {{ b.endDate | date:'MMM dd, yyyy' }}</div>
-      <div>⏰ {{ formatTime(b.startTime) }} – {{ formatTime(b.endTime) }}</div>
+      <span>•</span>
+
+      <span>
+        {{ Course?.CourseLevel }}
+      </span>
+
+      <span *ngIf="parsedDescription?.duration">
+        • {{ parsedDescription?.duration }}
+      </span>
     </div>
 
   </div>
-</div>
 
-    </section>
+  <!-- ================= DESCRIPTION ================= -->
+  <div class="border-t pt-8 space-y-4">
 
-    <!-- Right panel: pricing, coupon, payment -->
-<aside class="bg-white rounded-2xl shadow-lg p-6 h-max space-y-6">
+    <h2 class="text-xl font-semibold text-gray-900">
+      Course Overview
+    </h2>
 
-  <!-- Price & Discount -->
-  <div class="flex items-end gap-3">
-    <span class="text-3xl font-bold text-indigo-700">
-      ₹{{ discountedPrice || Course?.Price }}
-    </span>
-    <span *ngIf="Course?.OldPrice"
-          class="text-base text-gray-500 line-through">₹{{ Course?.OldPrice }}</span>
+    <p class="text-gray-700 leading-relaxed">
+      {{ Course?.ShortDescription || 'No short description available.' }}
+    </p>
+
+    <p class="text-gray-600 leading-relaxed">
+      {{ Course?.Overview || 'Detailed overview coming soon.' }}
+    </p>
+
   </div>
 
-  <!-- Discount / Coupon Section -->
-  <!-- <div>
-    <label class="block text-sm font-medium text-gray-800 mb-1">Coupon Code</label>
-    <div class="flex items-center gap-2">
-      <input
-        type="text"
-        [(ngModel)]="couponCode"
-        placeholder="Enter coupon (e.g., FLAT100)"
-        class="flex-1 h-10 rounded-lg border border-indigo-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-      <button
-        (click)="applyCoupon()"
-        [disabled]="isCouponApplying"
-        class="h-10 rounded-lg bg-indigo-600 text-white text-sm font-medium px-4 hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Apply
-      </button>
-    </div>
-    <div *ngIf="couponMessage" 
-         [ngClass]="{ 'text-green-700': couponValid, 'text-red-700': !couponValid }" 
-         class="mt-2 text-sm">
-      {{ couponMessage }}
-    </div>
-  </div> -->
+  <!-- ================= FEATURES GRID ================= -->
+  <div class="border-t pt-8 grid md:grid-cols-3 gap-10">
 
-  <!-- Payment Type / Installment Selector -->
-  <div *ngIf="Course?.PaymentType === 'installments' || Course?.PaymentType === 'both'" class="mt-4 space-y-3">
+    <!-- Highlights -->
+    <div *ngIf="Course?.Highlights?.length">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        Highlights
+      </h3>
 
-    <!-- Batch Selection -->
-    <!-- <div>
-      <label class="block font-medium text-gray-800 mb-1">Select Batch</label>
-      <select [(ngModel)]="selectedBatch" class="w-full rounded-lg border border-indigo-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <option value="" disabled selected>Select a batch</option>
-        <option *ngFor="let batch of Course?.Batches" [value]="batch.BatchId">
-          {{ batch.BatchName }}
-        </option>
-      </select>
-    </div> -->
-
-    <!-- Payment Option -->
-    <div>
-      <label class="block font-medium text-gray-800 mb-1">Select Payment Option</label>
-      <select [(ngModel)]="selectedPaymentOption" class="w-full rounded-lg border border-indigo-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <option value="" disabled selected>Select a payment option</option>
-        <option [value]="'full'">Full Payment (₹{{ discountedPrice || Course?.Price }})</option>
-        <option *ngFor="let inst of Course.Installments" [value]="inst.InstallmentNumber">
-          Installment {{ inst.InstallmentNumber }} - ₹{{ inst.Amount }} (Due in {{ inst.DueDaysFromStart }} days)
-        </option>
-      </select>
+      <ul class="space-y-3 text-sm text-gray-700">
+        <li *ngFor="let h of Course.Highlights" class="flex gap-3">
+          <span class="text-green-600 mt-1">✔</span>
+          <span>{{ h }}</span>
+        </li>
+      </ul>
     </div>
+
+    <!-- Requirements -->
+    <div *ngIf="Course?.Requirements?.length">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        Requirements
+      </h3>
+
+      <ul class="space-y-3 text-sm text-gray-700">
+        <li *ngFor="let r of Course.Requirements">
+          • {{ r }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Objectives -->
+    <div *ngIf="Course?.Objectives?.length">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        Objectives
+      </h3>
+
+      <ul class="space-y-3 text-sm text-gray-700">
+        <li *ngFor="let o of Course.Objectives">
+          • {{ o }}
+        </li>
+      </ul>
+    </div>
+
   </div>
 
-  <!-- Installments Breakdown Table -->
-  <table *ngIf="Course?.Installments?.length" class="w-full text-sm mt-3 rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-900">
-    <thead>
-      <tr>
-        <th class="px-2 py-1 font-semibold">Installment</th>
-        <th class="px-2 py-1 font-semibold">Amount</th>
-        <th class="px-2 py-1 font-semibold">Due</th>
-        <th class="px-2 py-1 font-semibold">Remarks</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let inst of Course.Installments">
-        <td class="px-2 py-1">#{{ inst.InstallmentNumber }}</td>
-        <td   class="px-2 py-1">₹{{ inst.Amount }}</td>
-        <td class="px-2 py-1">{{ inst.DueDaysFromStart }} days</td>
-        <td class="px-2 py-1">{{ inst.Remarks }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- ================= BATCHES ================= -->
+  <div *ngIf="Course?.Batches?.length" class="border-t pt-8 space-y-5">
 
-  <!-- Enroll / Pay Button -->
-  <!-- <button
-    (click)="payNow(selectedPaymentOption, selectedBatch)"
-    class="w-full mt-3 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition"
-  >
-    Pay Now
-  </button> -->
-<!-- PAYMENT DIV FOR FRESH USER -->
- <div *ngIf="paymentType !== 'subscription' && paymentType =='fixed' && IsSusbcribed.isActive != '1' " class="mt-5 space-y-4 bg-white rounded-xl shadow p-4 sm:p-6 border border-indigo-200">
+    <h3 class="text-lg font-semibold text-gray-900">
+      Upcoming Batches
+    </h3>
 
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">Payment Options</h3>
+    <div class="grid sm:grid-cols-2 gap-4">
 
-  <!-- ONE TIME PAYMENT -->
-  <div *ngIf="fixedpaymentplans.fixed_paymentMode === 'oneTime' || fixedpaymentplans.fixed_paymentMode === 'both'" class="space-y-2">
-    <p class="text-base font-semibold text-indigo-800">One-Time Payment</p>
-
-    <p class="text-2xl font-bold text-indigo-900">₹{{ fixedpaymentplans.Totalprice }}</p>
-
-    <p class="text-sm text-green-700 font-medium mt-1">✔ 1 year access included</p>
-
-    <button
-      (click)="Createorder_razorpay_NewOrder_fixed('oneTime')"
-      class="w-full mt-4 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition">
-      Pay Now
-    </button>
-  </div>
-
-  <!-- INSTALLMENTS -->
-  <div *ngIf="fixedpaymentplans.fixed_paymentMode === 'installments' || fixedpaymentplans.fixed_paymentMode === 'both'">
-
-    <p class="font-medium text-gray-700 mb-3">Installment Breakdown</p>
-
-    <div class="space-y-3">
       <div
-        *ngFor="let inst of fixedpaymentplans.Installments; let i = index"
-        class="cursor-pointer border rounded-xl p-4 flex justify-between items-center transition bg-indigo-50"
-        [ngClass]="i === 0 ? 'border-indigo-600 ring-2 ring-indigo-400 shadow-md' : 'opacity-60'"
-      >
-        <div>
-          <p class="font-semibold text-indigo-900">Installment {{ inst.InstallmentNo }}</p>
-          <p class="text-sm text-gray-600">Due in {{ inst.DaysAfterEnrollment }} days</p>
+        *ngFor="let b of Course.Batches"
+        (click)="selectBatch(b)"
+        class="cursor-pointer border rounded-lg p-5 transition duration-200"
+        [ngClass]="selectedBatchId === b.batchId
+                   ? 'border-purple-600 ring-2 ring-purple-200 bg-purple-50'
+                   : 'border-gray-200 hover:border-purple-400 hover:shadow-sm'">
+
+        <div class="font-semibold text-gray-900 mb-2">
+          {{ b.batchName }}
         </div>
 
-        <span class="text-indigo-900 font-bold text-lg ml-3">₹{{ inst.Amount }}</span>
+        <div class="text-sm text-gray-600 space-y-1">
+          <div>
+            {{ b.startDate | date:'MMM dd, yyyy' }} –
+            {{ b.endDate | date:'MMM dd, yyyy' }}
+          </div>
+
+          <div>
+            {{ formatTime(b.startTime) }} –
+            {{ formatTime(b.endTime) }}
+          </div>
+        </div>
+
       </div>
+
     </div>
 
-    <!-- PAY NOW BUTTON FOR FIRST INSTALLMENT -->
-    <button
-      (click)=" Createorder_razorpay_NewOrder_fixed('installments',fixedpaymentplans.Installments[0].InstallmentNo)"
-      class="w-full mt-4 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition">
-      Pay   Installment (₹{{ fixedpaymentplans.Installments[0].Amount }})
-    </button>
+  </div>
 
-    <!-- DISABLED BUTTONS FOR OTHERS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+</section>
+
+ <aside class="bg-white border border-gray-200 rounded-xl p-8 space-y-8 sticky top-6">
+
+  <!-- ================= PRICE SECTION ================= -->
+  <div class="space-y-2">
+
+    <div class="flex items-baseline gap-3">
+      <span class="text-4xl font-bold text-gray-900">
+        ₹{{ discountedPrice || Course?.Price }}
+      </span>
+
+      <span *ngIf="Course?.OldPrice"
+            class="text-lg text-gray-400 line-through">
+        ₹{{ Course?.OldPrice }}
+      </span>
+    </div>
+
+    <p class="text-sm text-gray-500">
+      One-time secure payment
+    </p>
+
+  </div>
+
+
+  <!-- ================= INSTALLMENT SELECTOR ================= -->
+  <div *ngIf="Course?.PaymentType === 'installments' || Course?.PaymentType === 'both'"
+       class="space-y-4 border-t pt-6">
+
+    <label class="block text-sm font-semibold text-gray-800">
+      Select Payment Option
+    </label>
+
+    <select
+      [(ngModel)]="selectedPaymentOption"
+      class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+
+      <option value="" disabled selected>
+        Select a payment option
+      </option>
+
+      <option [value]="'full'">
+        Full Payment (₹{{ discountedPrice || Course?.Price }})
+      </option>
+
+      <option *ngFor="let inst of Course.Installments"
+              [value]="inst.InstallmentNumber">
+        Installment {{ inst.InstallmentNumber }} - ₹{{ inst.Amount }}
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- ================= INSTALLMENT TABLE ================= -->
+  <div *ngIf="Course?.Installments?.length"
+       class="border border-gray-200 rounded-lg overflow-hidden text-sm">
+
+    <div class="bg-gray-50 px-4 py-3 font-semibold text-gray-800">
+      Installment Details
+    </div>
+
+    <div *ngFor="let inst of Course.Installments"
+         class="flex justify-between px-4 py-3 border-t text-gray-700">
+
+      <div>
+        <div class="font-medium">
+          Installment {{ inst.InstallmentNumber }}
+        </div>
+        <div class="text-xs text-gray-500">
+          Due in {{ inst.DueDaysFromStart }} days
+        </div>
+      </div>
+
+      <div class="font-semibold text-gray-900">
+        ₹{{ inst.Amount }}
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= FIXED PAYMENT BLOCK ================= -->
+  <div *ngIf="paymentType !== 'subscription' && paymentType =='fixed' && IsSusbcribed.isActive != '1'"
+       class="border-t pt-8 space-y-6">
+
+    <h3 class="text-lg font-semibold text-gray-900">
+      Payment Options
+    </h3>
+
+    <!-- ONE TIME -->
+    <div *ngIf="fixedpaymentplans.fixed_paymentMode === 'oneTime' || fixedpaymentplans.fixed_paymentMode === 'both'"
+         class="border rounded-lg p-6 space-y-3">
+
+      <div class="text-sm text-gray-600">
+        One-Time Payment
+      </div>
+
+      <div class="text-3xl font-bold text-gray-900">
+        ₹{{ fixedpaymentplans.Totalprice }}
+      </div>
+
+      <div class="text-sm text-green-600">
+        ✔ Full course access included
+      </div>
+
       <button
-        *ngFor="let inst of fixedpaymentplans.Installments; let i = index"
-        [disabled]="i !== 0"
-        class="w-full h-10 rounded-lg border font-semibold"
-        [ngClass]="i === 0 ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed'"
-      >
-        Pay Installment {{ inst.InstallmentNo }}
+        (click)="Createorder_razorpay_NewOrder_fixed('oneTime')"
+        class="w-full mt-4 h-12 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition">
+        Pay Now
       </button>
+
+    </div>
+
+
+    <!-- INSTALLMENTS -->
+    <div *ngIf="fixedpaymentplans.fixed_paymentMode === 'installments' || fixedpaymentplans.fixed_paymentMode === 'both'"
+         class="space-y-4">
+
+      <h4 class="font-medium text-gray-800">
+        Installment Breakdown
+      </h4>
+
+      <div class="space-y-3">
+
+        <div *ngFor="let inst of fixedpaymentplans.Installments; let i = index"
+             class="border rounded-lg p-4 flex justify-between items-center transition"
+             [ngClass]="i === 0
+                ? 'border-purple-600 bg-purple-50'
+                : 'border-gray-200 bg-white opacity-70'">
+
+          <div>
+            <div class="font-semibold text-gray-900">
+              Installment {{ inst.InstallmentNo }}
+            </div>
+            <div class="text-xs text-gray-500">
+              Due in {{ inst.DaysAfterEnrollment }} days
+            </div>
+          </div>
+
+          <div class="font-bold text-gray-900">
+            ₹{{ inst.Amount }}
+          </div>
+
+        </div>
+
+      </div>
+
+      <button
+        (click)="Createorder_razorpay_NewOrder_fixed('installments',fixedpaymentplans.Installments[0].InstallmentNo)"
+        class="w-full h-12 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition">
+        Pay Installment ₹{{ fixedpaymentplans.Installments[0].Amount }}
+      </button>
+
     </div>
 
   </div>
 
 
-</div>
+  <!-- ================= SUBSCRIPTION EXPIRED ================= -->
+  <div *ngIf="IsSusbcribed.paymentType == 'subscription' && IsSusbcribed.isActive == '2'"
+       class="border border-red-300 bg-red-50 rounded-lg p-6 space-y-3">
 
+    <div class="flex justify-between items-center">
+      <h3 class="font-semibold text-red-700">
+        Subscription Expired
+      </h3>
 
-
-
-  <!-- Subscription Payment Options -->
-   <div *ngIf="IsSusbcribed.paymentType == 'subscription' && IsSusbcribed.isActive == '2'"
-     class="bg-white rounded-xl shadow p-4 sm:p-6 space-y-3 border border-red-300">
-
-  <div class="flex items-center justify-between flex-wrap gap-2">
-    <h3 class="text-lg font-semibold text-gray-800">Subscription Expired</h3>
-
-    <span class="px-3 py-1 text-sm font-medium text-white rounded-full bg-red-600">
-      Expired
-    </span>
-  </div>
-
-  <p class="text-sm text-gray-700">
-    Your subscription expired on
-    <span class="font-semibold text-red-700">{{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}</span>
-  </p>
-
-  <p class="text-sm font-medium text-gray-800">Please renew to continue access</p>
-</div>
-
-<div *ngIf="paymentType === 'subscription' && IsSusbcribed.isActive != '1'" class="mt-6 space-y-5">
-
-  <label class="block font-semibold text-gray-800 text-base">
-    Choose Subscription Plan
-  </label>
-
-  <div class="space-y-4"> <!-- STACK ITEMS VERTICALLY -->
-
-    <!-- Monthly -->
-    <label *ngIf="Subscriptionplans?.monthlyAmount > 0"
-      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
-
-      <div>
-        <p class="font-semibold text-indigo-800">Monthly Plan</p>
-        <p class="text-sm text-gray-600">Billed every month</p>
-      </div>
-
-      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
-        ₹{{ Subscriptionplans?.monthlyAmount }}
-      </span>
-
-      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
-             value="monthly" class="h-5 w-5 accent-indigo-600" />
-    </label>
-
-    <!-- Quarterly -->
-    <label *ngIf="Subscriptionplans?.quarterlyAmount > 0"
-      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
-
-      <div>
-        <p class="font-semibold text-indigo-800">Quarterly Plan</p>
-        <p class="text-sm text-gray-600">Every 3 months</p>
-      </div>
-
-      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
-        ₹{{ Subscriptionplans?.quarterlyAmount }}
-      </span>
-
-      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
-             value="quarterly" class="h-5 w-5 accent-indigo-600" />
-    </label>
-
-    <!-- Half-Yearly -->
-    <label *ngIf="Subscriptionplans?.halfYearlyAmount > 0"
-      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
-
-      <div>
-        <p class="font-semibold text-indigo-800">Half-Yearly Plan</p>
-        <p class="text-sm text-gray-600">Every 6 months</p>
-      </div>
-
-      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
-        ₹{{ Subscriptionplans?.halfYearlyAmount }}
-      </span>
-
-      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
-             value="halfyearly" class="h-5 w-5 accent-indigo-600" />
-    </label>
-
-    <!-- Yearly -->
-    <label *ngIf="Subscriptionplans?.yearlyAmount > 0"
-      class="cursor-pointer border rounded-xl p-4 bg-white hover:shadow-lg transition grid grid-cols-[1fr_auto_auto] items-center gap-3">
-
-      <div>
-        <p class="font-semibold text-indigo-800">
-          Yearly Plan <span class="text-green-600 font-semibold">(Best Value)</span>
-        </p>
-        <p class="text-sm text-gray-600">Save more yearly</p>
-      </div>
-
-      <span class="text-indigo-900 font-bold text-lg whitespace-nowrap">
-        ₹{{ Subscriptionplans?.yearlyAmount }}
-      </span>
-
-      <input type="radio" name="plan" [(ngModel)]="selectedPlan"
-             value="yearly" class="h-5 w-5 accent-indigo-600" />
-    </label>
-
-  </div>
-
-  <button
-    (click)="Createorder_razorpay_NewOrder_subscription()"
-    class="w-full mt-3 h-12 rounded-lg bg-green-600 text-white font-bold text-base hover:bg-green-700 transition">
-    Pay Now
-  </button>
-
-</div>
-
-
-
-<div *ngIf="IsSusbcribed.paymentType == 'subscription' && IsSusbcribed.isActive == '1'"
-     class="bg-white rounded-xl shadow p-4 sm:p-6 space-y-3 border border-green-300">
-
-  <div class="flex items-center justify-between flex-wrap gap-2">
-    <h3 class="text-lg font-semibold text-gray-800">Subscription Status</h3>
-
-    <span class="px-3 py-1 text-sm font-medium text-white rounded-full bg-green-600">
-      {{ IsSusbcribed.message || 'Active' }}
-    </span>
-  </div>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base">
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Plan Selected</span>
-      <span class="font-semibold text-gray-800 capitalize">
-        {{ IsSusbcribed.selectedPlan }}
+      <span class="text-xs bg-red-600 text-white px-3 py-1 rounded-full">
+        Expired
       </span>
     </div>
 
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Amount Paid</span>
-      <span class="font-semibold text-gray-800">
-        ₹ {{ IsSusbcribed.amountPaid }}
-      </span>
-    </div>
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Valid From</span>
-      <span class="font-semibold text-gray-800">
-        {{ IsSusbcribed.validFrom | date:'dd MMM yyyy' }}
-      </span>
-    </div>
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Valid Till</span>
-      <span class="font-semibold text-gray-800">
+    <p class="text-sm text-gray-700">
+      Expired on
+      <span class="font-semibold">
         {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
       </span>
-    </div>
+    </p>
 
   </div>
 
-  <!-- <div class="pt-2">
-    <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg">
-      Renew / Upgrade Plan
+
+  <!-- ================= SUBSCRIPTION PLANS ================= -->
+  <div *ngIf="paymentType === 'subscription' && IsSusbcribed.isActive != '1'"
+       class="space-y-6 border-t pt-8">
+
+    <h3 class="text-lg font-semibold text-gray-900">
+      Choose Subscription Plan
+    </h3>
+
+    <div class="space-y-4">
+
+      <!-- Monthly -->
+      <label *ngIf="Subscriptionplans?.monthlyAmount > 0"
+             class="border rounded-lg p-5 flex justify-between items-center cursor-pointer hover:border-purple-500 transition">
+
+        <div>
+          <div class="font-semibold text-gray-900">
+            Monthly Plan
+          </div>
+          <div class="text-sm text-gray-500">
+            Billed every month
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span class="font-bold text-gray-900">
+            ₹{{ Subscriptionplans?.monthlyAmount }}
+          </span>
+          <input type="radio"
+                 name="plan"
+                 [(ngModel)]="selectedPlan"
+                 value="monthly"
+                 class="accent-purple-600">
+        </div>
+
+      </label>
+
+      <!-- Quarterly -->
+      <label *ngIf="Subscriptionplans?.quarterlyAmount > 0"
+             class="border rounded-lg p-5 flex justify-between items-center cursor-pointer hover:border-purple-500 transition">
+
+        <div>
+          <div class="font-semibold text-gray-900">
+            Quarterly Plan
+          </div>
+          <div class="text-sm text-gray-500">
+            Every 3 months
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span class="font-bold text-gray-900">
+            ₹{{ Subscriptionplans?.quarterlyAmount }}
+          </span>
+          <input type="radio"
+                 name="plan"
+                 [(ngModel)]="selectedPlan"
+                 value="quarterly"
+                 class="accent-purple-600">
+        </div>
+
+      </label>
+
+      <!-- Yearly -->
+      <label *ngIf="Subscriptionplans?.yearlyAmount > 0"
+             class="border-2 border-purple-600 bg-purple-50 rounded-lg p-5 flex justify-between items-center cursor-pointer">
+
+        <div>
+          <div class="font-semibold text-gray-900">
+            Yearly Plan
+            <span class="text-green-600 text-sm ml-2">
+              Best Value
+            </span>
+          </div>
+          <div class="text-sm text-gray-500">
+            Save more yearly
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span class="font-bold text-gray-900">
+            ₹{{ Subscriptionplans?.yearlyAmount }}
+          </span>
+          <input type="radio"
+                 name="plan"
+                 [(ngModel)]="selectedPlan"
+                 value="yearly"
+                 class="accent-purple-600">
+        </div>
+
+      </label>
+
+    </div>
+
+    <button
+      (click)="Createorder_razorpay_NewOrder_subscription()"
+      class="w-full h-12 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition">
+      Continue to Payment
     </button>
-  </div> -->
-</div>
-
-<div *ngIf="IsSusbcribed.paymentType == 'fixed' && IsSusbcribed.isActive == '1'"
-     class="bg-white rounded-xl shadow p-4 sm:p-6 space-y-3 border border-green-300">
-
-  <div class="flex items-center justify-between flex-wrap gap-2">
-    <h3 class="text-lg font-semibold text-gray-800">Subscription Status</h3>
-
-    <span class="px-3 py-1 text-sm font-medium text-white rounded-full bg-green-600">
-      {{ IsSusbcribed.message || 'Active' }}
-    </span>
-  </div>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base">
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Plan Selected</span>
-      <span class="font-semibold text-gray-800 capitalize">
-        {{ IsSusbcribed.selectedPlan }}
-      </span>
-    </div>
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Amount Paid</span>
-      <span class="font-semibold text-gray-800">
-        ₹ {{ IsSusbcribed.amountPaid }}
-      </span>
-    </div>
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Valid From</span>
-      <span class="font-semibold text-gray-800">
-        {{ IsSusbcribed.validFrom | date:'dd MMM yyyy' }}
-      </span>
-    </div>
-
-    <div class="flex flex-col">
-      <span class="text-gray-500 font-medium">Valid Till</span>
-      <span class="font-semibold text-gray-800">
-        {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
-      </span>
-    </div>
-
-    <div>
-      Next Payment Due On:
-      <span class="font-semibold text-gray-800">
-        {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
-      </span>
-    </div>
-
 
   </div>
 
-  <!-- <div class="pt-2">
-    <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg">
-      Renew / Upgrade Plan
-    </button>
-  </div> -->
-</div>
 
+  <!-- ================= ACTIVE STATUS ================= -->
+  <div *ngIf="IsSusbcribed.isActive == '1'"
+       class="border border-green-300 bg-green-50 rounded-lg p-6 space-y-4">
+
+    <div class="flex justify-between items-center">
+      <h3 class="font-semibold text-green-700">
+        Subscription Active
+      </h3>
+
+      <span class="text-xs bg-green-600 text-white px-3 py-1 rounded-full">
+        Active
+      </span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-sm">
+
+      <div>
+        <div class="text-gray-500">Plan</div>
+        <div class="font-semibold text-gray-900">
+          {{ IsSusbcribed.selectedPlan }}
+        </div>
+      </div>
+
+      <div>
+        <div class="text-gray-500">Amount Paid</div>
+        <div class="font-semibold text-gray-900">
+          ₹{{ IsSusbcribed.amountPaid }}
+        </div>
+      </div>
+
+      <div>
+        <div class="text-gray-500">Valid From</div>
+        <div class="font-semibold text-gray-900">
+          {{ IsSusbcribed.validFrom | date:'dd MMM yyyy' }}
+        </div>
+      </div>
+
+      <div>
+        <div class="text-gray-500">Valid Till</div>
+        <div class="font-semibold text-gray-900">
+          {{ IsSusbcribed.validTill | date:'dd MMM yyyy' }}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 
 </aside>
 
 
   </div>
-
-  <!-- Course Curriculum -->
-  <section class="bg-white rounded-2xl shadow-lg p-6">
-  <h2 class="text-xl font-bold text-indigo-900 mb-2">Course Content</h2>
-  <p class="text-sm text-gray-600 mb-4">
-    A structured breakdown of chapters, lessons, and topics.
-  </p>
-
-  <div class="mt-4 divide-y divide-indigo-50">
-    <div *ngFor="let ch of courseModules; let ci = index" class="py-4">
-
-     
-
-      <!-- Lessons -->
-      <div class="mt-2 rounded-lg border border-indigo-50 divide-y">
  
-          <button (click)="toggleLesson(ci, ci)"
-            class="w-full flex items-center px-3 py-2 text-left hover:bg-indigo-50 group transition">
+  <!-- ================= COURSE CURRICULUM ================= -->
+<section class="bg-white border border-gray-200 rounded-xl p-8 space-y-6">
 
-            <span class="font-medium text-gray-900">Module {{ch.ModuleNo}}:{{ ch.ModuleName }}</span>
+  <!-- Header -->
+  <div>
+    <h2 class="text-2xl font-bold text-gray-900">
+      Course Curriculum
+    </h2>
+    <p class="text-sm text-gray-500 mt-1">
+      Structured breakdown of modules and topics included in this course.
+    </p>
+  </div>
 
-            <svg class="ml-auto w-5 h-5 text-indigo-400 transition-transform"
-              [ngClass]="{ 'rotate-180': isLessonOpen(ci, ci) }"
-              fill="none" stroke="currentColor" stroke-width="2"
-              viewBox="0 0 24 24">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
 
-          </button>
+  <!-- Modules List -->
+  <div class="space-y-4">
 
-          <!-- Topics -->
-         <div *ngIf="isLessonOpen(ci, ci)" class="px-5 pb-3 pt-2 text-sm text-gray-700">
-          <ul class="list-disc pl-5 space-y-1">
-            <li *ngFor="let t of ch.Topics.split('|')">
-              {{ t }}
-            </li>
-          </ul>
+    <div *ngFor="let ch of courseModules; let ci = index"
+         class="border border-gray-200 rounded-lg overflow-hidden transition">
+
+      <!-- MODULE HEADER -->
+      <button
+        (click)="toggleLesson(ci, ci)"
+        class="w-full flex items-center justify-between px-6 py-4 bg-gray-50 hover:bg-gray-100 transition text-left">
+
+        <div class="flex flex-col">
+
+          <span class="text-xs uppercase tracking-wide text-gray-400">
+            Module {{ ch.ModuleNo }}
+          </span>
+
+          <span class="text-base font-semibold text-gray-900">
+            {{ ch.ModuleName }}
+          </span>
+
         </div>
 
+        <!-- Arrow -->
+        <svg
+          class="w-5 h-5 text-gray-500 transition-transform duration-300"
+          [ngClass]="{ 'rotate-180': isLessonOpen(ci, ci) }"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24">
 
-        
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 9l6 6 6-6" />
+
+        </svg>
+
+      </button>
+
+
+      <!-- MODULE CONTENT -->
+      <div *ngIf="isLessonOpen(ci, ci)"
+           class="px-8 py-5 bg-white border-t border-gray-200">
+
+        <!-- Topics -->
+        <ul class="space-y-3 text-sm text-gray-700">
+
+          <li *ngFor="let t of ch.Topics.split('|')"
+              class="flex items-start gap-3">
+
+            <!-- Bullet Icon -->
+            <span class="mt-1 w-2 h-2 bg-purple-500 rounded-full flex-shrink-0"></span>
+
+            <span class="leading-relaxed">
+              {{ t }}
+            </span>
+
+          </li>
+
+        </ul>
+
       </div>
 
     </div>
+
   </div>
+
 </section>
+
 
 </div>
   

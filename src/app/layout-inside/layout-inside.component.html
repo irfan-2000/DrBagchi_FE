@@ -1,127 +1,140 @@
-<!-- dr-bagchi-layout.component.html -->
-<!-- App shell: header | main | footer with sticky header and sticky footer pattern -->
-<div class="min-h-screen grid grid-rows-[auto_1fr_auto] bg-[#FAFAFA] text-gray-900 font-sans">
-  <!-- Top strip (sticky) -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[#EBF2FF]">
+ <div class="min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50 text-gray-900">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
     <div class="flex items-center justify-between px-4 sm:px-6 py-3">
+
+      <!-- Left -->
       <div class="flex items-center gap-3">
-        <!-- Mobile: Sidebar toggle -->
         <button
           (click)="toggleSidebar()"
-          class="lg:hidden inline-flex items-center justify-center rounded-md p-2 text-[#3F51B5] hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-[#3F51B5] transition"
-          aria-label="Toggle navigation"
+          class="lg:hidden inline-flex items-center justify-center rounded-md p-2 text-purple-700 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
-        <span class="text-xl sm:text-2xl font-bold text-[#303F9F]">Dr. Bagchi's Classes</span>
+
+        <span class="text-xl sm:text-2xl font-bold text-gray-900">
+          Dr. Bagchi’s Classes
+        </span>
       </div>
 
-      <!-- Right actions -->
-     <div class="flex items-center gap-4" (click)="$event.stopPropagation()">
+      <!-- Right -->
+      <div class="flex items-center gap-5" (click)="$event.stopPropagation()">
 
-  <!-- Notifications -->
-  <button class="relative text-[#3F51B5] hover:text-[#303F9F] transition" aria-label="Notifications">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-    </svg>
-    <span class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
-  </button>
+        <!-- Notifications -->
+        <button class="relative text-gray-600 hover:text-purple-700 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+        </button>
 
-  <!-- Profile -->
-  <div class="relative" (click)="toggleDropdown()">
-    <button
-      class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-[#3F51B5] transition">
-      <img src="https://ui-avatars.com/api/?name=MD" alt="User avatar" class="w-8 h-8 rounded-full shadow"/>
-      <span class="hidden sm:block font-medium text-[#3F51B5]">Mudassir</span>
-      <svg class="w-4 h-4 text-[#3F51B5]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-      </svg>
-    </button>
-
-    <!-- Dropdown -->
-    <div
-      *ngIf="dropdownOpen"
-      class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 z-50">
-      <ul class="py-1 text-sm text-gray-700">
-        <li>
-          <button (click)="logout()" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-medium">
-            Logout
+        <!-- Profile -->
+        <div class="relative" (click)="toggleDropdown()">
+          <button
+            class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+          >
+            <img src="https://ui-avatars.com/api/?name=MD"
+                 class="w-8 h-8 rounded-full border border-gray-200"
+                 alt="User avatar" />
+            <span class="hidden sm:block font-medium text-gray-700">
+              Mudassir
+            </span>
+            <svg class="w-4 h-4 text-gray-500" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 9l-7 7-7-7"/>
+            </svg>
           </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
 
+          <!-- Dropdown -->
+          <div *ngIf="dropdownOpen"
+               class="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+            <ul class="py-1 text-sm text-gray-700">
+              <li>
+                <button (click)="logout()"
+                        class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-medium">
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
     </div>
   </header>
 
-  <!-- Main area -->
-  <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-0">
-    <!-- Desktop sidebar (sticky under header) -->
-    <aside class="hidden lg:block bg-white border-r border-[#EBF2FF]">
-      <div class="sticky top-[56px] xl:top-[56px] max-h-[calc(100vh-56px)] overflow-y-auto px-3 py-4">
-       <nav class="space-y-1">
-  <!-- Dynamic Menu -->
-    <a
-      *ngFor="let item of menu"
-      [routerLink]="item.route"
-      routerLinkActive="bg-[#EBF2FF] text-[#303F9F] font-semibold"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[#3F51B5] hover:bg-indigo-50 hover:text-[#303F9F] transition cursor-pointer"
-    >
-      <svg
-        class="w-5 h-5 text-[#3F51B5] group-hover:text-[#303F9F]"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-      >
-        <use [attr.href]="'#icon-' + item.icon"></use>
-      </svg>
-      <span>{{ item.name }}</span>
-    </a>
+  <!-- ================= BODY ================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-[240px_1fr]">
 
-  <!-- Divider -->
-  <div class="pt-2 mt-2 border-t border-[#EBF2FF]"></div>
+    <!-- ===== Sidebar ===== -->
+    <aside class="hidden lg:block bg-white border-r border-gray-200">
+      <div class="sticky top-[60px] max-h-[calc(100vh-60px)] overflow-y-auto px-4 py-6">
 
-  <!-- Logout -->
-  <a
-    [routerLink]="'/logout'"
-    class="flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition cursor-pointer"
-  >
-    <svg
-      class="w-5 h-5"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 11-4 0v-1m4-10V5a2 2 0 10-4 0v1"
-      />
-    </svg>
-    <span>Logout</span>
-  </a>
-</nav>
+        <nav class="space-y-2">
 
+          <!-- Dynamic Menu -->
+          <a
+            *ngFor="let item of menu"
+            [routerLink]="item.route"
+            routerLinkActive="bg-purple-50 text-purple-700 font-semibold"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="group flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-purple-700 transition"
+          >
+            <svg
+              class="w-5 h-5 text-gray-500 group-hover:text-purple-700"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <use [attr.href]="'#icon-' + item.icon"></use>
+            </svg>
+            <span>{{ item.name }}</span>
+          </a>
+
+          <!-- Divider -->
+          <div class="pt-4 mt-4 border-t border-gray-200"></div>
+
+          <!-- Logout -->
+          <a
+            [routerLink]="'/logout'"
+            class="flex items-center gap-3 px-3 py-2 rounded-md text-red-600 hover:bg-red-50 transition"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 11-4 0v-1m4-10V5a2 2 0 10-4 0v1"/>
+            </svg>
+            <span>Logout</span>
+          </a>
+
+        </nav>
       </div>
     </aside>
 
-    <!-- Content -->
-    <main class="min-h-[60vh] p-4 sm:p-6">
-      <div class="bg-white rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.08)] p-4 sm:p-6">
-          <router-outlet></router-outlet>
+    <!-- ===== Main Content ===== -->
+    <main class="p-4 sm:p-6">
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <router-outlet></router-outlet>
       </div>
     </main>
+
   </div>
- 
+
 </div>
+
 
 <!-- SVG Icons sprite -->
 <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
@@ -142,55 +155,78 @@
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317a1 1 0 011.35-.936l1.618.54a2 2 0 001.902-.5l1.13-1.13a1 1 0 011.414 0l1.414 1.414a1 1 0 010 1.414l-1.13 1.13a2 2 0 00-.5 1.902l.54 1.618a1 1 0 01-.936 1.35l-1.7.283a2 2 0 00-1.59 1.59l-.283 1.7a1 1 0 01-1.35.936l-1.618-.54a2 2 0 00-1.902.5l-1.13 1.13a1 1 0 01-1.414 0L6.05 17.95a1 1 0 010-1.414l1.13-1.13a2 2 0 00.5-1.902l-.54-1.618a1 1 0 01.936-1.35l1.7-.283a2 2 0 001.59-1.59z"/>
     <circle cx="12" cy="12" r="3" stroke-width="2"/>
   </symbol>
+  <symbol id="icon-clipboard-check" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12l2 2l4-4M9 4h6a2 2 0 012 2v2H7V6a2 2 0 012-2zM7 8h10v10a2 2 0 01-2 2H9a2 2 0 01-2-2V8z"/>
+</symbol>
+
 </svg>
 
-<!-- Mobile drawer and overlay -->
+ <!-- Mobile Drawer & Overlay -->
 <div
   class="fixed inset-0 z-50 lg:hidden"
   [class.pointer-events-none]="!sidebarOpen"
 >
+
   <!-- Overlay -->
   <div
-    class="absolute inset-0 bg-black/40 transition-opacity"
+    class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
     [class.opacity-0]="!sidebarOpen"
     [class.opacity-100]="sidebarOpen"
     (click)="toggleSidebar()"
-    aria-hidden="true"
   ></div>
 
   <!-- Drawer -->
   <aside
-    class="absolute inset-y-0 left-0 w-72 bg-white shadow-xl border-r border-[#EBF2FF] transform transition-transform duration-300 ease-out"
+    class="absolute inset-y-0 left-0 w-72 bg-white shadow-xl border-r border-gray-200 transform transition-transform duration-300 ease-out"
     [class.-translate-x-full]="!sidebarOpen"
     [class.translate-x-0]="sidebarOpen"
-    aria-label="Mobile navigation"
   >
-    <div class="px-4 py-4 flex items-center justify-between border-b border-[#EBF2FF]">
-      <span class="text-lg font-bold text-[#303F9F]">Menu</span>
+
+    <!-- Header -->
+    <div class="px-5 py-4 flex items-center justify-between border-b border-gray-200">
+      <span class="text-lg font-semibold text-gray-900">
+        Menu
+      </span>
+
       <button
         (click)="toggleSidebar()"
-        class="rounded-md p-2 text-[#3F51B5] hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-[#3F51B5]"
-        aria-label="Close navigation"
+        class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
       >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor"
+             stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
-    <nav class="px-3 py-3 space-y-1">
+
+    <!-- Navigation -->
+    <nav class="px-4 py-4 space-y-2">
+
       <a
         *ngFor="let item of menu"
         [routerLink]="item.route"
-        routerLinkActive="bg-[#EBF2FF] text-[#303F9F] font-semibold"
+        routerLinkActive="bg-purple-50 text-purple-700 font-semibold"
         [routerLinkActiveOptions]="{ exact: true }"
         (click)="toggleSidebar()"
-        class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[#3F51B5] hover:bg-indigo-50 hover:text-[#303F9F] transition"
+        class="group flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-purple-700 transition"
       >
-        <svg class="w-5 h-5 text-[#3F51B5] group-hover:text-[#303F9F]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg
+          class="w-5 h-5 text-gray-500 group-hover:text-purple-700"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
           <use [attr.href]="'#icon-' + item.icon"></use>
         </svg>
+
         <span>{{ item.name }}</span>
       </a>
+
     </nav>
+
   </aside>
+
 </div>

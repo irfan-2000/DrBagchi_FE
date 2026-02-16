@@ -17,6 +17,7 @@ AvailableCourses:any = [];
   shortDescription = '';
   courseDuration = '';
   courseLevel = '';
+  isLoading:boolean = false;
   constructor(private Courses:CoursesService,private router:Router)
   {
   this.getAllCourses();
@@ -30,41 +31,36 @@ AvailableCourses:any = [];
   }
 }
 
-getAllCourses()
-{
-    try 
-     {
-        this. Courses.getAllCourses( ).subscribe({
-          next: (response: any) =>
-        {
-           
-this.AvailableCourses = response.result.map((c: any) => {
-  return {
-    ...c,
-    Description: this.safeParse(c.Description, { ShortDescription: c.Description }),
-    Objectives: this.safeParse(c.Objectives, [c.Objectives]),
-    Requirements: this.safeParse(c.Requirements, [c.Requirements])
-  };
-});
-debugger
-console.log(this.AvailableCourses);
- 
-          },
-          error: (error: any) =>
-             {
-              debugger
-              if(error.error.status == 401)
-                {
-                   this.router.navigate(['/login']);
+ getAllCourses() {
+  this.isLoading = true;
 
-                }             
-          },
-        });
-      } catch (error: any) {
+  this.Courses.getAllCourses().subscribe({
+    next: (response: any) => {
+
+      this.AvailableCourses = response?.result?.map((c: any) => ({
+        ...c,
+        Description: this.safeParse(c.Description, { ShortDescription: c.Description }),
+        Objectives: this.safeParse(c.Objectives, [c.Objectives]),
+        Requirements: this.safeParse(c.Requirements, [c.Requirements])
+      })) || [];
+
+      console.log(this.AvailableCourses);
+
+      this.isLoading = false;  
+    },
+
+    error: (error: any) => {
+      this.isLoading = false;  
+
+      if (error?.error?.status === 401) {
+        this.router.navigate(['/login']);
+      } else {
         console.error('API error:', error);
       }
-
+    }
+  });
 }
+
 
 goToCourseDetails(course: any) 
 {
