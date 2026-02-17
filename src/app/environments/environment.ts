@@ -2,8 +2,8 @@ export const environment =
 {
   production: false,
    //baseUrl: 'https://api.drbagchisclasses.com/',
-  // baseUrl: 'https://api.drbagchisclasses.com/',
- baseUrl: 'http://localhost:8080/',
+   baseUrl: 'https://api.drbagchisclasses.com/',
+ //baseUrl: 'http://localhost:8080/',
 
 
 //http://localhost:8080/api/GetAvailableBoards
