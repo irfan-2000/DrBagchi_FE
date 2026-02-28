@@ -156,6 +156,18 @@ ngOnInit() {
     await this.room.startAudio();
     this.isConnected = true;
     console.log('✅ Student connected and audio started');
+    // schedule a check to verify video element shows something
+    setTimeout(() => {
+      const el = this.teacherScreenMobile?.nativeElement || this.teacherScreen?.nativeElement;
+      if (el) {
+        const hasSrc = !!(el.srcObject || el.currentSrc);
+        console.log('🔍 Post-join video check, element src?', hasSrc, el);
+        if (!hasSrc) {
+          alert('Video track subscribed but element source is empty. Check logs for details.');
+        }
+      }
+    }, 5000);
+
 
     // 6️⃣ Listen for admin mic lock
     this.room.on(RoomEvent.ParticipantMetadataChanged, (metadata, participant) => {
@@ -286,8 +298,7 @@ registerTrackHandlers() {
 }
 
 private attachTrack(track: any, publication: any) {
-  console.log(`🔌 Attaching track - Kind: ${track.kind}, Source: ${publication.source}`);
-
+    console.log(`🔌 Attaching track - Kind: ${track.kind}, Source: ${publication.source}`);
   // 🖥️ SCREEN SHARE
   if (
     track.kind === Track.Kind.Video &&
@@ -302,27 +313,44 @@ private attachTrack(track: any, publication: any) {
     const isMobile = window.innerWidth <= 1024;
     console.log(`  📱 Is mobile view: ${isMobile}`);
 
-    if (isMobile && this.teacherScreenMobile?.nativeElement) {
-      console.log('  ✅ Using mobile video element');
+    // try attaching to both elements to cover all breakpoints
+    const desktopEl = this.teacherScreen?.nativeElement;
+    const mobileEl = this.teacherScreenMobile?.nativeElement;
+    if (desktopEl) {
       try {
-        track.attach(this.teacherScreenMobile.nativeElement);
-        console.log('  ✅ Successfully attached to mobile video');
+        track.attach(desktopEl);
+        console.log('  ✅ Attached to desktop video element');
+        desktopEl.muted = false; // not muted by default
+        desktopEl.playsInline = true;
+        desktopEl.autoplay = true;
+        desktopEl.play().catch(playErr => {
+          console.warn('  ⚠️ Desktop video play blocked:', playErr);
+          alert('Playback blocked on desktop video: '+playErr);
+        });
       } catch (err) {
-        console.error('  ❌ Failed to attach to mobile video:', err);
+        console.error('  ❌ Desktop attach failed:', err);
+        alert('Video attach error (desktop): ' + err);
       }
-    } else if (!isMobile && this.teacherScreen?.nativeElement) {
-      console.log('  ✅ Using desktop video element');
+    }
+    if (mobileEl) {
       try {
-        track.attach(this.teacherScreen.nativeElement);
-        console.log('  ✅ Successfully attached to desktop video');
+        track.attach(mobileEl);
+        console.log('  ✅ Attached to mobile video element');
+        mobileEl.muted = false;
+        mobileEl.playsInline = true;
+        mobileEl.autoplay = true;
+        mobileEl.play().catch(playErr => {
+          console.warn('  ⚠️ Mobile video play blocked:', playErr);
+          alert('Playback blocked on mobile video: '+playErr);
+        });
       } catch (err) {
-        console.error('  ❌ Failed to attach to desktop video:', err);
+        console.error('  ❌ Mobile attach failed:', err);
+        alert('Video attach error (mobile): ' + err);
       }
-    } else {
-      console.warn('  ⚠️ No suitable video element found! Mobile:', isMobile, 'Elements:', {
-        teacherScreenMobile: !!this.teacherScreenMobile?.nativeElement,
-        teacherScreen: !!this.teacherScreen?.nativeElement
-      });
+    }
+    if (!desktopEl && !mobileEl) {
+      console.warn('  ⚠️ No video elements found to attach');
+      alert('Unable to display video: no video element available');
     }
 
     return;
@@ -373,6 +401,7 @@ private attachTrack(track: any, publication: any) {
       console.log('  ✅ Audio attached to document body');
     } catch (err) {
       console.error('  ❌ Failed to attach audio:', err);
+      alert('Audio attach error: '+ (err instanceof Error?err.message:JSON.stringify(err)));
     }
   }
 }
