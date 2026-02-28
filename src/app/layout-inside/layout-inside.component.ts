@@ -17,7 +17,7 @@ sidebarOpen = false;
   { name: 'My Courses', icon: 'users', route: '/app/mycourses' },
   { name: 'Payments', icon: 'credit-card', route: '/app/payments' },
   { name: 'Quiz', icon: 'clipboard-check', route: '/app/quiz' },
-  { name: 'Settings', icon: 'cog', route: '/settings' }
+  // { name: 'Settings', icon: 'cog', route: '/settings' }
 ];
 
 

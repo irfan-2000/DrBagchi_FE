@@ -1,125 +1,138 @@
-<div class="relative h-screen w-screen bg-[#0f172a] flex flex-col overflow-hidden font-sans">
+<div id="liveContainer" class="live-container">
 
-  <!-- ================= JOIN OVERLAY ================= -->
-  <div
-    *ngIf="!hasUserInteracted"
-    class="absolute inset-0 z-50 flex items-center justify-center
-           bg-black/80 backdrop-blur-sm">
-    <button
-      (click)="joinClass()"
-      class="px-10 py-4 bg-indigo-600 text-white text-lg
-             font-semibold rounded-full shadow-xl
-             hover:bg-indigo-700 transition">
+  <!-- JOIN OVERLAY - Shows on both desktop and mobile -->
+  <div *ngIf="!hasUserInteracted" class="join-overlay">
+    <button (click)="joinClass()" class="join-btn">
       Join Live Class
     </button>
   </div>
 
-  <!-- ================= MAIN CONTENT ================= -->
-  <div class="flex-1 flex relative overflow-hidden">
+  <!-- ================= DESKTOP VIEW ================= -->
+  <div class="desktop-view">
 
-    <!-- ================= LEFT: TEACHER VIDEO ================= -->
-    <div class="flex-1 flex items-center justify-center p-2 md:p-4">
-      <div class="w-full h-full bg-black rounded-2xl shadow-2xl overflow-hidden">
-        <video
-          #teacherScreen
-          autoplay
-          playsinline
-          class="w-full h-full object-contain bg-black"
-        ></video>
+    <!-- MAIN -->
+    <div class="live-main">
 
-     <video
-  #teacherCamera
-  muted
-  autoplay
-  playsinline
-  class="
-    absolute top-4 right-4
-    w-40 h-28 md:w-56 md:h-36
-    z-50
-    rounded-lg
-    object-cover
-    bg-black
-    border border-white/20
-  ">
-</video>
+      <!-- VIDEO -->
+      <div class="video-stage">
 
+        <video #teacherScreen
+               autoplay
+               playsinline
+               class="screen-video">
+        </video>
 
+        <video #teacherCamera
+               muted
+               autoplay
+               playsinline
+               class="camera-video">
+        </video>
+
+        <div *ngIf="currentSpeaker" class="speaker-label">
+          {{ currentSpeaker }}
+        </div>
 
       </div>
 
-      <!-- CURRENT SPEAKER LABEL -->
-      <div
-        *ngIf="currentSpeaker"
-        class="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm shadow-lg">
-        🗣️ Speaking: {{ currentSpeaker }}
+      <!-- CHAT -->
+      <div class="chat-panel" [class.chat-open]="isChatOpen">
+
+        <div class="chat-header">
+          <span>Live Chat</span>
+          <button (click)="toggleChat()" class="chat-close">✕</button>
+        </div>
+
+        <div class="chat-body" #chatContainer>
+          <div *ngFor="let msg of messages" class="chat-message">
+            <div class="chat-meta">
+              {{ msg.user }} • {{ msg.time }}
+            </div>
+            <div class="chat-text">
+              {{ msg.text }}
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-wrap">
+          <input type="text"
+                 [(ngModel)]="chatInput"
+                 (keydown.enter)="sendMessage()"
+                 placeholder="Type message..." />
+        </div>
+
       </div>
+
     </div>
 
-    <!-- ================= RIGHT: CHAT PANEL ================= -->
-    <div
-      class="absolute top-0 right-0 h-full w-full md:w-96
-             bg-slate-900 border-l border-slate-700
-             transform transition-transform duration-300 ease-in-out
-             z-40 flex flex-col"
-      [class.translate-x-full]="!isChatOpen"
-      [class.translate-x-0]="isChatOpen">
+    <!-- CONTROL BAR -->
+    <div class="control-bar">
+      <button (click)="toggleMic()" class="control-btn mic-btn">
+        {{ isMicOn ? 'Mic ON' : 'Mic OFF' }}
+      </button>
 
-      <!-- CHAT HEADER -->
-      <div class="p-4 border-b border-slate-700 flex justify-between items-center">
-        <span class="text-white font-semibold">Class Chat</span>
-        <button
-          (click)="toggleChat()"
-          class="text-slate-400 hover:text-white text-xl">
-          ✕
-        </button>
-      </div>
+      <button (click)="toggleChat()" class="control-btn chat-btn">
+        Chat
+        <span *ngIf="unreadCount > 0" class="badge">
+          {{ unreadCount }}
+        </span>
+      </button>
 
-      <!-- CHAT MESSAGES -->
-      <div
-        #chatContainer
-        class="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-slate-200">
-        <div *ngFor="let msg of messages">
-          <div class="text-xs text-slate-400">{{ msg.user }} • {{ msg.time }}</div>
-          <div class="text-sm text-white">{{ msg.text }}</div>
+      <button (click)="toggleFullScreen()" class="control-btn fs-btn">
+        Fullscreen
+      </button>
+    </div>
+
+  </div>
+
+
+
+  <!-- ================= MOBILE VIEW ================= -->
+  <div class="mobile-view">
+
+    <div class="mobile-video-wrapper">
+
+      <video #teacherScreenMobile
+             autoplay
+             playsinline
+             class="mobile-video">
+      </video>
+
+      <video #teacherCameraMobile
+             muted
+             autoplay
+             playsinline
+             class="mobile-camera">
+      </video>
+
+      <button (click)="toggleFullScreen()"
+              class="mobile-fullscreen-btn">
+        ⛶
+      </button>
+
+    </div>
+
+    <div class="mobile-chat">
+
+      <div class="mobile-chat-body">
+        <div *ngFor="let msg of messages" class="chat-message">
+          <div class="chat-meta">
+            {{ msg.user }} • {{ msg.time }}
+          </div>
+          <div class="chat-text">
+            {{ msg.text }}
+          </div>
         </div>
       </div>
 
-      <!-- CHAT INPUT -->
-      <div class="p-3 border-t border-slate-700">
-        <input
-          type="text"
-          [(ngModel)]="chatInput"
-          (keydown.enter)="sendMessage()"
-          placeholder="Type a message and press Enter"
-          class="w-full bg-slate-800 text-white text-sm px-3 py-2
-                 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-        >
+      <div class="mobile-chat-input">
+        <input type="text"
+               [(ngModel)]="chatInput"
+               (keydown.enter)="sendMessage()"
+               placeholder="Type message..." />
       </div>
+
     </div>
-  </div>
-
-  <!-- ================= BOTTOM CONTROL BAR ================= -->
-  <div
-    class="fixed bottom-0 left-0 w-full z-30
-           bg-slate-900/90 border-t border-slate-700
-           flex items-center justify-center gap-4 p-4">
-
-    <!-- MIC BUTTON -->
-    <button
-      (click)="toggleMic()"
-      class="px-6 py-2 rounded-full font-semibold text-white
-             shadow-lg transition bg-indigo-600 hover:bg-indigo-700">
-      {{ isMicOn ? '🎙️ Mic ON' : '🔇 Mic OFF' }}
-    </button>
-
-    <!-- CHAT TOGGLE -->
-    <button
-      (click)="toggleChat()"
-      class="px-6 py-2 rounded-full font-semibold text-white
-             shadow-lg transition bg-slate-700 hover:bg-slate-600">
-      💬 Chat
-      <span *ngIf="unreadCount > 0" class="ml-1 text-xs text-red-500">({{ unreadCount }})</span>
-    </button>
 
   </div>
 

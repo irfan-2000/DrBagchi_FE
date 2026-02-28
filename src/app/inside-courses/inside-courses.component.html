@@ -71,18 +71,18 @@
           <span class="bg-gray-100 px-2 py-1 rounded-md">
             {{ c.CourseLevel }}
           </span>
-          <span class="bg-gray-100 px-2 py-1 rounded-md">
+          <!-- <span class="bg-gray-100 px-2 py-1 rounded-md">
             {{ c.Duration }} Weeks
           </span>
           <span class="bg-gray-100 px-2 py-1 rounded-md">
             Starts {{ c.StartDate }}
-          </span>
+          </span> -->
         </div>
 
         <!-- Description -->
-        <p class="mt-3 text-sm text-gray-700 line-clamp-3">
+        <!-- <p class="mt-3 text-sm text-gray-700 line-clamp-3">
           {{ c.Description }}
-        </p>
+        </p> -->
 
         <!-- Seats Left -->
         <div *ngIf="c.SeatsLeft <= 10"

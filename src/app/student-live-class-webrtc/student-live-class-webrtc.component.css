@@ -1,0 +1,354 @@
+/* ===================================================
+   ROOT
+=================================================== */
+.live-container {
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #0f172a, #111827);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===================================================
+   DESKTOP / MOBILE SWITCH
+=================================================== */
+.desktop-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-view {
+  display: none;
+}
+
+/* Hide desktop on tablets/mobiles */
+@media (max-width: 1024px) {
+
+  .desktop-view {
+    display: none;
+  }
+
+  .mobile-view {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+}
+
+/* ===================================================
+   JOIN OVERLAY
+=================================================== */
+.join-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.join-btn {
+  padding: 14px 40px;
+  border-radius: 50px;
+  background: #4f46e5;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.join-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4);
+}
+
+.join-btn:active {
+  transform: translateY(0);
+}
+
+/* ===================================================
+   DESKTOP LAYOUT
+=================================================== */
+.live-main {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-stage {
+  flex: 1;
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.camera-video {
+  position: absolute;
+  bottom: 70px;
+  right: 20px;
+  width: 220px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.speaker-label {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+/* ===================================================
+   DESKTOP CHAT
+=================================================== */
+.chat-panel {
+  width: 360px;
+  background: #1f2937;
+  border-left: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: -360px;
+  top: 0;
+  height: 100%;
+  transition: right 0.3s ease;
+  z-index: 50;
+}
+
+.chat-panel.chat-open {
+  right: 0;
+}
+
+.chat-header {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.chat-message {
+  margin-bottom: 12px;
+}
+
+.chat-meta {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.chat-text {
+  background: #374151;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.chat-input-wrap {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-input-wrap input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: #111827;
+  color: white;
+}
+
+/* ===================================================
+   CONTROL BAR
+=================================================== */
+.control-bar {
+  height: 55px;
+  background: rgba(15,23,42,0.95);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.control-btn {
+  padding: 6px 18px;
+  font-size: 13px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.mic-btn { background: #dc2626; color: white; }
+.chat-btn { background: #4f46e5; color: white; }
+.fs-btn { background: #10b981; color: white; }
+
+.badge {
+  background: red;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+/* ===================================================
+   MOBILE LAYOUT
+=================================================== */
+.mobile-video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 45vh;
+  background: black;
+}
+
+.mobile-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Fullscreen mode for mobile video */
+.mobile-video:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+}
+
+/* Fullscreen mode for temporary video element */
+video[data-temp-fullscreen]:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  background: black;
+}
+
+.mobile-camera {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 110px;
+  height: 75px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.mobile-fullscreen-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.mobile-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #1f2937;
+}
+
+.mobile-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.mobile-chat-input {
+  padding: 10px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.mobile-chat-input input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: #111827;
+  color: white;
+}
+
+/* ===================================================
+   FULLSCREEN MOBILE ENHANCEMENTS
+=================================================== */
+
+/* When fullscreen is active, ensure video fills entire viewport */
+body.mobile-fullscreen-active {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body.mobile-fullscreen-active video {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: contain !important;
+  background: black !important;
+}
+
+/* Ensure fullscreen elements break out properly */
+video:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: contain !important;
+  background: black !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* For landscape orientation specifically */
+@media (orientation: landscape) {
+  body.mobile-fullscreen-active {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  body.mobile-fullscreen-active video {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+/* For portrait orientation - video may not have rotated yet */
+@media (orientation: portrait) {
+  body.mobile-fullscreen-active video {
+    /* Video in fullscreen but device still portrait */
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+}
