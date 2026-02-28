@@ -44,24 +44,46 @@
         </div>
 
         <div class="chat-body" #chatContainer>
+          <!-- 🔄 Loading Indicator -->
+          <div *ngIf="isLoadingOlderMessages" class="chat-loading">
+            <div class="spinner"></div>
+            <span>Loading older messages...</span>
+          </div>
+
+          <!-- 🏁 End of Messages Indicator -->
+          <div *ngIf="!hasMoreMessages && messages.length > 0" class="chat-end-marker">
+            <p>📌 You've reached the beginning of the conversation</p>
+          </div>
+
+          <!-- 💬 Messages -->
           <div *ngFor="let msg of messages" class="chat-message">
             <div class="chat-meta">
-              {{ msg.user }} • {{ msg.time }}
+      {{ msg.SenderName }} • {{ msg.CreatedAt | date:'shortTime' }}
             </div>
             <div class="chat-text">
-              {{ msg.text }}
+      {{ msg.MessageText }}
             </div>
           </div>
         </div>
 
         <div class="chat-input-wrap">
-          <input type="text"
-                 [(ngModel)]="chatInput"
-                 (keydown.enter)="sendMessage()"
-                 placeholder="Type message..." />
+          <div class="chat-input-container">
+            <input type="text"
+                   [(ngModel)]="chatInput"
+                   (keydown.enter)="sendMessage()"
+                   [disabled]="isSendingMessage"
+                   placeholder="Type message..." />
+            <button (click)="sendMessage()" 
+                    [disabled]="isSendingMessage || !chatInput.trim()"
+                    class="send-btn">
+              <span *ngIf="!isSendingMessage">✓</span>
+              <span *ngIf="isSendingMessage" class="spinner-small"></span>
+            </button>
+          </div>
         </div>
 
-      </div>
+      </div> 
+             
 
     </div>
 
@@ -115,21 +137,42 @@
     <div class="mobile-chat">
 
       <div class="mobile-chat-body">
+        <!-- 🔄 Loading Indicator -->
+        <div *ngIf="isLoadingOlderMessages" class="chat-loading">
+          <div class="spinner"></div>
+          <span>Loading older messages...</span>
+        </div>
+
+        <!-- 🏁 End of Messages Indicator -->
+        <div *ngIf="!hasMoreMessages && messages.length > 0" class="chat-end-marker">
+          <p>📌 You've reached the beginning</p>
+        </div>
+
+        <!-- 💬 Messages -->
         <div *ngFor="let msg of messages" class="chat-message">
           <div class="chat-meta">
-            {{ msg.user }} • {{ msg.time }}
+            {{ msg.SenderName }} • {{ msg.CreatedAt | date:'shortTime' }}
           </div>
           <div class="chat-text">
-            {{ msg.text }}
+            {{ msg.MessageText }}
           </div>
         </div>
       </div>
 
       <div class="mobile-chat-input">
-        <input type="text"
-               [(ngModel)]="chatInput"
-               (keydown.enter)="sendMessage()"
-               placeholder="Type message..." />
+        <div class="chat-input-container">
+          <input type="text"
+                 [(ngModel)]="chatInput"
+                 (keydown.enter)="sendMessage()"
+                 [disabled]="isSendingMessage"
+                 placeholder="Type message..." />
+          <button (click)="sendMessage()" 
+                  [disabled]="isSendingMessage || !chatInput.trim()"
+                  class="send-btn">
+            <span *ngIf="!isSendingMessage">✓</span>
+            <span *ngIf="isSendingMessage" class="spinner-small"></span>
+          </button>
+        </div>
       </div>
 
     </div>

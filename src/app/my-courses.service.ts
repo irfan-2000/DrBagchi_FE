@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from './environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -86,6 +86,69 @@ const headers = new HttpHeaders({
    }); 
 
 }
+
+
+joinRoom(roomName: string, identity: any) {
+
+    const token = localStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    const body = {
+      roomName: roomName,
+      identity: identity
+    };
+
+    return this.http.post(`${this.baseurl}api/JoinClass`,   body,     { headers }
+    );
+  }
+
+
+ markAttendance(payload: any, token: string | null) {
+  return this.http.post(
+    `${this.baseurl}api/JoinClass`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+}
+
+getMessages(roomName: string, pageSize: number, lastMessageId?: number) {
+
+  return this.http.post<any[]>(
+    `${this.baseurl}api/guest/GetChat`,
+    {
+      RoomName: roomName,
+      PageSize: pageSize,
+      LastMessageId: lastMessageId
+    }
+  );
+}
+
+    getOlderMessages(roomName: string, pageSize: number, lastMessageId: number)
+      {
+  
+  return this.http.post<any[]>(
+    `${this.baseurl}api/guest/GetChat`,
+    {
+      RoomName: roomName,
+      PageSize: pageSize,
+      LastMessageId: lastMessageId
+    }
+  );
+  }
+
+   sendMessage(payload: any) {
+    return this.http.post<any>(
+      `${this.baseurl}api/guest/SendChat`,
+      payload
+    );
+  }
 
 
 }

@@ -210,7 +210,7 @@ JoinLiveSession(data: any)
   const params = new URLSearchParams({
     CourseId: data.courseId,
     BatchId: data.batchId,
-    ChatroomId:   data.streamkey,
+    ChatroomId:   data.chatroom_id,
      type: 'resume',
   }).toString();
 

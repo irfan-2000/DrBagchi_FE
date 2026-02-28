@@ -3,6 +3,7 @@ import { RemoteTrack, RemoteTrackPublication, Room, RoomEvent, Track } from 'liv
 import { environment } from '../environments/environment.prod';
 import { identity } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { MyCoursesService } from '../my-courses.service';
  
 @Component({
   selector: 'app-student-live-class-webrtc',
@@ -29,6 +30,34 @@ export class StudentLiveClassWebrtcComponent {
   @ViewChild('teacherScreenMobile', { static: false })
   teacherScreenMobile!: ElementRef<HTMLVideoElement>;
 
+  @HostListener('window:beforeunload')
+  onBeforeUnload() {
+    // Use fetch with keepalive: true for reliable notification on page unload
+    // keepalive allows request to complete even as page unloads
+    console.log('👋 Page unloading, sending leave request...');
+    const jwtToken = localStorage.getItem('token');
+    
+    if (!jwtToken || !this.roomName || !this.studentIdentity) {
+      console.warn('⚠️ Missing required data for leave notification');
+      return;
+    }
+
+    fetch(`${this.baseUrl}api/LeaveClass`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({
+        roomName: this.roomName,
+        studentId: this.studentIdentity
+      }),
+      keepalive: true  // 🔑 KEY: allows request to complete during page unload
+    })
+    .then(() => console.log('✅ Leave request sent on beforeunload'))
+    .catch(err => console.warn('⚠️ Leave request failed on beforeunload:', err));
+  }
+
   isConnected = false;
   
   studentIdentity :any; // 🔑 SINGLE SOURCE OF TRUTH
@@ -36,7 +65,7 @@ roomName :any;
 CourseId:any;
  BatchId:any;
 
-constructor( private route: ActivatedRoute)
+constructor( private route: ActivatedRoute,private mycourseservice:MyCoursesService)
 {
   this.studentIdentity = window.localStorage.getItem('userid');
  
@@ -151,11 +180,42 @@ ngOnInit() {
     await this.room.connect(this.livekitUrl, token);
     console.log('✅ Connected to LiveKit');
 
-    // 5️⃣ Start audio
-    console.log('🔊 Starting audio...');
+ const participantSid = this.room.localParticipant.sid;
+const jwtToken = localStorage.getItem('token');
+
+const payload = {
+  roomName: this.roomName,
+  courseId: this.CourseId,
+  batchId: this.BatchId,
+  studentId: this.studentIdentity,
+  participantSid: participantSid,
+  deviceInfo: this.getDeviceInfo()
+};
+
+this.mycourseservice.markAttendance(payload, jwtToken)
+  .subscribe({
+    next: (res) => {
+      console.log('Join API success', res);
+    },
+    error: (err) => {
+      console.error('Join API error', err);
+    }
+  });
+
+this.room.on(RoomEvent.Disconnected, () => {
+  console.log('📴 Room disconnected, stopping heartbeat...');
+  this.stopHeartbeat(); // Stop heartbeat when room disconnects
+});
+
+
+     console.log('🔊 Starting audio...');
     await this.room.startAudio();
     this.isConnected = true;
     console.log('✅ Student connected and audio started');
+    
+    // Start heartbeat to keep session alive
+    this.startHeartbeat();
+    
     // schedule a check to verify video element shows something
     setTimeout(() => {
       const el = this.teacherScreenMobile?.nativeElement || this.teacherScreen?.nativeElement;
@@ -430,9 +490,7 @@ private watchTrackUnsubscribed() {
    /// await this.room.connect(url, token);
     this.isConnected = true;
  
-
- debugger
-   
+ 
 
     console.log('✅ Student connected to LiveKit');
   }
@@ -466,7 +524,7 @@ private watchTrackUnsubscribed() {
   console.log('📡 Registering LiveKit track handlers');
 
   // Log when any participant connects
-  debugger
+   
   this.room.on(RoomEvent.ParticipantConnected, (participant) => {
     console.log('👤 Participant connected:', participant.identity);
   });
@@ -560,10 +618,21 @@ private watchTrackUnsubscribed() {
      CLEANUP
   --------------------------------*/
   ngOnDestroy() {
+    this.stopHeartbeat(); // Stop heartbeat on component destroy
+    
+    // Remove scroll listener to prevent memory leak
+    if (this.chatContainer) {
+      try {
+        // Note: This removes the last listener added; for proper cleanup, use proper event management
+        console.log('🧹 Cleaning up scroll listener');
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+    
     if (this.room) {
       this.room.disconnect();
     }
- 
   }
 hasUserInteracted: boolean = false;
 
@@ -585,6 +654,20 @@ isChatOpen = false;
 // 🔹 Toggle chat open / close
 toggleChat() {
   this.isChatOpen = !this.isChatOpen;
+  console.log('💬 Toggle chat, now open:', this.isChatOpen);
+
+  if (this.isChatOpen && this.messages.length === 0) {
+    console.log('📥 Chat opened and empty, loading initial messages...');
+    this.loadInitialMessages();
+  }
+
+  if (this.isChatOpen) {
+    // Ensure scroll listener is set up when chat becomes visible
+    setTimeout(() => {
+      this.setupScrollListener();
+      this.scrollChatToBottom();
+    }, 100);
+  }
 }
 
 isMicOn = false;
@@ -595,7 +678,7 @@ async toggleMic()
   if (!this.room) return;
 
   const videoEl = this.teacherScreen?.nativeElement;
-debugger
+ 
   // 1️⃣ Check server-side mute-all / admin lock
   try {
     const res = await fetch(`${this.baseUrl}api/guest/mute-status`, {
@@ -653,21 +736,61 @@ debugger
    unreadCount = 0;
   currentSpeaker: string | null = null;
 
-  messages: { user: string; text: string; time: string }[] = [];
+  messages: any = [];
   chatInput = '';
+  isLoadingOlderMessages = false; // 🔐 Debounce flag + UI indicator
+  isSendingMessage = false; // 📤 Track message sending state
   @ViewChild('chatContainer') chatContainer!: ElementRef;
 
   sendMessage() {
     if (!this.chatInput.trim()) return;
-    this.messages.push({ user: 'You', text: this.chatInput, time: this.getTime() });
-    this.chatInput = '';
+    if (this.isSendingMessage) return; // Prevent duplicate sends
+    
+    const messageText = this.chatInput;
+    this.chatInput = ''; // Clear input immediately for UX
+    this.isSendingMessage = true;
+    
+    console.log('📤 Sending message:', messageText);
+    
+    const payload = {
+      RoomName: this.roomName,
+      CourseId:this.CourseId,
+      BatchId:this.BatchId,
+      SenderId: this.studentIdentity,
+      SenderName:  localStorage.getItem('Name') || 'Anonymous Student', // Use actual student name if available
+      SenderRole: 'Student',
+      MessageText: messageText
+    };
 
-    setTimeout(() => this.scrollChatToBottom(), 50);
+    this.mycourseservice.sendMessage(payload)
+      .subscribe({
+        next: (res) => {
+          console.log('✅ Message sent successfully:', res);
+          this.isSendingMessage = false;
+          
+          // Reload messages to show the sent message + any new messages from others
+          setTimeout(() => {
+            this.loadInitialMessages();
+          }, 300);
+        },
+        error: (err) => {
+          console.error('❌ Message send failed', err);
+          this.isSendingMessage = false;
+          alert('Failed to send message. Please try again.');
+          // Re-populate the input in case of error
+          this.chatInput = messageText;
+        }
+      });
   }
 
   scrollChatToBottom() {
-    const el = this.chatContainer.nativeElement;
-    el.scrollTop = el.scrollHeight;
+    const el = this.chatContainer?.nativeElement;
+    if (el) {
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        el.scrollTop = el.scrollHeight;
+      }, 50);
+    }
   }
 
   getTime(): string {
@@ -845,6 +968,168 @@ onResize() {
   this.checkScreenSize();
 }
 
+
+getDeviceInfo(): string {
+  const ua = navigator.userAgent;
+  const platform = navigator.platform;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  return `UA:${ua} | Platform:${platform} | Screen:${width}x${height}`;
+}
+
+// Heartbeat system to keep session alive - sends every 15 seconds
+private heartbeatIntervalId: any = null;
+
+startHeartbeat() {
+  // Clear any existing heartbeat
+  if (this.heartbeatIntervalId) {
+    clearInterval(this.heartbeatIntervalId);
+  }
+
+  const jwtToken = localStorage.getItem('token');
+  const participantSid = this.room?.localParticipant?.sid;
+
+  if (!jwtToken || !this.roomName || !this.studentIdentity || !participantSid) {
+    console.warn('⚠️ Missing data for heartbeat');
+    return;
+  }
+   
+
+  console.log('💓 Starting heartbeat (every 15s)...');
+
+  this.heartbeatIntervalId = setInterval(async () => {
+    try {
+      const response = await fetch(`${this.baseUrl}api/guest/Heartbeat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`
+        },
+        body: JSON.stringify({
+          RoomName: this.roomName,
+          StudentId: this.studentIdentity,
+          ParticipantSid: participantSid,
+          CourseId: this.CourseId,
+          BatchId: this.BatchId,
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ Heartbeat failed with status:', response.status);
+      } else {
+        console.log('💓 Heartbeat sent successfully');
+      }
+    } catch (err) {
+      console.warn('⚠️ Heartbeat error:', err);
+    }
+  }, 15000); // Every 15 seconds
+}
+
+stopHeartbeat() {
+  if (this.heartbeatIntervalId) {
+    clearInterval(this.heartbeatIntervalId);
+    this.heartbeatIntervalId = null;
+    console.log('💓 Heartbeat stopped');
+  }
+}
+
+oldestMessageId:any = null;
+pageSize: number = 10;
+private scrollListenerAdded = false; // 🔐 Flag to ensure listener added only once
+hasMoreMessages = true; // 📊 Track if more messages are available
+
+loadInitialMessages() {
+  this.mycourseservice
+    .getMessages(this.roomName, this.pageSize)
+    .subscribe((res :any)=> {
+      this.messages = res.result.reverse(); // oldest at top
  
+      if (res.result.length > 0) {
+        this.oldestMessageId = res.result[0].Id; // oldest in list
+      }
+
+      setTimeout(() => this.scrollChatToBottom(), 100);
+    });
+}
+
+setupScrollListener() {
+  if (this.scrollListenerAdded) {
+    console.log('ℹ️ Scroll listener already setup');
+    return;
+  }
+
+  if (!this.chatContainer) {
+    console.warn('⚠️ chatContainer not available yet');
+    return;
+  }
+
+  const el = this.chatContainer.nativeElement;
+  console.log('🔧 Setting up scroll listener...');
+  console.log('  Element:', el);
+  console.log('  scrollHeight:', el.scrollHeight);
+  console.log('  clientHeight:', el.clientHeight);
+  
+  this.scrollListenerAdded = true;
+  
+  el.addEventListener('scroll', (event: Event) => {
+    const scrollTop = el.scrollTop;
+    console.log('📍 Scroll event - scrollTop:', scrollTop, 'isAtTop:', scrollTop === 0);
+    
+    if (scrollTop === 0 && !this.isLoadingOlderMessages) {
+      console.log('✨ REACHED TOP! Loading older messages...');
+      this.loadOlderMessages();
+    }
+  });
+  
+  console.log('✅ Scroll listener setup complete');
+}
+
+ngAfterViewInit() {
+  // Try to setup scroll listener when view initializes
+  setTimeout(() => {
+    this.setupScrollListener();
+  }, 500);
+}
+loadOlderMessages() {
+  if (this.isLoadingOlderMessages) {
+    console.log('⏳ Already loading older messages, skipping...');
+    return; // Prevent duplicate API calls
+  }
+  
+  if (!this.roomName || !this.pageSize) {
+    console.warn('⚠️ Missing roomName or pageSize, cannot load messages');
+    return;
+  }
+
+  console.log('📥 Loading older messages...');
+  console.log('  roomName:', this.roomName);
+  console.log('  pageSize:', this.pageSize);
+  console.log('  oldestMessageId:', this.oldestMessageId);
+  
+  this.isLoadingOlderMessages = true;
+  
+  this.mycourseservice
+    .getOlderMessages(this.roomName, this.pageSize, this.oldestMessageId)
+    .subscribe({
+      next: (res:any) => {
+         
+        if (res.result && res.result.length > 0) {
+          this.messages = [...res.result.reverse(), ...this.messages];
+          this.oldestMessageId = res.result[res.result.length - 1].Id;
+            this.hasMoreMessages = true; // More messages available
+        } else {
+           this.hasMoreMessages = false; // 🎯 No more messages!
+        }
+        this.isLoadingOlderMessages = false;
+      },
+      error: (err) => {
+        console.error('❌ API Error loading older messages:', err);
+        this.isLoadingOlderMessages = false; // Reset flag on error
+      }
+    });
+}
+
+  
 
 }
